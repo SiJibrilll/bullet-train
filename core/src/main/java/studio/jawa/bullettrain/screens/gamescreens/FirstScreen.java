@@ -1,4 +1,4 @@
-package studio.jawa.bullettrain;
+package studio.jawa.bullettrain.screens.gamescreens;
 
 import com.badlogic.gdx.Screen;
 
