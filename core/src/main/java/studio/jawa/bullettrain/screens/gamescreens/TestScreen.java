@@ -11,8 +11,13 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
+import studio.jawa.bullettrain.components.gameplays.enemies.EnemyBehaviourComponent;
+import studio.jawa.bullettrain.components.gameplays.enemies.EnemyStateComponent;
+import studio.jawa.bullettrain.entities.enemies.EnemyEntity;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 import studio.jawa.bullettrain.entities.testing.TestingDummy;
+import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyChaseSystem;
+import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
 import studio.jawa.bullettrain.systems.technicals.MovementSystem;
 import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
@@ -31,23 +36,35 @@ public class TestScreen implements Screen {
         viewport = new ExtendViewport(camera.viewportWidth, camera.viewportHeight, camera);
         camera.update();
 
-        engine.addSystem(new RenderingSystem(camera));
+
         AssetManager manager = new AssetManager();
 
         manager.load("testing/dummy.png", Texture.class);
+        manager.load("testing/dummy2.png", Texture.class);
 
         manager.finishLoading();
 
         Texture tex = manager.get("testing/dummy.png", Texture.class);
+        Texture enemytex = manager.get("testing/dummy2.png", Texture.class);
 
         GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
+        GeneralStatsComponent enemystat = new GeneralStatsComponent(10, 200);
 //        TestingDummy dummy = new TestingDummy(50, 50, tex);
         PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
 
+        EnemyBehaviourComponent behaviour = new EnemyBehaviourComponent(100, 10, 40, false);
+
+        EnemyEntity enemy = new EnemyEntity(300, 300, enemytex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
 
         engine.addEntity(player);
+        engine.addEntity(enemy);
         engine.addSystem(new InputMovementSystem(engine));
+        engine.addSystem(new EnemyIdleSystem(engine));
+        engine.addSystem(new EnemyChaseSystem(engine));
         engine.addSystem(new MovementSystem(engine));
+
+
+        engine.addSystem(new RenderingSystem(camera));
     }
 
     @Override
