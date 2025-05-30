@@ -25,8 +25,9 @@ public class PlayerFactory {
     
     public static Entity createPlayerAtCarriageEntry(int carriageNumber) {
         // Calculate spawn position at carriage entry
-        float spawnX = GameConstants.CARRIAGE_WIDTH / 2f; // Center horizontal
-        float spawnY = GameConstants.ENTRY_ZONE_HEIGHT + 50f; // Just above entry zone
+        float spawnX = GameConstants.CARRIAGE_WIDTH / 2f; 
+        float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
+        float spawnY = carriageY + GameConstants.ENTRY_ZONE_HEIGHT + 50f; 
         
         Entity player = createPlayer(spawnX, spawnY);
         

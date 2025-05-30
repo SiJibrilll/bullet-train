@@ -5,106 +5,52 @@ import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.level.OpenLayoutComponent;
 import studio.jawa.bullettrain.data.CarriageType;
 import studio.jawa.bullettrain.data.GameConstants;
+import studio.jawa.bullettrain.data.ObjectType;
 import com.badlogic.gdx.utils.Array;
 
 public class TrainCarriageGenerator {
 
     public static OpenLayoutComponent generateLayout(CarriageType carriageType, long seed, int carriageNumber) {
-        // Set seed untuk consistent generation (SEMENTARA)
+        // Set seed untuk consistent generation
         MathUtils.random.setSeed(seed);
 
         OpenLayoutComponent layout = new OpenLayoutComponent();
 
-        // Generate berdasarkan carriage type
-        switch (carriageType) {
-            case PASSENGER:
-                generatePassengerLayout(layout, carriageNumber);
-                break;
-            case CARGO:
-                generateCargoLayout(layout, carriageNumber);
-                break;
-            case DINING:
-                generateDiningLayout(layout, carriageNumber);
-                break;
-            case ENGINE:
-                generateEngineLayout(layout, carriageNumber);
-                break;
-            case CABOOSE:
-                generateCabooseLayout(layout, carriageNumber);
-                break;
-        }
-
-        // Add difficulty-based random elements
-        addRandomElements(layout, carriageNumber);
+        // Generate objects - SAME for all carriage types (truly random and fair)
+        generateRandomLayout(layout, carriageNumber);
 
         return layout;
     }
 
-    private static void generatePassengerLayout(OpenLayoutComponent layout, int carriageNumber) {
-        // Passenger: scattered obstacles, moderate enemies
-        int obstacleCount = MathUtils.random(3, 5);
-        int enemyCount = MathUtils.random(2, 3);
-        int pickupCount = MathUtils.random(1, 2);
+    // NEW: Single method for all carriage types - truly random and fair
+    private static void generateRandomLayout(OpenLayoutComponent layout, int carriageNumber) {
+        // Objects: Completely random for all carriages (3-8 objects per carriage)
+        int objectCount = MathUtils.random(4, 15);
+        
+        // Skip enemy and pickup generation for now as requested
+        // int enemyCount = MathUtils.random(1, 3);
+        // int pickupCount = MathUtils.random(1, 2);
 
-        generateRandomPositions(layout.obstaclePositions, obstacleCount);
-        generateRandomPositions(layout.enemySpawnPoints, enemyCount);
-        generateRandomPositions(layout.pickupSpawnPoints, pickupCount);
+        generateRandomObjectPositions(layout.obstaclePositions, objectCount);
+        // generateRandomPositions(layout.enemySpawnPoints, enemyCount);
+        // generateRandomPositions(layout.pickupSpawnPoints, pickupCount);
     }
 
-    private static void generateCargoLayout(OpenLayoutComponent layout, int carriageNumber) {
-        // Cargo: more obstacles, fewer enemies
-        int obstacleCount = MathUtils.random(5, 8);
-        int enemyCount = MathUtils.random(1, 2);
-        int pickupCount = MathUtils.random(1, 3);
 
-        generateRandomPositions(layout.obstaclePositions, obstacleCount);
-        generateRandomPositions(layout.enemySpawnPoints, enemyCount);
-        generateRandomPositions(layout.pickupSpawnPoints, pickupCount);
-    }
 
-    private static void generateDiningLayout(OpenLayoutComponent layout, int carriageNumber) {
-        // Dining: balanced layout
-        int obstacleCount = MathUtils.random(4, 6);
-        int enemyCount = MathUtils.random(2, 4);
-        int pickupCount = MathUtils.random(2, 3);
-
-        generateRandomPositions(layout.obstaclePositions, obstacleCount);
-        generateRandomPositions(layout.enemySpawnPoints, enemyCount);
-        generateRandomPositions(layout.pickupSpawnPoints, pickupCount);
-    }
-
-    private static void generateEngineLayout(OpenLayoutComponent layout, int carriageNumber) {
-        // Engine: boss area, fewer but stronger
-        int obstacleCount = MathUtils.random(3, 5);
-        int enemyCount = MathUtils.random(1, 2); // Fewer but stronger enemies
-        int pickupCount = MathUtils.random(2, 3);
-
-        generateRandomPositions(layout.obstaclePositions, obstacleCount);
-        generateRandomPositions(layout.enemySpawnPoints, enemyCount);
-        generateRandomPositions(layout.pickupSpawnPoints, pickupCount);
-    }
-
-    private static void generateCabooseLayout(OpenLayoutComponent layout, int carriageNumber) {
-        // Caboose: final challenge
-        int obstacleCount = MathUtils.random(4, 7);
-        int enemyCount = MathUtils.random(3, 5);
-        int pickupCount = MathUtils.random(1, 2);
-
-        generateRandomPositions(layout.obstaclePositions, obstacleCount);
-        generateRandomPositions(layout.enemySpawnPoints, enemyCount);
-        generateRandomPositions(layout.pickupSpawnPoints, pickupCount);
+    // Generate positions for objects (replaces old obstacle generation)
+    private static void generateRandomObjectPositions(Array<Vector2> positions, int count) {
+        generateRandomPositions(positions, count);
     }
 
     private static void generateRandomPositions(Array<Vector2> positions, int count) {
         float minX = (GameConstants.CARRIAGE_WIDTH - GameConstants.PLAYABLE_WIDTH) / 2f + 50f;
-        float maxX = minX + GameConstants.PLAYABLE_WIDTH - 50f;
+        float maxX = minX + GameConstants.PLAYABLE_WIDTH - 100f;
         float minY = GameConstants.ENTRY_ZONE_HEIGHT + 50f;
         float maxY = GameConstants.CARRIAGE_HEIGHT - GameConstants.EXIT_ZONE_HEIGHT - 50f;
 
         for (int i = 0; i < count; i++) {
             Vector2 position = new Vector2();
-
-            // Generate position dengan minimum distance dari existing positions
             boolean validPosition = false;
             int attempts = 0;
 
@@ -112,9 +58,8 @@ public class TrainCarriageGenerator {
                 position.set(MathUtils.random(minX, maxX), MathUtils.random(minY, maxY));
 
                 validPosition = true;
-                // Check distance dari existing positions
                 for (Vector2 existing : positions) {
-                    if (position.dst(existing) < 80f) { // Minimum distance 80 units
+                    if (position.dst(existing) < 80f) {
                         validPosition = false;
                         break;
                     }
@@ -127,22 +72,17 @@ public class TrainCarriageGenerator {
     }
 
     private static void addRandomElements(OpenLayoutComponent layout, int carriageNumber) {
-        // Add extra random elements based on difficulty
-        int extraElements = carriageNumber / 2; // More elements in later carriages
+        // Add extra random objects (0-2 extra objects randomly)
+        int extraObjects = MathUtils.random(0, 2);
 
-        for (int i = 0; i < extraElements; i++) {
-            float chance = MathUtils.random();
-
-            if (chance < 0.5f) {
-                // Add extra obstacle
-                generateRandomPositions(layout.obstaclePositions, 1);
-            } else if (chance < 0.8f) {
-                // Add extra enemy
-                generateRandomPositions(layout.enemySpawnPoints, 1);
-            } else {
-                // Add extra pickup
-                generateRandomPositions(layout.pickupSpawnPoints, 1);
-            }
+        for (int i = 0; i < extraObjects; i++) {
+            generateRandomObjectPositions(layout.obstaclePositions, 1);
         }
+        
+        // Skip progressive enemy difficulty for now
+        // int extraEnemies = carriageNumber / 3;
+        // if (extraEnemies > 0) {
+        //     generateRandomPositions(layout.enemySpawnPoints, extraEnemies);
+        // }
     }
 }

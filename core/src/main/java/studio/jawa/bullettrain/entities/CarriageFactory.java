@@ -10,6 +10,11 @@ import studio.jawa.bullettrain.data.CarriageType;
 import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.generation.TrainCarriageGenerator;
 import studio.jawa.bullettrain.entities.DoorFactory; 
+import studio.jawa.bullettrain.data.ObjectType;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.math.Vector2;
 
 public class CarriageFactory {
 
@@ -83,6 +88,53 @@ public class CarriageFactory {
 
         for (int i = 0; i < layout.pickupSpawnPoints.size; i++) {
             layout.pickupSpawnPoints.get(i).y += yOffset;
+        }
+    }
+
+    // Add asset manager parameter for object textures
+    public static Entity[] createCarriageWithObjects(int carriageNumber, long baseSeed, int maxCarriages, AssetManager assetManager) {
+        // Create main carriage
+        Entity carriage = createCarriage(carriageNumber, baseSeed);
+        
+        // Generate objects from layout
+        OpenLayoutComponent layout = carriage.getComponent(OpenLayoutComponent.class);
+        createObjectsFromLayout(layout, carriageNumber, assetManager);
+        
+        // Calculate carriage Y position
+        float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
+        
+        // Create doors array (carriage + doors + objects)
+        Array<Entity> entityList = new Array<>();
+        entityList.add(carriage);
+        
+        // Add doors
+        if (carriageNumber > 1) {
+            entityList.add(DoorFactory.createEntryDoor(carriageNumber, carriageY));
+        }
+        if (carriageNumber < maxCarriages) {
+            entityList.add(DoorFactory.createExitDoor(carriageNumber, carriageY));
+        }
+        
+        // Add objects
+        for (Entity object : layout.objectEntities) {
+            entityList.add(object);
+        }
+        
+        return entityList.toArray(Entity.class);
+    }
+    
+    private static void createObjectsFromLayout(OpenLayoutComponent layout, int carriageNumber, AssetManager assetManager) {
+        // Create objects from obstacle positions
+        for (Vector2 position : layout.obstaclePositions) {
+            ObjectType randomType = ObjectType.getRandomType();
+            
+            if (!assetManager.isLoaded(randomType.texturePath)) {
+                continue;
+            }
+            
+            Texture texture = assetManager.get(randomType.texturePath, Texture.class);
+            Entity object = ObjectFactory.createObject(randomType, position, carriageNumber, texture);
+            layout.objectEntities.add(object);
         }
     }
 

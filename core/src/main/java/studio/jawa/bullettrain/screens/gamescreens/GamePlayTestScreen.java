@@ -23,15 +23,18 @@ import studio.jawa.bullettrain.systems.technicals.CameraSystem;
 import studio.jawa.bullettrain.systems.technicals.CarriageTransitionSystem;
 import studio.jawa.bullettrain.systems.technicals.DoorInteractionSystem;
 import studio.jawa.bullettrain.systems.technicals.PlayerMovementSystem;
+import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 import studio.jawa.bullettrain.components.level.DoorComponent;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent; 
+import studio.jawa.bullettrain.data.ObjectType;
+import studio.jawa.bullettrain.systems.technicals.CollisionSystem;
 
 public class GamePlayTestScreen implements Screen {
     private Engine engine;
     private OrthographicCamera camera;
     private ShapeRenderer shapeRenderer;
     private CameraSystem cameraSystem;
-    
+    private RenderingSystem renderingSystem;
 
     private ComponentMapper<TransformComponent> transformMapper;
     private ComponentMapper<PlayerComponent> playerMapper;
@@ -71,46 +74,42 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new PlayerMovementSystem());
         engine.addSystem(new CarriageTransitionSystem());
         engine.addSystem(new DoorInteractionSystem());
+        engine.addSystem(new CollisionSystem()); 
         cameraSystem = new CameraSystem(camera);
         engine.addSystem(cameraSystem);
+        renderingSystem = new RenderingSystem(camera);
+        engine.addSystem(renderingSystem);
 
         // Create player
         createPlayer();
-
-        System.out.println("=== MULTI-CARRIAGE TEST SCREEN ===");
-        System.out.println("Controls:");
-        System.out.println("WASD/Arrow Keys - Move player");
-        System.out.println("E - Interact with doors");
-        System.out.println("ESC - Exit");
-        System.out.println("Player starts in carriage 1. Move UP to go to carriage 2, 3, etc.");
     }
 
     private void createPlayer() {
         player = PlayerFactory.createPlayerAtCarriageEntry(1);
         engine.addEntity(player);
-
-        System.out.println("Player created at carriage 1 entry");
     }
 
     @Override
     public void render(float delta) {
         handleInput();
 
-        // Update ECS
-        engine.update(delta);
-
         // Clear screen
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Set camera matrix
+        // Update ECS (this will update camera position and render sprites)
+        engine.update(delta);
+
+        // Set camera matrix for shape rendering
         shapeRenderer.setProjectionMatrix(camera.combined);
 
-        // Render
+        // Render shapes AFTER sprite rendering (carriages, doors, player)
         renderAllCarriages();
         renderAllDoors();
         renderPlayer();
         renderUI();
+        
+        // Note: Objects with sprites are rendered by RenderingSystem during engine.update()
     }
 
     private void handleInput() {
@@ -167,32 +166,6 @@ public class GamePlayTestScreen implements Screen {
                         boundary.exitZone.width, boundary.exitZone.height);
 
         shapeRenderer.end();
-        
-
-        // Draw elements
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        // Obstacles (red squares)
-        shapeRenderer.setColor(1, 0, 0, 1);
-        for (Vector2 pos : layout.obstaclePositions) {
-            shapeRenderer.rect(pos.x - 15, pos.y - 15, 30, 30);
-        }
-
-        // Enemy spawns (yellow circles)
-        shapeRenderer.setColor(1, 1, 0, 1);
-        for (Vector2 pos : layout.enemySpawnPoints) {
-            shapeRenderer.circle(pos.x, pos.y, 12);
-        }
-
-        // Pickups (green diamonds)
-        shapeRenderer.setColor(0, 1, 0, 1);
-        for (Vector2 pos : layout.pickupSpawnPoints) {
-            shapeRenderer.rect(pos.x - 8, pos.y - 8, 16, 16);
-        }
-
-        shapeRenderer.end();
-
-        
     }
 
 
@@ -277,13 +250,13 @@ public class GamePlayTestScreen implements Screen {
         
         // Draw door rectangle
         shapeRenderer.rect(
-            transform.position.x - 30f, // Door width = 60
-            transform.position.y - 40f, // Door height = 80  
+            transform.position.x - 30f, 
+            transform.position.y - 40f, 
             60f, 80f
         );
         
         // Draw door handle/indicator
-        shapeRenderer.setColor(1f, 1f, 1f, 1f); // White handle
+        shapeRenderer.setColor(1f, 1f, 1f, 1f); 
         if (doorComp.doorType == DoorComponent.DoorType.EXIT_TO_NEXT) {
             // Up arrow for exit doors
             float x = transform.position.x;
@@ -313,7 +286,7 @@ public class GamePlayTestScreen implements Screen {
         
         // Interaction radius (when player nearby)
         if (doorComp.isPlayerNearby) {
-            shapeRenderer.setColor(1f, 1f, 0f, 0.3f); // Yellow interaction area
+            shapeRenderer.setColor(1f, 1f, 0f, 0.3f); 
             shapeRenderer.circle(transform.position.x, transform.position.y, 50f);
         }
     }

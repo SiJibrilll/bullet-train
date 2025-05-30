@@ -15,6 +15,9 @@ import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.entities.CarriageFactory;
 import com.badlogic.gdx.utils.IntArray;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
+import studio.jawa.bullettrain.data.ObjectType;
 
 public class CarriageTransitionSystem extends EntitySystem {
 
@@ -26,6 +29,7 @@ public class CarriageTransitionSystem extends EntitySystem {
 
     private Entity carriageManager;
     private long baseSeed = 12345L; // Base seed untuk generation
+    private AssetManager assetManager;
 
     public CarriageTransitionSystem() {
         transformMapper = ComponentMapper.getFor(TransformComponent.class);
@@ -33,6 +37,16 @@ public class CarriageTransitionSystem extends EntitySystem {
         managerMapper = ComponentMapper.getFor(CarriageManagerComponent.class);
         boundaryMapper = ComponentMapper.getFor(CarriageBoundaryComponent.class);
         carriageMapper = ComponentMapper.getFor(TrainCarriageComponent.class);
+        setupAssetManager();
+    }
+    
+    private void setupAssetManager() {
+        assetManager = new AssetManager();
+        // Load all object textures
+        for (ObjectType objectType : ObjectType.values()) {
+            assetManager.load(objectType.texturePath, Texture.class);
+        }
+        assetManager.finishLoading();
     }
 
     @Override
@@ -69,33 +83,24 @@ public class CarriageTransitionSystem extends EntitySystem {
         carriageManager = new Entity();
         carriageManager.add(new CarriageManagerComponent());
         getEngine().addEntity(carriageManager);
-
-        System.out.println("Carriage Manager created");
     }
 
     private void loadInitialCarriages() {
-    CarriageManagerComponent manager = managerMapper.get(carriageManager);
+        CarriageManagerComponent manager = managerMapper.get(carriageManager);
 
-    for (int i = 1; i <= 3; i++) {
-        // OLD: Entity carriage = CarriageFactory.createCarriage(i, baseSeed);
-        // NEW: Use method that creates carriage + doors
-        Entity[] carriageEntities = CarriageFactory.createCarriageWithDoors(
-            i, baseSeed, manager.maxCarriages
-        );
-        
-        // Add main carriage to manager
-        Entity carriage = carriageEntities[0];
-        manager.addCarriage(i, carriage);
-        
-        // Add all entities (carriage + doors) to engine
-        for (Entity entity : carriageEntities) {
-            getEngine().addEntity(entity);
+        for (int i = 1; i <= 3; i++) {
+            Entity[] carriageEntities = CarriageFactory.createCarriageWithObjects(
+                i, baseSeed, manager.maxCarriages, assetManager
+            );
+            
+            Entity carriage = carriageEntities[0];
+            manager.addCarriage(i, carriage);
+            
+            for (Entity entity : carriageEntities) {
+                getEngine().addEntity(entity);
+            }
         }
-
-        System.out.println("🚂 Loaded initial carriage " + i + " with " + 
-                          (carriageEntities.length - 1) + " doors");
     }
-}
 
     private void checkPlayerTransitions(Entity player) {
         TransformComponent playerTransform = transformMapper.get(player);
@@ -111,9 +116,6 @@ public class CarriageTransitionSystem extends EntitySystem {
         // Check if player has moved to a different carriage
         if (targetCarriageNumber != playerComp.currentCarriageNumber) {
             // Player transition!
-            System.out.println("Player transitioning from carriage " +
-                             playerComp.currentCarriageNumber + " to " + targetCarriageNumber);
-
             playerComp.currentCarriageNumber = targetCarriageNumber;
             manager.currentCarriageNumber = targetCarriageNumber;
 
@@ -163,9 +165,9 @@ public class CarriageTransitionSystem extends EntitySystem {
             }
         }
 
-        // Unload carriages outside window - FIX: proper IntArray iteration
-        IntArray loadedKeys = manager.loadedCarriages.keys().toArray(); // ⭐ GET IntArray
-        for (int i = 0; i < loadedKeys.size; i++) { // ⭐ ITERATE by index
+        // Unload carriages outside window
+        IntArray loadedKeys = manager.loadedCarriages.keys().toArray();
+        for (int i = 0; i < loadedKeys.size; i++) { 
             int carriageNum = loadedKeys.get(i);
             if (carriageNum < startCarriage || carriageNum > endCarriage) {
                 unloadCarriage(carriageNum, manager);
@@ -174,31 +176,23 @@ public class CarriageTransitionSystem extends EntitySystem {
     }
 
     private void loadCarriage(int carriageNumber, CarriageManagerComponent manager) {
-    // Use new method that creates carriage + doors
-    Entity[] carriageEntities = CarriageFactory.createCarriageWithDoors(
-        carriageNumber, baseSeed, manager.maxCarriages
-    );
-    
-    // Add main carriage to manager
-    Entity carriage = carriageEntities[0];
-    manager.addCarriage(carriageNumber, carriage);
-    
-    // Add all entities (carriage + doors) to engine
-    for (Entity entity : carriageEntities) {
-        getEngine().addEntity(entity);
+        Entity[] carriageEntities = CarriageFactory.createCarriageWithObjects(
+            carriageNumber, baseSeed, manager.maxCarriages, assetManager
+        );
+        
+        Entity carriage = carriageEntities[0];
+        manager.addCarriage(carriageNumber, carriage);
+        
+        for (Entity entity : carriageEntities) {
+            getEngine().addEntity(entity);
+        }
     }
-    
-    System.out.println("🚂 Loaded carriage " + carriageNumber + " with " + 
-                      (carriageEntities.length - 1) + " doors");
-}
 
     private void unloadCarriage(int carriageNumber, CarriageManagerComponent manager) {
         Entity carriage = manager.getCarriage(carriageNumber);
         if (carriage != null) {
             getEngine().removeEntity(carriage);
             manager.removeCarriage(carriageNumber);
-
-            System.out.println("🗑️ Unloaded carriage " + carriageNumber);
         }
     }
 }
