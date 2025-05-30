@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 import studio.jawa.bullettrain.entities.testing.TestingDummy;
 import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
@@ -39,8 +40,9 @@ public class TestScreen implements Screen {
 
         Texture tex = manager.get("testing/dummy.png", Texture.class);
 
+        GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
 //        TestingDummy dummy = new TestingDummy(50, 50, tex);
-        PlayerEntity player = new PlayerEntity(50, 50, tex);
+        PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
 
 
         engine.addEntity(player);
