@@ -7,4 +7,10 @@ public class TransformComponent implements Component {
     public final Vector2 position = new Vector2();
     public float rotation = 0f;
     public float scale = 1f;
+
+    public TransformComponent(float x, float y) {
+        position.x = x;
+        position.y = y;
+    }
+
 }

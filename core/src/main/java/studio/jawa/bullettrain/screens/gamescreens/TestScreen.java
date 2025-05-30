@@ -1,16 +1,13 @@
 package studio.jawa.bullettrain.screens.gamescreens;
 
 import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import studio.jawa.bullettrain.components.technicals.SpriteComponent;
-import studio.jawa.bullettrain.components.technicals.TransformComponent;
+import studio.jawa.bullettrain.entities.testing.TestingDummy;
 import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 
 /** First screen of the application. Displayed after the application is created. */
@@ -34,16 +31,9 @@ public class TestScreen implements Screen {
 
         Texture tex = manager.get("testing/dummy.png", Texture.class);
 
-        // Example entity
-        Sprite sprite = new Sprite(tex);
-        Entity entity = new Entity();
-        TransformComponent pos = new TransformComponent();
-        pos.position.x = 50;
-        pos.position.y = 50;
-        entity.add(pos);
-        entity.add(new SpriteComponent(sprite));
+        TestingDummy dummy = new TestingDummy(50, 50, tex);
 
-        engine.addEntity(entity);
+        engine.addEntity(dummy);
     }
 
     @Override
