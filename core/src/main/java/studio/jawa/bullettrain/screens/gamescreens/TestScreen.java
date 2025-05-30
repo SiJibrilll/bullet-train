@@ -7,19 +7,27 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import studio.jawa.bullettrain.entities.players.PlayerEntity;
 import studio.jawa.bullettrain.entities.testing.TestingDummy;
+import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
+import studio.jawa.bullettrain.systems.technicals.MovementSystem;
 import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 
 /** First screen of the application. Displayed after the application is created. */
 public class TestScreen implements Screen {
     private Engine engine;
     private OrthographicCamera camera;
+    private Viewport viewport;
 
     @Override
     public void show() {
         engine = new Engine();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+        viewport = new ExtendViewport(camera.viewportWidth, camera.viewportHeight, camera);
         camera.update();
 
         engine.addSystem(new RenderingSystem(camera));
@@ -31,9 +39,13 @@ public class TestScreen implements Screen {
 
         Texture tex = manager.get("testing/dummy.png", Texture.class);
 
-        TestingDummy dummy = new TestingDummy(50, 50, tex);
+//        TestingDummy dummy = new TestingDummy(50, 50, tex);
+        PlayerEntity player = new PlayerEntity(50, 50, tex);
 
-        engine.addEntity(dummy);
+
+        engine.addEntity(player);
+        engine.addSystem(new InputMovementSystem(engine));
+        engine.addSystem(new MovementSystem(engine));
     }
 
     @Override
@@ -46,6 +58,7 @@ public class TestScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        viewport.update(width, height);
         // If the window is minimized on a desktop (LWJGL3) platform, width and height are 0, which causes problems.
         // In that case, we don't resize anything, and wait for the window to be a normal size before updating.
         if(width <= 0 || height <= 0) return;
