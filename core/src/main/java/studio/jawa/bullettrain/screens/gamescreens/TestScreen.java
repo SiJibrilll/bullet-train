@@ -1,6 +1,7 @@
 package studio.jawa.bullettrain.screens.gamescreens;
 
 import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
@@ -16,6 +17,7 @@ import studio.jawa.bullettrain.components.gameplays.enemies.EnemyStateComponent;
 import studio.jawa.bullettrain.entities.enemies.EnemyEntity;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 import studio.jawa.bullettrain.entities.testing.TestingDummy;
+import studio.jawa.bullettrain.factories.EnemyFactory;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
@@ -48,13 +50,8 @@ public class TestScreen implements Screen {
         Texture enemytex = manager.get("testing/dummy2.png", Texture.class);
 
         GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
-        GeneralStatsComponent enemystat = new GeneralStatsComponent(10, 200);
-//        TestingDummy dummy = new TestingDummy(50, 50, tex);
         PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
-
-        EnemyBehaviourComponent behaviour = new EnemyBehaviourComponent(100, 10, 40, false);
-
-        EnemyEntity enemy = new EnemyEntity(300, 300, enemytex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
+        Entity enemy = EnemyFactory.createEnemy(400, 400, enemytex, EnemyFactory.TYPES.MELEE);
 
         engine.addEntity(player);
         engine.addEntity(enemy);
