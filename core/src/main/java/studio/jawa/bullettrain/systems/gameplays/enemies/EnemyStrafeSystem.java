@@ -51,8 +51,6 @@ public class EnemyStrafeSystem extends EntitySystem {
                 return;
             }
 
-            System.out.println("Im here!");
-
             // enemy info
             EnemyStrafeComponent strafe = stm.get(entity);
             VelocityComponent vel = vm.get(entity);
