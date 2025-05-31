@@ -2,19 +2,22 @@ package studio.jawa.bullettrain.systems.gameplays.enemies;
 
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
-
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyBehaviourComponent;
+import studio.jawa.bullettrain.components.gameplays.enemies.EnemyChaseComponent;
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyStateComponent;
+import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
+import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 
 public class EnemyIdleSystem extends EntitySystem {
     private final ComponentMapper<EnemyStateComponent> sm = ComponentMapper.getFor(EnemyStateComponent.class);
     private final ComponentMapper<TransformComponent> tm = ComponentMapper.getFor(TransformComponent.class);
+    private final ComponentMapper<EnemyBehaviourComponent> bm = ComponentMapper.getFor(EnemyBehaviourComponent.class);
+    private final ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
-
     private ImmutableArray<Entity> entities;
 
     public EnemyIdleSystem(Engine engine) {
@@ -24,21 +27,37 @@ public class EnemyIdleSystem extends EntitySystem {
     @Override
     public void update(float deltaTime) {
         for (Entity entity : entities) {
+            // get enemy state, if state is not idle then return
             EnemyStateComponent state = sm.get(entity);
 
             if (state.state != EnemyStateComponent.STATES.IDLE) return;
 
+            // get important data
             ImmutableArray<Entity> players = getEngine().getEntitiesFor(playerFamily);
-
             TransformComponent transform = tm.get(entity);
+            EnemyBehaviourComponent behaviour = bm.get(entity);
+            VelocityComponent vel = vm.get(entity);
+            vel.velocity.set(0, 0);
 
-            float threshold = 200f;
+
+
+
+            // the distance untill an enemy is aggroed
+            float threshold = behaviour.aggroRange;
 
             for (Entity player : players) {
-                float distance = transform.position.dst(player.getComponent(TransformComponent.class).position);
+                // player data
+                TransformComponent playerTransform = player.getComponent(TransformComponent.class);
+                float distance = transform.position.dst(playerTransform.position);
 
+                // player walks too close
                 if (distance < threshold) {
-                    state.state = EnemyStateComponent.STATES.CHASE;
+                    if (behaviour.preferDistance) {
+                        return;
+                    } else {
+                        state.state = EnemyStateComponent.STATES.CHASE;
+                        entity.add(new EnemyChaseComponent(behaviour.coolDown));
+                    }
                 }
             }
 

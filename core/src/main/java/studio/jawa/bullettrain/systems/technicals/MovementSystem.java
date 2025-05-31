@@ -7,6 +7,7 @@ import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
+import studio.jawa.bullettrain.entities.enemies.EnemyEntity;
 
 public class MovementSystem extends EntitySystem {
     private final ComponentMapper<TransformComponent> pm = ComponentMapper.getFor(TransformComponent.class);
@@ -27,10 +28,13 @@ public class MovementSystem extends EntitySystem {
             VelocityComponent vel = vm.get(entity);
             GeneralStatsComponent stat = sm.get(entity);
 
+
+
             if (im.has(entity)) {
                 InputComponent input = im.get(entity);
                 vel.velocity.set(input.direction).scl(stat.speed); // for now speed will be hardcoded
             }
+
 
             // Apply movement + collision logic here
             Vector2 oldPos = new Vector2(pos.position);

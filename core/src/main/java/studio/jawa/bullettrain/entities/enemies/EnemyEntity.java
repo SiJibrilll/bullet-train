@@ -17,7 +17,6 @@ public class EnemyEntity extends Entity {
     public EnemyEntity(float x, float y, Texture tex, EnemyStateComponent.STATES state, EnemyBehaviourComponent behaviour, GeneralStatsComponent stats) {
         add(new TransformComponent(x, y));
         add(new VelocityComponent());
-        add(new InputComponent());
         add(new EnemyComponent());
         add(new EnemyStateComponent(state));
         add(behaviour);
