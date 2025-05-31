@@ -9,19 +9,6 @@ import studio.jawa.bullettrain.entities.enemies.EnemyEntity;
 
 
 public class EnemyFactory {
-    public  static enum TYPES {
-        RANGED,
-        MELEE
-    }
-
-//    public static Entity createEnemy(float x, float y, Texture tex, TYPES type) {
-//        if (type == TYPES.MELEE) {
-//            return createMeleeEnemy(x, y, tex);
-//        }
-//
-//        return null;
-//    }
-
     public static Entity createMeleeEnemy(float x, float y, Texture tex) {
         GeneralStatsComponent enemystat = new GeneralStatsComponent(10, 200, 500);
         EnemyBehaviourComponent behaviour = new EnemyBehaviourComponent(500, 100, 1.5f, false);
