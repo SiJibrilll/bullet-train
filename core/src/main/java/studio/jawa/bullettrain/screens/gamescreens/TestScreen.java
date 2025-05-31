@@ -9,14 +9,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
+
 import com.badlogic.gdx.utils.viewport.Viewport;
 import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyBehaviourComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyStateComponent;
-import studio.jawa.bullettrain.entities.enemies.EnemyEntity;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
-import studio.jawa.bullettrain.entities.testing.TestingDummy;
 import studio.jawa.bullettrain.factories.EnemyFactory;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyIdleSystem;

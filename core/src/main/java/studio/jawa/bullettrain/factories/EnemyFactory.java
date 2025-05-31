@@ -25,7 +25,7 @@ public class EnemyFactory {
     public static Entity createMeleeEnemy(float x, float y, Texture tex) {
         GeneralStatsComponent enemystat = new GeneralStatsComponent(10, 200);
         EnemyBehaviourComponent behaviour = new EnemyBehaviourComponent(100, 10, 40, false);
-        EnemyEntity enemy = new EnemyEntity(300, 300, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
+        EnemyEntity enemy = new EnemyEntity(x, y, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
         return enemy;
     }
 }
