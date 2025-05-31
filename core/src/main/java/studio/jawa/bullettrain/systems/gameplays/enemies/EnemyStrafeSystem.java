@@ -91,7 +91,7 @@ public class EnemyStrafeSystem extends EntitySystem {
         Vector2 toEnemy = new Vector2(enemyTransform.position).sub(playerTransform.position);
 
         // Distance to maintain
-        float targetDistance = behaviour.aggroRange;
+        float targetDistance = behaviour.aggroRange - (behaviour.aggroRange / 3);
 
         // Step 1: Direction from player to enemy (for distance checking)
         float currentDistance = toEnemy.len();
