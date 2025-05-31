@@ -2,6 +2,7 @@ package studio.jawa.bullettrain.systems.gameplays.enemies;
 
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
@@ -25,8 +26,16 @@ public class EnemyChaseSystem extends EntitySystem {
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
 
     private ImmutableArray<Entity> entities;
-    public EnemyChaseSystem(Engine engine) {
-        this.entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, EnemyStateComponent.class, EnemyBehaviourComponent.class).get());
+//    public EnemyChaseSystem(Engine engine) {
+//        this.entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, EnemyStateComponent.class, EnemyBehaviourComponent.class).get());
+//    }
+    @Override
+    public void addedToEngine(Engine engine) {
+        entities = engine.getEntitiesFor(Family.all(
+            EnemyComponent.class,
+            EnemyStateComponent.class,
+            EnemyBehaviourComponent.class
+        ).get());
     }
 
     @Override
@@ -35,7 +44,7 @@ public class EnemyChaseSystem extends EntitySystem {
 
             EnemyStateComponent state = sm.get(entity);
 
-            if (state.state != EnemyStateComponent.STATES.CHASE) return; // if not chasing, return
+            if (state.state != EnemyStateComponent.STATES.CHASE) continue; // if not chasing, return
 
             // get reference to player
             ImmutableArray<Entity> players = getEngine().getEntitiesFor(playerFamily);

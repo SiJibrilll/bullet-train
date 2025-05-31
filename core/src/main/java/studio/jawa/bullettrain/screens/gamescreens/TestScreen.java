@@ -48,15 +48,20 @@ public class TestScreen implements Screen {
 
         GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
         PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
-        //Entity enemy = EnemyFactory.createEnemy(400, 400, enemytex, EnemyFactory.TYPES.MELEE);
+
         Entity enemy = EnemyFactory.createRangedEnemy(200, 200, enemytex);
+        Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, enemytex);
+
+        System.out.println("Enemy 1: " + enemy);
+        System.out.println("Enemy 2: " + enemy2);
 
         engine.addEntity(player);
+        engine.addEntity(enemy2);
         engine.addEntity(enemy);
         engine.addSystem(new InputMovementSystem(engine));
         engine.addSystem(new EnemyIdleSystem(engine));
-        engine.addSystem(new EnemyChaseSystem(engine));
-        engine.addSystem(new EnemyStrafeSystem(engine));
+        engine.addSystem(new EnemyChaseSystem());
+        engine.addSystem(new EnemyStrafeSystem());
         engine.addSystem(new MovementSystem(engine));
 
 

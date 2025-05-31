@@ -26,7 +26,7 @@ public class EnemyIdleSystem extends EntitySystem {
             // get enemy state, if state is not idle then return
             EnemyStateComponent state = sm.get(entity);
 
-            if (state.state != EnemyStateComponent.STATES.IDLE) return;
+            if (state.state != EnemyStateComponent.STATES.IDLE) continue;
 
             // get important data
             ImmutableArray<Entity> players = getEngine().getEntitiesFor(playerFamily);

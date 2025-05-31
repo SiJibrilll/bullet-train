@@ -22,8 +22,16 @@ public class EnemyStrafeSystem extends EntitySystem {
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
 
     private ImmutableArray<Entity> entities;
-    public EnemyStrafeSystem(Engine engine) {
-        this.entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, EnemyStateComponent.class, EnemyBehaviourComponent.class).get());
+//    public EnemyStrafeSystem(Engine engine) {
+//        this.entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, EnemyStateComponent.class, EnemyBehaviourComponent.class).get());
+//    }
+    @Override
+    public void addedToEngine(Engine engine) {
+        entities = engine.getEntitiesFor(Family.all(
+            EnemyComponent.class,
+            EnemyStateComponent.class,
+            EnemyBehaviourComponent.class
+        ).get());
     }
 
     @Override
@@ -31,7 +39,7 @@ public class EnemyStrafeSystem extends EntitySystem {
         for (Entity entity : entities) {
 
             EnemyStateComponent state = sm.get(entity);
-            if (state.state != EnemyStateComponent.STATES.STRAFE) return; // if not strafing, return
+            if (state.state != EnemyStateComponent.STATES.STRAFE) continue; // if not strafing, return
 
             // get reference to player
             ImmutableArray<Entity> players = getEngine().getEntitiesFor(playerFamily);
@@ -42,6 +50,8 @@ public class EnemyStrafeSystem extends EntitySystem {
                 state.state = EnemyStateComponent.STATES.IDLE; // if no player then just return
                 return;
             }
+
+            System.out.println("Im here!");
 
             // enemy info
             EnemyStrafeComponent strafe = stm.get(entity);
