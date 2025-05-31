@@ -28,4 +28,11 @@ public class EnemyFactory {
         EnemyEntity enemy = new EnemyEntity(x, y, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
         return enemy;
     }
+
+    public static Entity createRangedEnemy(float x, float y, Texture tex) {
+        GeneralStatsComponent enemystat = new GeneralStatsComponent(10, 200, 200);
+        EnemyBehaviourComponent behaviour = new EnemyBehaviourComponent(1000, 1000, 1.5f, true);
+        EnemyEntity enemy = new EnemyEntity(x, y, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
+        return enemy;
+    }
 }

@@ -2,10 +2,7 @@ package studio.jawa.bullettrain.systems.gameplays.enemies;
 
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyBehaviourComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyChaseComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyStateComponent;
+import studio.jawa.bullettrain.components.gameplays.enemies.*;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
@@ -53,7 +50,8 @@ public class EnemyIdleSystem extends EntitySystem {
                 // player walks too close
                 if (distance < threshold) {
                     if (behaviour.preferDistance) {
-                        return;
+                        state.state = EnemyStateComponent.STATES.STRAFE;
+                        entity.add(new EnemyStrafeComponent(behaviour.coolDown));
                     } else {
                         state.state = EnemyStateComponent.STATES.CHASE;
                         entity.add(new EnemyChaseComponent(behaviour.coolDown));

@@ -6,6 +6,7 @@ public class EnemyStateComponent implements Component {
       public enum STATES  {
       IDLE,
           CHASE,
+          STRAFE,
       ATTACK
     };
 

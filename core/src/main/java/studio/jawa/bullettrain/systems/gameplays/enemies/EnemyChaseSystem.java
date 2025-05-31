@@ -63,7 +63,6 @@ public class EnemyChaseSystem extends EntitySystem {
                 Vector2 toEnemy = new Vector2(transform.position).sub(playerTransform.position).nor();
 
                 // Step 2: Randomize direction slightly (±10 degrees for example)
-
                 toEnemy.setAngleDeg(toEnemy.angleDeg() + chase.windupDirection).nor();
 
                 vel.velocity.set(toEnemy).scl(stat.speed);
@@ -74,7 +73,7 @@ public class EnemyChaseSystem extends EntitySystem {
 
                 if (chase.windupDuration < 0) {
                     entity.remove(EnemyChaseComponent.class);
-                    state.state = EnemyStateComponent.STATES.IDLE;
+                    entity.add(new EnemyChaseComponent(behaviour.coolDown));
                 }
                 return;
             }
@@ -86,7 +85,7 @@ public class EnemyChaseSystem extends EntitySystem {
             // Create the direction vector and normalize it
             Vector2 direction = new Vector2(dx, dy).nor().clamp(0, 1);;  // 'nor' makes it unit length (length = 1)
 
-            vel.velocity.set(direction).scl(400);
+            vel.velocity.set(direction).scl(stat.dash);
 
             float distance = transform.position.dst(playerTransform.position);
 
