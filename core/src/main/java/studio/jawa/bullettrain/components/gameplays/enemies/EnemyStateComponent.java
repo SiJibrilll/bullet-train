@@ -8,7 +8,7 @@ public class EnemyStateComponent implements Component {
           CHASE,
           STRAFE,
       ATTACK
-    };
+    }
 
       public STATES state;
 

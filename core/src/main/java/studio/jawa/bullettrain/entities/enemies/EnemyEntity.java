@@ -8,7 +8,6 @@ import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyBehaviourComponent;
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyStateComponent;
-import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;

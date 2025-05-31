@@ -83,7 +83,7 @@ public class EnemyChaseSystem extends EntitySystem {
             float dy = playerTransform.position.y - transform.position.y;
 
             // Create the direction vector and normalize it
-            Vector2 direction = new Vector2(dx, dy).nor().clamp(0, 1);;  // 'nor' makes it unit length (length = 1)
+            Vector2 direction = new Vector2(dx, dy).nor().clamp(0, 1);  // 'nor' makes it unit length (length = 1)
 
             vel.velocity.set(direction).scl(stat.dash);
 
@@ -94,7 +94,7 @@ public class EnemyChaseSystem extends EntitySystem {
                 chase.windup = true;
 
                 // Create a new direction vector from the new angle
-                chase.windupDirection = MathUtils.random(-60f, 60f);;
+                chase.windupDirection = MathUtils.random(-60f, 60f);
             }
 
 

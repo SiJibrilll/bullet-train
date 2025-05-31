@@ -14,25 +14,23 @@ public class EnemyFactory {
         MELEE
     }
 
-    public static Entity createEnemy(float x, float y, Texture tex, TYPES type) {
-        if (type == TYPES.MELEE) {
-            return createMeleeEnemy(x, y, tex);
-        }
-
-        return null;
-    }
+//    public static Entity createEnemy(float x, float y, Texture tex, TYPES type) {
+//        if (type == TYPES.MELEE) {
+//            return createMeleeEnemy(x, y, tex);
+//        }
+//
+//        return null;
+//    }
 
     public static Entity createMeleeEnemy(float x, float y, Texture tex) {
         GeneralStatsComponent enemystat = new GeneralStatsComponent(10, 200, 500);
         EnemyBehaviourComponent behaviour = new EnemyBehaviourComponent(500, 100, 1.5f, false);
-        EnemyEntity enemy = new EnemyEntity(x, y, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
-        return enemy;
+        return new EnemyEntity(x, y, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
     }
 
     public static Entity createRangedEnemy(float x, float y, Texture tex) {
         GeneralStatsComponent enemystat = new GeneralStatsComponent(10, 200, 200);
         EnemyBehaviourComponent behaviour = new EnemyBehaviourComponent(1000, 1000, 1.5f, true);
-        EnemyEntity enemy = new EnemyEntity(x, y, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
-        return enemy;
+        return new EnemyEntity(x, y, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat);
     }
 }

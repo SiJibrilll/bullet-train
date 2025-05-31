@@ -7,7 +7,7 @@ import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
-import studio.jawa.bullettrain.entities.enemies.EnemyEntity;
+
 
 public class MovementSystem extends EntitySystem {
     private final ComponentMapper<TransformComponent> pm = ComponentMapper.getFor(TransformComponent.class);
