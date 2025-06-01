@@ -21,7 +21,7 @@ public class CarriageFactory {
     public static Entity createCarriage(int carriageNumber, long baseSeed) {
         Entity carriage = new Entity();
 
-        // Calculate position (vertical stacking)
+        // Calculate position 
         float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
         carriage.add(new TransformComponent(0f, carriageY));
 
@@ -59,7 +59,6 @@ public class CarriageFactory {
     }
 
     private static CarriageType getCarriageTypeForNumber(int carriageNumber) {
-        // Simple pattern: different types for variety
         switch (carriageNumber) {
             case 1: return CarriageType.PASSENGER;
             case 2: return CarriageType.CARGO;
@@ -67,7 +66,6 @@ public class CarriageFactory {
             case 4: return CarriageType.ENGINE;
             case 5: return CarriageType.CABOOSE;
             default:
-                // For numbers > 5, cycle through types
                 CarriageType[] types = CarriageType.values();
                 return types[(carriageNumber - 1) % types.length];
         }
@@ -91,7 +89,6 @@ public class CarriageFactory {
         }
     }
 
-    // Add asset manager parameter for object textures
     public static Entity[] createCarriageWithObjects(int carriageNumber, long baseSeed, int maxCarriages, AssetManager assetManager) {
         // Create main carriage
         Entity carriage = createCarriage(carriageNumber, baseSeed);
@@ -119,6 +116,8 @@ public class CarriageFactory {
         for (Entity object : layout.objectEntities) {
             entityList.add(object);
         }
+        
+        // NOTE: Enemies akan di-spawn oleh EnemySpawnSystem, tidak di sini
         
         return entityList.toArray(Entity.class);
     }

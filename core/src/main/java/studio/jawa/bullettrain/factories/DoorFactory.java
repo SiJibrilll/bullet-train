@@ -12,7 +12,7 @@ public class DoorFactory {
         Entity door = new Entity();
 
         // Position at top of carriage (exit zone)
-        float doorX = GameConstants.CARRIAGE_WIDTH / 2f; // Center
+        float doorX = GameConstants.CARRIAGE_WIDTH / 2f; 
         float doorY = carriageY + GameConstants.CARRIAGE_HEIGHT - GameConstants.EXIT_ZONE_HEIGHT / 2f;
         door.add(new TransformComponent(doorX, doorY));
 
@@ -35,8 +35,7 @@ public class DoorFactory {
     public static Entity createEntryDoor(int toCarriageNumber, float carriageY) {
         Entity door = new Entity();
 
-        // Position at bottom of carriage (entry zone)
-        float doorX = GameConstants.CARRIAGE_WIDTH / 2f; // Center
+        float doorX = GameConstants.CARRIAGE_WIDTH / 2f; 
         float doorY = carriageY + GameConstants.ENTRY_ZONE_HEIGHT / 2f;
         door.add(new TransformComponent(doorX, doorY));
 
