@@ -1,4 +1,4 @@
-package studio.jawa.bullettrain.entities;
+package studio.jawa.bullettrain.factories;
 
 import com.badlogic.ashley.core.Entity;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
@@ -12,7 +12,7 @@ public class DoorFactory {
         Entity door = new Entity();
 
         // Position at top of carriage (exit zone)
-        float doorX = GameConstants.CARRIAGE_WIDTH / 2f; 
+        float doorX = GameConstants.CARRIAGE_WIDTH / 2f;
         float doorY = carriageY + GameConstants.CARRIAGE_HEIGHT - GameConstants.EXIT_ZONE_HEIGHT / 2f;
         door.add(new TransformComponent(doorX, doorY));
 
@@ -35,7 +35,7 @@ public class DoorFactory {
     public static Entity createEntryDoor(int toCarriageNumber, float carriageY) {
         Entity door = new Entity();
 
-        float doorX = GameConstants.CARRIAGE_WIDTH / 2f; 
+        float doorX = GameConstants.CARRIAGE_WIDTH / 2f;
         float doorY = carriageY + GameConstants.ENTRY_ZONE_HEIGHT / 2f;
         door.add(new TransformComponent(doorX, doorY));
 

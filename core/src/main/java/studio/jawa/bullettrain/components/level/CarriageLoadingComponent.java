@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Component;
 public class CarriageLoadingComponent implements Component {
     public LoadingState state = LoadingState.UNLOADED;
     public boolean isPlayerInside = false;
-    public float transitionProgress = 0f; // 0.0 to 1.0 for smooth transitions
+    public float transitionProgress = 0f; 
     
     public CarriageLoadingComponent() {}
     

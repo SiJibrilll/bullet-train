@@ -1,4 +1,4 @@
-package studio.jawa.bullettrain.entities;
+package studio.jawa.bullettrain.factories;
 
 import com.badlogic.ashley.core.Entity;
 import studio.jawa.bullettrain.components.level.CarriageBoundaryComponent;
@@ -9,7 +9,6 @@ import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.data.CarriageType;
 import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.generation.TrainCarriageGenerator;
-import studio.jawa.bullettrain.entities.DoorFactory; 
 import studio.jawa.bullettrain.data.ObjectType;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,7 +20,7 @@ public class CarriageFactory {
     public static Entity createCarriage(int carriageNumber, long baseSeed) {
         Entity carriage = new Entity();
 
-        // Calculate position 
+        // Calculate position
         float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
         carriage.add(new TransformComponent(0f, carriageY));
 
@@ -92,18 +91,18 @@ public class CarriageFactory {
     public static Entity[] createCarriageWithObjects(int carriageNumber, long baseSeed, int maxCarriages, AssetManager assetManager) {
         // Create main carriage
         Entity carriage = createCarriage(carriageNumber, baseSeed);
-        
+
         // Generate objects from layout
         OpenLayoutComponent layout = carriage.getComponent(OpenLayoutComponent.class);
         createObjectsFromLayout(layout, carriageNumber, assetManager);
-        
+
         // Calculate carriage Y position
         float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
-        
+
         // Create doors array (carriage + doors + objects)
         Array<Entity> entityList = new Array<>();
         entityList.add(carriage);
-        
+
         // Add doors
         if (carriageNumber > 1) {
             entityList.add(DoorFactory.createEntryDoor(carriageNumber, carriageY));
@@ -111,26 +110,26 @@ public class CarriageFactory {
         if (carriageNumber < maxCarriages) {
             entityList.add(DoorFactory.createExitDoor(carriageNumber, carriageY));
         }
-        
+
         // Add objects
         for (Entity object : layout.objectEntities) {
             entityList.add(object);
         }
-        
+
         // NOTE: Enemies akan di-spawn oleh EnemySpawnSystem, tidak di sini
-        
+
         return entityList.toArray(Entity.class);
     }
-    
+
     private static void createObjectsFromLayout(OpenLayoutComponent layout, int carriageNumber, AssetManager assetManager) {
         // Create objects from obstacle positions
         for (Vector2 position : layout.obstaclePositions) {
             ObjectType randomType = ObjectType.getRandomType();
-            
+
             if (!assetManager.isLoaded(randomType.texturePath)) {
                 continue;
             }
-            
+
             Texture texture = assetManager.get(randomType.texturePath, Texture.class);
             Entity object = ObjectFactory.createObject(randomType, position, carriageNumber, texture);
             layout.objectEntities.add(object);
@@ -140,13 +139,13 @@ public class CarriageFactory {
     public static Entity[] createCarriageWithDoors(int carriageNumber, long baseSeed, int maxCarriages) {
         // Create main carriage
         Entity carriage = createCarriage(carriageNumber, baseSeed);
-        
+
         // Calculate carriage Y position
         float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
-        
+
         // Create doors array (carriage + doors)
         Entity[] entities;
-        
+
         if (carriageNumber == 1) {
             // First carriage: only exit door (no entry from below)
             entities = new Entity[2];
@@ -164,7 +163,7 @@ public class CarriageFactory {
             entities[1] = DoorFactory.createEntryDoor(carriageNumber, carriageY);
             entities[2] = DoorFactory.createExitDoor(carriageNumber, carriageY);
         }
-        
+
         return entities;
     }
 }

@@ -1,0 +1,14 @@
+package studio.jawa.bullettrain.components.gameplays.enemies;
+
+import com.badlogic.ashley.core.Component;
+
+public class EnemyComponent implements Component {
+    public int carriageNumber; // Track which carriage this enemy belongs to
+    public boolean isActive = true;
+    
+    public EnemyComponent() {}
+    
+    public EnemyComponent(int carriageNumber) {
+        this.carriageNumber = carriageNumber;
+    }
+}

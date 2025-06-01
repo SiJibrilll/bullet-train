@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.IntMap;
 public class CarriageManagerComponent implements Component {
     public IntMap<Entity> loadedCarriages = new IntMap<>();  // carriageNumber -> Entity
     public int currentCarriageNumber = 1;
-    public int maxCarriages = 5;
+    public int maxCarriages = 5; 
     
     // Active window (3 carriages loaded at once)
     public int windowSize = 3;

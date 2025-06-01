@@ -8,7 +8,7 @@ public class DoorComponent implements Component {
     public Rectangle doorBounds = new Rectangle();
     public int targetCarriageNumber;
     public boolean isPlayerNearby = false;
-    public boolean isActive = true; // Can be used to disable doors
+    public boolean isActive = true; 
     
     public DoorComponent() {}
     

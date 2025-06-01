@@ -6,14 +6,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
-import studio.jawa.bullettrain.components.gameplay.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;
 import studio.jawa.bullettrain.components.level.CarriageBoundaryComponent;
-import studio.jawa.bullettrain.components.level.CarriageLoadingComponent;
 import studio.jawa.bullettrain.components.level.CarriageManagerComponent;
 import studio.jawa.bullettrain.components.level.TrainCarriageComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.data.GameConstants;
-import studio.jawa.bullettrain.entities.CarriageFactory;
+import studio.jawa.bullettrain.factories.CarriageFactory;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
@@ -28,7 +27,7 @@ public class CarriageTransitionSystem extends EntitySystem {
     private ComponentMapper<TrainCarriageComponent> carriageMapper;
 
     private Entity carriageManager;
-    private long baseSeed = 12345L; // Base seed untuk generation
+    private long baseSeed = 12345L;
     private AssetManager assetManager;
 
     public CarriageTransitionSystem() {
@@ -39,13 +38,18 @@ public class CarriageTransitionSystem extends EntitySystem {
         carriageMapper = ComponentMapper.getFor(TrainCarriageComponent.class);
         setupAssetManager();
     }
-    
+
     private void setupAssetManager() {
         assetManager = new AssetManager();
         // Load all object textures
         for (ObjectType objectType : ObjectType.values()) {
             assetManager.load(objectType.texturePath, Texture.class);
         }
+
+        // Load enemy textures
+        assetManager.load("textures/enemies/melee_enemy.png", Texture.class);
+        assetManager.load("textures/enemies/ranged_enemy.png", Texture.class);
+
         assetManager.finishLoading();
     }
 
@@ -92,10 +96,10 @@ public class CarriageTransitionSystem extends EntitySystem {
             Entity[] carriageEntities = CarriageFactory.createCarriageWithObjects(
                 i, baseSeed, manager.maxCarriages, assetManager
             );
-            
+
             Entity carriage = carriageEntities[0];
             manager.addCarriage(i, carriage);
-            
+
             for (Entity entity : carriageEntities) {
                 getEngine().addEntity(entity);
             }
@@ -109,7 +113,6 @@ public class CarriageTransitionSystem extends EntitySystem {
 
         if (playerTransform == null || playerComp == null) return;
 
-        // Calculate which carriage player should be in based on Y position
         int targetCarriageNumber = (int) (playerTransform.position.y / GameConstants.CARRIAGE_HEIGHT) + 1;
         targetCarriageNumber = Math.max(1, Math.min(manager.maxCarriages, targetCarriageNumber));
 
@@ -135,7 +138,6 @@ public class CarriageTransitionSystem extends EntitySystem {
         CarriageBoundaryComponent boundary = boundaryMapper.get(carriage);
         if (boundary == null) return;
 
-        // Keep player within carriage vertical bounds (with some tolerance)
         float carriageBottom = boundary.carriageBounds.y + 50f;
         float carriageTop = boundary.carriageBounds.y + boundary.carriageBounds.height - 50f;
 
@@ -167,7 +169,7 @@ public class CarriageTransitionSystem extends EntitySystem {
 
         // Unload carriages outside window
         IntArray loadedKeys = manager.loadedCarriages.keys().toArray();
-        for (int i = 0; i < loadedKeys.size; i++) { 
+        for (int i = 0; i < loadedKeys.size; i++) {
             int carriageNum = loadedKeys.get(i);
             if (carriageNum < startCarriage || carriageNum > endCarriage) {
                 unloadCarriage(carriageNum, manager);
@@ -179,10 +181,10 @@ public class CarriageTransitionSystem extends EntitySystem {
         Entity[] carriageEntities = CarriageFactory.createCarriageWithObjects(
             carriageNumber, baseSeed, manager.maxCarriages, assetManager
         );
-        
+
         Entity carriage = carriageEntities[0];
         manager.addCarriage(carriageNumber, carriage);
-        
+
         for (Entity entity : carriageEntities) {
             getEngine().addEntity(entity);
         }

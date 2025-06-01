@@ -16,7 +16,6 @@ public class BaseObjectComponent implements Component {
         this.objectType = objectType;
         this.carriageNumber = carriageNumber;
         
-        // Set destructible for TNT
         this.isDestructible = (objectType == ObjectType.TNT);
     }
     

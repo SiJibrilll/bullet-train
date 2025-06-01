@@ -6,7 +6,7 @@ public class InteractionComponent implements Component {
     public boolean canInteract = true;
     public String promptMessage = "";
     public InteractionType interactionType;
-    public float interactionRadius = 50f; // Distance untuk show prompt
+    public float interactionRadius = 50f; 
     
     public InteractionComponent() {}
     

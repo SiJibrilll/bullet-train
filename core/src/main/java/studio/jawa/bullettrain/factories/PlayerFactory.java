@@ -1,4 +1,4 @@
-package studio.jawa.bullettrain.entities;
+package studio.jawa.bullettrain.factories;
 
 import com.badlogic.ashley.core.Entity;
 import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;

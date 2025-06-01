@@ -13,6 +13,7 @@ public class OpenLayoutComponent implements Component {
     
     // NEW: Store actual object entities
     public Array<Entity> objectEntities = new Array<>();
+    public Array<Entity> enemyEntities = new Array<>();
     
     // Entry & Exit points
     public Vector2 entryPoint = new Vector2();

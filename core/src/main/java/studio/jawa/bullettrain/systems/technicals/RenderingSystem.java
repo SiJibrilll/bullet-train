@@ -61,6 +61,5 @@ public class RenderingSystem extends EntitySystem {
 
     @Override
     public void removedFromEngine(Engine engine) {
-        // Clean up if needed
     }
 }

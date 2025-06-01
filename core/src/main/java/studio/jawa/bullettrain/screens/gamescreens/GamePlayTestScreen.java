@@ -11,23 +11,25 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
-import studio.jawa.bullettrain.components.gameplay.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;
 import studio.jawa.bullettrain.components.level.CarriageBoundaryComponent;
 import studio.jawa.bullettrain.components.level.CarriageManagerComponent;
 import studio.jawa.bullettrain.components.level.OpenLayoutComponent;
 import studio.jawa.bullettrain.components.level.TrainCarriageComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
-import studio.jawa.bullettrain.entities.PlayerFactory;
+import studio.jawa.bullettrain.factories.PlayerFactory;
 import studio.jawa.bullettrain.systems.technicals.CameraSystem;
 import studio.jawa.bullettrain.systems.technicals.CarriageTransitionSystem;
 import studio.jawa.bullettrain.systems.technicals.DoorInteractionSystem;
 import studio.jawa.bullettrain.systems.technicals.PlayerMovementSystem;
 import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 import studio.jawa.bullettrain.components.level.DoorComponent;
-import studio.jawa.bullettrain.components.gameplay.InteractionComponent; 
-import studio.jawa.bullettrain.data.ObjectType;
+import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
 import studio.jawa.bullettrain.systems.technicals.CollisionSystem;
+import studio.jawa.bullettrain.systems.gameplay.EnemySpawnSystem;
+import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
 
 public class GamePlayTestScreen implements Screen {
     private Engine engine;
@@ -42,10 +44,12 @@ public class GamePlayTestScreen implements Screen {
     private ComponentMapper<TrainCarriageComponent> carriageMapper;
     private ComponentMapper<CarriageBoundaryComponent> boundaryMapper;
     private ComponentMapper<OpenLayoutComponent> layoutMapper;
-    private ComponentMapper<DoorComponent> doorMapper; 
+    private ComponentMapper<DoorComponent> doorMapper;
     private ComponentMapper<InteractionComponent> interactionMapper;
+    private ComponentMapper<EnemyComponent> enemyMapper;
 
     private Entity player;
+    private AssetManager assetManager;
 
     @Override
     public void show() {
@@ -67,14 +71,19 @@ public class GamePlayTestScreen implements Screen {
         carriageMapper = ComponentMapper.getFor(TrainCarriageComponent.class);
         boundaryMapper = ComponentMapper.getFor(CarriageBoundaryComponent.class);
         layoutMapper = ComponentMapper.getFor(OpenLayoutComponent.class);
-        doorMapper = ComponentMapper.getFor(DoorComponent.class); 
+        doorMapper = ComponentMapper.getFor(DoorComponent.class);
         interactionMapper = ComponentMapper.getFor(InteractionComponent.class);
+        enemyMapper = ComponentMapper.getFor(EnemyComponent.class);
+
+        // Setup AssetManager untuk enemy textures
+        setupAssetManager();
 
         // Add systems
         engine.addSystem(new PlayerMovementSystem());
         engine.addSystem(new CarriageTransitionSystem());
         engine.addSystem(new DoorInteractionSystem());
-        engine.addSystem(new CollisionSystem()); 
+        engine.addSystem(new CollisionSystem());
+        engine.addSystem(new EnemySpawnSystem(assetManager)); // Add enemy spawn system
         cameraSystem = new CameraSystem(camera);
         engine.addSystem(cameraSystem);
         renderingSystem = new RenderingSystem(camera);
@@ -82,6 +91,14 @@ public class GamePlayTestScreen implements Screen {
 
         // Create player
         createPlayer();
+    }
+
+    private void setupAssetManager() {
+        assetManager = new AssetManager();
+        // Load enemy textures dengan path yang sama seperti di CarriageTransitionSystem
+        assetManager.load("textures/enemies/melee_enemy.png", Texture.class);
+        assetManager.load("textures/enemies/ranged_enemy.png", Texture.class);
+        assetManager.finishLoading();
     }
 
     private void createPlayer() {
@@ -108,7 +125,7 @@ public class GamePlayTestScreen implements Screen {
         renderAllDoors();
         renderPlayer();
         renderUI();
-        
+
         // Note: Objects with sprites are rendered by RenderingSystem during engine.update()
     }
 
@@ -208,33 +225,33 @@ public class GamePlayTestScreen implements Screen {
     ImmutableArray<Entity> doorEntities = engine.getEntitiesFor(
         Family.all(DoorComponent.class, TransformComponent.class).get()
     );
-    
-    
+
+
     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-    
+
     for (Entity door : doorEntities) {
         renderDoor(door);
     }
-    
+
     shapeRenderer.end();
-    
+
     // Render door outlines
     shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-    
+
     for (Entity door : doorEntities) {
         renderDoorOutline(door);
     }
-    
+
     shapeRenderer.end();
 }
-    
+
     private void renderDoor(Entity door) {
         TransformComponent transform = transformMapper.get(door);
         DoorComponent doorComp = doorMapper.get(door);
         InteractionComponent interaction = interactionMapper.get(door);
-        
+
         if (transform == null || doorComp == null) return;
-        
+
         // Different colors based on door type and state
         if (doorComp.doorType == DoorComponent.DoorType.EXIT_TO_NEXT) {
             // Exit doors (cyan/blue)
@@ -247,35 +264,35 @@ public class GamePlayTestScreen implements Screen {
             // Entry doors (green)
             shapeRenderer.setColor(0f, 0.8f, 0f, 0.5f); // Green
         }
-        
+
         // Draw door rectangle
         shapeRenderer.rect(
-            transform.position.x - 30f, 
-            transform.position.y - 40f, 
+            transform.position.x - 30f,
+            transform.position.y - 40f,
             60f, 80f
         );
-        
+
         // Draw door handle/indicator
-        shapeRenderer.setColor(1f, 1f, 1f, 1f); 
+        shapeRenderer.setColor(1f, 1f, 1f, 1f);
         if (doorComp.doorType == DoorComponent.DoorType.EXIT_TO_NEXT) {
             // Up arrow for exit doors
             float x = transform.position.x;
             float y = transform.position.y + 20f;
             shapeRenderer.triangle(x, y + 15f, x - 10f, y, x + 10f, y);
         } else {
-            // Down arrow for entry doors  
+            // Down arrow for entry doors
             float x = transform.position.x;
             float y = transform.position.y - 20f;
             shapeRenderer.triangle(x, y - 15f, x - 10f, y, x + 10f, y);
         }
     }
-    
+
     private void renderDoorOutline(Entity door) {
         TransformComponent transform = transformMapper.get(door);
         DoorComponent doorComp = doorMapper.get(door);
-        
+
         if (transform == null || doorComp == null) return;
-        
+
         // White outline
         shapeRenderer.setColor(1f, 1f, 1f, 1f);
         shapeRenderer.rect(
@@ -283,10 +300,10 @@ public class GamePlayTestScreen implements Screen {
             transform.position.y - 40f,
             60f, 80f
         );
-        
+
         // Interaction radius (when player nearby)
         if (doorComp.isPlayerNearby) {
-            shapeRenderer.setColor(1f, 1f, 0f, 0.3f); 
+            shapeRenderer.setColor(1f, 1f, 0f, 0.3f);
             shapeRenderer.circle(transform.position.x, transform.position.y, 50f);
         }
     }

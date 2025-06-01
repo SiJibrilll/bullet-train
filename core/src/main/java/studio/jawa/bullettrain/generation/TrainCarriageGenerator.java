@@ -11,34 +11,31 @@ import com.badlogic.gdx.utils.Array;
 public class TrainCarriageGenerator {
 
     public static OpenLayoutComponent generateLayout(CarriageType carriageType, long seed, int carriageNumber) {
-        // Set seed untuk consistent generation
-        MathUtils.random.setSeed(seed);
+
 
         OpenLayoutComponent layout = new OpenLayoutComponent();
 
-        // Generate objects - SAME for all carriage types (truly random and fair)
+        // Generate objects 
         generateRandomLayout(layout, carriageNumber);
 
         return layout;
     }
 
-    // NEW: Single method for all carriage types - truly random and fair
     private static void generateRandomLayout(OpenLayoutComponent layout, int carriageNumber) {
-        // Objects: Completely random for all carriages (3-8 objects per carriage)
         int objectCount = MathUtils.random(4, 15);
         
-        // Skip enemy and pickup generation for now as requested
-        // int enemyCount = MathUtils.random(1, 3);
-        // int pickupCount = MathUtils.random(1, 2);
+        // NEW: Generate enemy spawn points 
+        int enemySpawnPointCount = 15;
+        int pickupCount = MathUtils.random(1, 2);
 
         generateRandomObjectPositions(layout.obstaclePositions, objectCount);
-        // generateRandomPositions(layout.enemySpawnPoints, enemyCount);
-        // generateRandomPositions(layout.pickupSpawnPoints, pickupCount);
+        generateRandomPositions(layout.enemySpawnPoints, enemySpawnPointCount); 
+        generateRandomPositions(layout.pickupSpawnPoints, pickupCount);
     }
 
 
 
-    // Generate positions for objects (replaces old obstacle generation)
+    // Generate positions for objects 
     private static void generateRandomObjectPositions(Array<Vector2> positions, int count) {
         generateRandomPositions(positions, count);
     }
@@ -72,17 +69,11 @@ public class TrainCarriageGenerator {
     }
 
     private static void addRandomElements(OpenLayoutComponent layout, int carriageNumber) {
-        // Add extra random objects (0-2 extra objects randomly)
         int extraObjects = MathUtils.random(0, 2);
 
         for (int i = 0; i < extraObjects; i++) {
             generateRandomObjectPositions(layout.obstaclePositions, 1);
         }
-        
-        // Skip progressive enemy difficulty for now
-        // int extraEnemies = carriageNumber / 3;
-        // if (extraEnemies > 0) {
-        //     generateRandomPositions(layout.enemySpawnPoints, extraEnemies);
-        // }
+
     }
 }

@@ -10,7 +10,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
-import studio.jawa.bullettrain.components.gameplay.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;
+
 import studio.jawa.bullettrain.components.level.DoorComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.data.GameConstants;
@@ -73,7 +74,7 @@ public class DoorInteractionSystem extends EntitySystem {
             InteractionComponent interaction = interactionMapper.get(door);
             DoorComponent doorComp = doorMapper.get(door);
 
-            if (!doorComp.isActive) continue; // Skip inactive doors
+            if (!doorComp.isActive) continue; 
 
             // Calculate distance
             float distance = Vector2.dst(
@@ -107,15 +108,13 @@ public class DoorInteractionSystem extends EntitySystem {
             doorComp.isPlayerNearby = true;
             nearbyDoor = closestDoor;
 
-            // Show prompt (console untuk testing, nanti bisa jadi UI)
             if (!showingPrompt) {
                 System.out.println("💡 " + interaction.promptMessage);
                 showingPrompt = true;
             }
         } else {
-            // Clear prompt
             if (showingPrompt) {
-                System.out.println(""); // Clear line
+                System.out.println(""); 
                 showingPrompt = false;
             }
             nearbyDoor = null;
@@ -123,7 +122,6 @@ public class DoorInteractionSystem extends EntitySystem {
     }
 
     private void handleInteractionInput(Entity player, PlayerComponent playerComp) {
-        // Check for E key press
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             if (nearbyDoor != null) {
                 performDoorTransition(player, playerComp, nearbyDoor);
@@ -136,7 +134,6 @@ public class DoorInteractionSystem extends EntitySystem {
         TransformComponent playerTransform = transformMapper.get(player);
 
         if (doorComp.doorType == DoorComponent.DoorType.EXIT_TO_NEXT) {
-            // Transition to next carriage
             int nextCarriage = doorComp.targetCarriageNumber;
 
             // Teleport player to entry of next carriage
@@ -148,21 +145,18 @@ public class DoorInteractionSystem extends EntitySystem {
             System.out.println("🚪 Player entered Car " + nextCarriage);
 
         } else if (doorComp.doorType == DoorComponent.DoorType.ENTRY_FROM_PREV) {
-            // This shouldn't normally happen (entry doors aren't interactive)
-            // But could be used for going back to previous carriage
             System.out.println("🚪 Entry door - no action");
         }
 
-        // Clear prompt after transition
         showingPrompt = false;
         nearbyDoor = null;
     }
 
     private void teleportPlayerToCarriageEntry(TransformComponent playerTransform, int targetCarriageNumber) {
         // Calculate target position (entry point of target carriage)
-        float targetX = GameConstants.CARRIAGE_WIDTH / 2f; // Center horizontal
+        float targetX = GameConstants.CARRIAGE_WIDTH / 2f; 
         float targetY = (targetCarriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT +
-                       GameConstants.ENTRY_ZONE_HEIGHT + 50f; // Just above entry zone
+                       GameConstants.ENTRY_ZONE_HEIGHT + 50f;
 
         playerTransform.position.set(targetX, targetY);
 

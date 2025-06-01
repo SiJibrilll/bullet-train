@@ -7,7 +7,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
-import studio.jawa.bullettrain.components.gameplay.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.data.GameConstants;
@@ -31,13 +31,13 @@ public class PlayerMovementSystem extends IteratingSystem {
         TransformComponent transform = transformMapper.get(entity);
         VelocityComponent velocity = velocityMapper.get(entity);
         PlayerComponent player = playerMapper.get(entity);
-        
+
         // Handle input
         handleInput(velocity, player);
-        
+
         // Apply movement
         applyMovement(transform, velocity, deltaTime);
-        
+
         // Keep player within bounds
         constrainToPlayableArea(entity, transform);
     }
@@ -74,18 +74,18 @@ public class PlayerMovementSystem extends IteratingSystem {
 
    private void constrainToPlayableArea(Entity entity, TransformComponent transform) {
         PlayerComponent player = playerMapper.get(entity);
-        
+
         // Calculate current carriage bounds
         float carriageOffsetY = (player.currentCarriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
-        
+
         // Horizontal bounds
         float leftBound = (GameConstants.CARRIAGE_WIDTH - GameConstants.PLAYABLE_WIDTH) / 2f + 20f;
         float rightBound = leftBound + GameConstants.PLAYABLE_WIDTH - 40f;
-        
-        // Vertical bounds - full carriage access
+
+        // Vertical bounds 
         float bottomBound = carriageOffsetY + 20f;
         float topBound = carriageOffsetY + GameConstants.CARRIAGE_HEIGHT - 20f;
-        
+
         // Constrain position
         transform.position.x = Math.max(leftBound, Math.min(rightBound, transform.position.x));
         transform.position.y = Math.max(bottomBound, Math.min(topBound, transform.position.y));
