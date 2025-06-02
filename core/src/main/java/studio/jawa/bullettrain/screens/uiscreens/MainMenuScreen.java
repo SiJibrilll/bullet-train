@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -32,14 +33,21 @@ public class MainMenuScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         skin = assetManager.get("ui/uiskin.json", Skin.class);
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
+        style.font = skin.getFont("default");
+
+        Drawable transparent = skin.newDrawable("white", 1, 1, 1, 0f);
+        style.up = transparent;
+        style.down = transparent;
+        style.over = transparent;
 
         Label title = new Label("Bullet Train", skin);
         title.setFontScale(5);
         title.setAlignment(Align.center);
 
-        TextButton playButton = new TextButton("Play", skin);
+        TextButton playButton = new TextButton("Play", style);
         playButton.getLabel().setFontScale(2);
-        TextButton quitButton = new TextButton("Quit", skin);
+        TextButton quitButton = new TextButton("Quit", style);
         quitButton.getLabel().setFontScale(2);
 
         Table menuContainer = new Table();
