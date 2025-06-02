@@ -12,7 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import studio.jawa.bullettrain.screens.gamescreens.TestGameScreen;
 
 public class CharacterSelectScreen implements Screen {
     private final Game game;
@@ -40,8 +42,10 @@ public class CharacterSelectScreen implements Screen {
         skin = assetManager.get("ui/uiskin.json", Skin.class);
 
         characters = new CharacterInfo[] {
-            new CharacterInfo("Grace", assetManager.get("grace.png", Texture.class), "Daughter of a Raider warlord", "Glass canon"),
-            new CharacterInfo("Jing Wei", assetManager.get("jing_wei.png", Texture.class), "Guardian Automata", "Quick dashes")
+//            new CharacterInfo("Grace", assetManager.get("grace.png", Texture.class), "Daughter of a Raider warlord", "Glass canon"),
+//            new CharacterInfo("Jing Wei", assetManager.get("jing_wei.png", Texture.class), "Guardian Automata", "Quick dashes")
+            new CharacterInfo("Grace", "Daughter of a Raider warlord", "Glass canon"),
+            new CharacterInfo("Jing Wei", "Guardian Automata", "Quick dashes")
         };
         selectedCharacter = characters[0];
 
@@ -65,26 +69,31 @@ public class CharacterSelectScreen implements Screen {
         bottomContainer.bottom().padBottom(30).left().padLeft(30);
         stage.addActor(bottomContainer);
 
-        portrait = new Image(new TextureRegionDrawable(characters[0].portrait));
-        bottomContainer.add(portrait).width(500).height(500).left().padLeft(30).bottom().padBottom(30);
+//        portrait = new Image(new TextureRegionDrawable(characters[0].portrait));
+//        bottomContainer.add(portrait).width(500).height(500).left().padLeft(30).bottom().padBottom(30);
 
         Table rightContainer = new Table();
 
         nameLabel = new Label(characters[0].name, skin);
-        nameLabel.setFontScale(3);
-        info1Label = new Label("• " + characters[0].info1, skin);
-        info1Label.setFontScale(2);
-        info2Label = new Label("• " + characters[0].info2, skin);
-        info2Label.setFontScale(2);
+        nameLabel.setFontScale(4);
+        nameLabel.setAlignment(Align.left);
 
-        rightContainer.add(nameLabel).padBottom(50).row();
-        rightContainer.add(info1Label).padBottom(10).row();
-        rightContainer.add(info2Label).padBottom(30).row();
+        info1Label = new Label("• " + characters[0].info1, skin);
+        info1Label.setFontScale(3);
+        info1Label.setWrap(false);
+
+        info2Label = new Label("• " + characters[0].info2, skin);
+        info2Label.setFontScale(3);
+        info2Label.setWrap(false);
+
+        rightContainer.add(nameLabel).width(500).padBottom(70).left().row();
+        rightContainer.add(info1Label).width(500).padBottom(30).left().row();
+        rightContainer.add(info2Label).width(500).padBottom(150).left().row();
 
         Table selectionTable = new Table();
         for (CharacterInfo character : characters) {
             TextButton charButton = new TextButton(character.name, skin);
-            charButton.getLabel().setFontScale(1.2f);
+            charButton.getLabel().setFontScale(1.5f);
             charButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -101,20 +110,26 @@ public class CharacterSelectScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (selectedCharacter != null) {
-                    game.setScreen(new GameScreen(game, selectedCharacter));
+                    game.setScreen(new TestGameScreen(game, selectedCharacter, assetManager));
                 }
             }
         });
 
-        rightContainer.add(selectionTable).padBottom(20).row();
-        rightContainer.add(confirmButton).center().width(200).height(60);
+        Table confirmTable = new Table();
+        confirmTable.setFillParent(true);
+        confirmTable.align(Align.bottom | Align.center);
+        confirmTable.add(confirmButton).width(250).height(60).padBottom(80);
+        stage.addActor(confirmTable);
 
-        bottomContainer.add(rightContainer).expandX().bottom().right().padRight(30);
+        rightContainer.add(selectionTable).padBottom(20).row();
+//        rightContainer.add(confirmButton).center().width(200).height(60);
+
+        bottomContainer.add(rightContainer).expandX().bottom().right().padRight(150);
         root.add(bottomContainer).expand().fill().bottom().row();
     };
 
     public void updateCharacterInfo(CharacterInfo character) {
-        portrait.setDrawable(new TextureRegionDrawable(new TextureRegion(character.portrait)));
+//        portrait.setDrawable(new TextureRegionDrawable(new TextureRegion(character.portrait)));
         nameLabel.setText(character.name);
         info1Label.setText("• " + character.info1);
         info2Label.setText("• " + character.info2);
@@ -133,18 +148,4 @@ public class CharacterSelectScreen implements Screen {
     @Override public void resume() {}
     @Override public void hide() {}
     @Override public void dispose() { stage.dispose(); }
-
-    public static class CharacterInfo {
-        public final String name;
-        public final Texture portrait;
-        public final String info1;
-        public final String info2;
-
-        public CharacterInfo(String name, Texture portrait, String info1, String info2) {
-            this.name = name;
-            this.portrait = portrait;
-            this.info1 = info1;
-            this.info2 = info2;
-        }
-    }
 }
