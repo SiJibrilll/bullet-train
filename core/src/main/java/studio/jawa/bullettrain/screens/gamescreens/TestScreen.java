@@ -63,7 +63,7 @@ public class TestScreen implements Screen {
         engine.addSystem(new EnemyChaseSystem());
         engine.addSystem(new EnemyStrafeSystem());
         engine.addSystem(new MovementSystem(engine));
-        engine.addSystem(new ProjectileSpawnSystem(camera, engine, player, bulletTex));
+        engine.addSystem(new ProjectileSpawnSystem(camera, engine, bulletTex));
 
 
         engine.addSystem(new RenderingSystem(camera));
