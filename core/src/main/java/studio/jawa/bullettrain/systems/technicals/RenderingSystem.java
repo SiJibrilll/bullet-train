@@ -40,7 +40,18 @@ public class RenderingSystem extends EntitySystem {
             SpriteComponent spriteComp = sm.get(entity);
             Sprite sprite = spriteComp.sprite;
 
-            sprite.setPosition(transform.position.x, transform.position.y);
+            // Apply anchor
+            float width = sprite.getWidth();
+            float height = sprite.getHeight();
+
+            float originX = width * transform.origin.x;
+            float originY = height * transform.origin.y;
+
+            sprite.setOrigin(originX, originY);
+            sprite.setPosition(
+                transform.position.x - originX,
+                transform.position.y - originY
+            );
             sprite.setRotation(transform.rotation);
             sprite.setScale(transform.scale);
 
