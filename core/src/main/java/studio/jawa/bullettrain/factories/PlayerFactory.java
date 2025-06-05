@@ -17,18 +17,16 @@ public class PlayerFactory {
         float spawnX = GameConstants.CARRIAGE_WIDTH / 2f;
         float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
         float spawnY = carriageY + GameConstants.ENTRY_ZONE_HEIGHT + 50f;
-        
+
         // Create player with PlayerEntity
         GeneralStatsComponent stats = new GeneralStatsComponent(100, 200);
         PlayerEntity player = new PlayerEntity(spawnX, spawnY, playerTexture, stats);
-        
-        // Add PlayerComponent (karena PlayerEntity tidak memilikinya)
         player.add(new PlayerComponent());
         
         // Set current carriage
         PlayerComponent playerComp = player.getComponent(PlayerComponent.class);
         playerComp.currentCarriageNumber = carriageNumber;
-        
+
         return player;
     }
 }
