@@ -11,7 +11,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.level.CarriageBoundaryComponent;
 import studio.jawa.bullettrain.components.level.CarriageManagerComponent;
 import studio.jawa.bullettrain.components.level.OpenLayoutComponent;
@@ -95,14 +95,17 @@ public class GamePlayTestScreen implements Screen {
 
     private void setupAssetManager() {
         assetManager = new AssetManager();
-        // Load enemy textures dengan path yang sama seperti di CarriageTransitionSystem
+        // Player texture
+        assetManager.load("testing/dummy.png", Texture.class);
+        //Enemy textures
         assetManager.load("textures/enemies/melee_enemy.png", Texture.class);
         assetManager.load("textures/enemies/ranged_enemy.png", Texture.class);
         assetManager.finishLoading();
     }
 
     private void createPlayer() {
-        player = PlayerFactory.createPlayerAtCarriageEntry(1);
+        Texture playerTexture = assetManager.get("testing/dummy.png", Texture.class);
+        player = PlayerFactory.createPlayerAtCarriageEntry(1, playerTexture);
         engine.addEntity(player);
     }
 

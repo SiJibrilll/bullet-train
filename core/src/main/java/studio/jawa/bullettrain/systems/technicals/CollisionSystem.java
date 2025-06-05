@@ -7,10 +7,9 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Rectangle;
-import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.level.BaseObjectComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
-import studio.jawa.bullettrain.data.ObjectType;
 
 public class CollisionSystem extends EntitySystem {
 
@@ -53,7 +52,7 @@ public class CollisionSystem extends EntitySystem {
 
         if (playerTransform == null) return;
 
-        // Player collision bounds 
+        // Player collision bounds
         float playerSize = 15f;
         playerBounds.set(
             playerTransform.position.x - playerSize,

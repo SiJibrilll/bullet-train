@@ -10,7 +10,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
-import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 
 import studio.jawa.bullettrain.components.level.DoorComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
@@ -74,7 +74,7 @@ public class DoorInteractionSystem extends EntitySystem {
             InteractionComponent interaction = interactionMapper.get(door);
             DoorComponent doorComp = doorMapper.get(door);
 
-            if (!doorComp.isActive) continue; 
+            if (!doorComp.isActive) continue;
 
             // Calculate distance
             float distance = Vector2.dst(
@@ -114,7 +114,7 @@ public class DoorInteractionSystem extends EntitySystem {
             }
         } else {
             if (showingPrompt) {
-                System.out.println(""); 
+                System.out.println("");
                 showingPrompt = false;
             }
             nearbyDoor = null;
@@ -154,7 +154,7 @@ public class DoorInteractionSystem extends EntitySystem {
 
     private void teleportPlayerToCarriageEntry(TransformComponent playerTransform, int targetCarriageNumber) {
         // Calculate target position (entry point of target carriage)
-        float targetX = GameConstants.CARRIAGE_WIDTH / 2f; 
+        float targetX = GameConstants.CARRIAGE_WIDTH / 2f;
         float targetY = (targetCarriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT +
                        GameConstants.ENTRY_ZONE_HEIGHT + 50f;
 

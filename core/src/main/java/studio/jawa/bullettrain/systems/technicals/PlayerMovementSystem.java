@@ -7,7 +7,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
-import studio.jawa.bullettrain.components.gameplay.players.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.data.GameConstants;
@@ -82,7 +82,7 @@ public class PlayerMovementSystem extends IteratingSystem {
         float leftBound = (GameConstants.CARRIAGE_WIDTH - GameConstants.PLAYABLE_WIDTH) / 2f + 20f;
         float rightBound = leftBound + GameConstants.PLAYABLE_WIDTH - 40f;
 
-        // Vertical bounds 
+        // Vertical bounds
         float bottomBound = carriageOffsetY + 20f;
         float topBound = carriageOffsetY + GameConstants.CARRIAGE_HEIGHT - 20f;
 
