@@ -5,18 +5,14 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import studio.jawa.bullettrain.components.gameplays.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
-import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
-import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
 
-public class ProjectileSpawnSystem extends EntitySystem {
+public class PlayerProjectileSpawningSystem extends EntitySystem {
     private final Camera camera;
     private final Engine engine;
     private final ComponentMapper<ProjectileComponent> pm = ComponentMapper.getFor(ProjectileComponent.class);
@@ -30,7 +26,7 @@ public class ProjectileSpawnSystem extends EntitySystem {
         players = engine.getEntitiesFor(Family.all(TransformComponent.class, PlayerControlledComponent.class).get());
     }
 
-    public ProjectileSpawnSystem(Camera camera, Engine engine, Texture bulletTexture) {
+    public PlayerProjectileSpawningSystem(Camera camera, Engine engine, Texture bulletTexture) {
         this.camera = camera;
         this.engine = engine;
         this.bulletTexture = bulletTexture;

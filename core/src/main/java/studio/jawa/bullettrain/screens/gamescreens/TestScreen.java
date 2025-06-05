@@ -14,10 +14,11 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 import studio.jawa.bullettrain.factories.EnemyFactory;
+import studio.jawa.bullettrain.helpers.AssetLocator;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyStrafeSystem;
-import studio.jawa.bullettrain.systems.projectiles.ProjectileSpawnSystem;
+import studio.jawa.bullettrain.systems.projectiles.PlayerProjectileSpawningSystem;
 import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
 import studio.jawa.bullettrain.systems.technicals.MovementSystem;
 import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
@@ -38,16 +39,19 @@ public class TestScreen implements Screen {
 
 
         AssetManager manager = new AssetManager();
+        AssetLocator.setAssetManager(manager);
 
         manager.load("testing/dummy.png", Texture.class);
         manager.load("testing/dummy2.png", Texture.class);
         manager.load("testing/bullet.png", Texture.class);
+        manager.load("testing/slash.png", Texture.class);
 
         manager.finishLoading();
 
         Texture tex = manager.get("testing/dummy.png", Texture.class);
         Texture enemytex = manager.get("testing/dummy2.png", Texture.class);
         Texture bulletTex = manager.get("testing/bullet.png", Texture.class);
+        Texture slashTex = manager.get("testing/slash.png", Texture.class);
 
         GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
         PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
@@ -61,9 +65,9 @@ public class TestScreen implements Screen {
         engine.addSystem(new InputMovementSystem(engine));
         engine.addSystem(new EnemyIdleSystem(engine));
         engine.addSystem(new EnemyChaseSystem());
-        engine.addSystem(new EnemyStrafeSystem());
+        engine.addSystem(new EnemyStrafeSystem(manager, engine));
         engine.addSystem(new MovementSystem(engine));
-        engine.addSystem(new ProjectileSpawnSystem(camera, engine, bulletTex));
+        engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, bulletTex));
 
 
         engine.addSystem(new RenderingSystem(camera));
