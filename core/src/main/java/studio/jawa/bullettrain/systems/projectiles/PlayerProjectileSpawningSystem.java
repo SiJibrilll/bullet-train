@@ -51,7 +51,7 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
         // 3. Calculate normalized direction
         Vector2 direction = new Vector2(mouseWorld.x, mouseWorld.y).sub(start).nor();
 
-        ProjectileEntity projectile = new ProjectileEntity(start.x, start.y, direction, bulletTexture, 2000f, 0.5f);
+        ProjectileEntity projectile = new ProjectileEntity(start.x, start.y, direction, bulletTexture, 2000f, 0.5f, ProjectileComponent.Team.PLAYER);
 
         engine.addEntity(projectile);
     }

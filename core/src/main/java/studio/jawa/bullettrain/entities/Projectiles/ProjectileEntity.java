@@ -3,11 +3,10 @@ package studio.jawa.bullettrain.entities.Projectiles;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplays.projectiles.ProjectileComponent;
-import studio.jawa.bullettrain.components.technicals.SpriteComponent;
-import studio.jawa.bullettrain.components.technicals.TransformComponent;
-import studio.jawa.bullettrain.components.technicals.VelocityComponent;
+import studio.jawa.bullettrain.components.technicals.*;
 
 public class ProjectileEntity extends Entity {
     public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float speed) {
@@ -22,13 +21,13 @@ public class ProjectileEntity extends Entity {
         add(vel);
 
         add(new SpriteComponent(new Sprite(tex)));
-        add(new ProjectileComponent(speed));
+
     }
 
-    public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float speed, float scale) {
+    public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float speed, float scale, ProjectileComponent.Team team) {
         TransformComponent transform = new TransformComponent(x, y);
         transform.rotation = direction.angleDeg();
-        transform.origin.set(0f, 0.5f);
+        transform.origin.set(0.5f, 0.5f);
         transform.scale = 0.5f; // Adjust size
         add(transform);
 
@@ -38,6 +37,7 @@ public class ProjectileEntity extends Entity {
         add(vel);
 
         add(new SpriteComponent(new Sprite(tex)));
-        add(new ProjectileComponent(speed));
+        add(new ProjectileComponent(speed, team));
+        add(new CircleColliderComponent(0f, 0f, 40f));
     }
 }

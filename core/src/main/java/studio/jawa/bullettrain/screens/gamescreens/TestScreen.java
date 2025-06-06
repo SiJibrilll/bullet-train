@@ -19,9 +19,7 @@ import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyStrafeSystem;
 import studio.jawa.bullettrain.systems.projectiles.PlayerProjectileSpawningSystem;
-import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
-import studio.jawa.bullettrain.systems.technicals.MovementSystem;
-import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
+import studio.jawa.bullettrain.systems.technicals.*;
 
 /** First screen of the application. Displayed after the application is created. */
 public class TestScreen implements Screen {
@@ -68,9 +66,11 @@ public class TestScreen implements Screen {
         engine.addSystem(new EnemyStrafeSystem(manager, engine));
         engine.addSystem(new MovementSystem(engine));
         engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, bulletTex));
+        engine.addSystem(new ProjectileCollisionSystem(engine));
 
 
         engine.addSystem(new RenderingSystem(camera));
+        engine.addSystem(new DebugRenderSystem(camera, engine));
     }
 
     @Override
