@@ -30,7 +30,7 @@ public class ProjectileCollisionSystem extends EntitySystem {
         targets = engine.getEntitiesFor(
             Family.all(TransformComponent.class)
                 .one(CircleColliderComponent.class, BoxColliderComponent.class)
-                .exclude(ProjectileComponent.class) // exclude bullets if needed
+                // .exclude(ProjectileComponent.class) // exclude bullets if needed
                 .get()
         );
     }
@@ -38,10 +38,33 @@ public class ProjectileCollisionSystem extends EntitySystem {
     @Override
     public void update(float deltaTime) {
         for (Entity bullet : bullets) {
+            
+            // get bullet's properties
             TransformComponent bt = tm.get(bullet);
             CircleColliderComponent bc = circleCm.get(bullet);
 
-            // Rotate bullet's local offset
+            // check if this is a melee attack
+            ProjectileComponent bcm = bulletCm.get(bullet);
+            if (bcm.isMeele) {
+                
+                if (bcm.meleeDuration <= 0) {   
+                    getEngine().removeEntity(bullet);
+                    continue;
+
+                }
+                bcm.meleeDuration -= deltaTime;
+
+                meleeLogic(bc, bt, bullet);
+                continue;
+            } 
+
+            // if not melee, then run bullet logic
+            bulletLogic(bc, bt, bullet);
+        }
+    }
+
+    private void bulletLogic(CircleColliderComponent bc, TransformComponent bt, Entity bullet) {
+        // Rotate bullet's local offset
             float angle = MathUtils.degreesToRadians * bt.rotation;
             float rotatedX = bc.circle.x * MathUtils.cos(angle) - bc.circle.y * MathUtils.sin(angle);
             float rotatedY = bc.circle.x * MathUtils.sin(angle) + bc.circle.y * MathUtils.cos(angle);
@@ -87,8 +110,52 @@ public class ProjectileCollisionSystem extends EntitySystem {
                     }
                 }
             }
+    }
+
+    private void meleeLogic(CircleColliderComponent mc, TransformComponent mt, Entity meleeEntity) {
+        float angle = MathUtils.degreesToRadians * mt.rotation;
+        float rotatedX = mc.circle.x * MathUtils.cos(angle) - mc.circle.y * MathUtils.sin(angle);
+        float rotatedY = mc.circle.x * MathUtils.sin(angle) + mc.circle.y * MathUtils.cos(angle);
+
+        Circle meleeCircle = new Circle(
+            mt.position.x + rotatedX,
+            mt.position.y + rotatedY,
+            mc.circle.radius
+        );
+
+        for (Entity target : targets) {
+            if (meleeEntity == target) continue;
+
+            TransformComponent tt = tm.get(target);
+
+            boolean hit = false;
+
+            if (circleCm.has(target)) {
+                CircleColliderComponent tc = circleCm.get(target);
+                Circle targetCircle = new Circle(
+                    tt.position.x + tc.circle.x,
+                    tt.position.y + tc.circle.y,
+                    tc.circle.radius
+                );
+                hit = Intersector.overlaps(meleeCircle, targetCircle);
+            } else if (rectCm.has(target)) {
+                BoxColliderComponent rc = rectCm.get(target);
+                Rectangle rect = new Rectangle(
+                    tt.position.x + rc.bounds.x,
+                    tt.position.y + rc.bounds.y,
+                    rc.bounds.width,
+                    rc.bounds.height
+                );
+                hit = Intersector.overlaps(meleeCircle, rect);
+            }
+
+            if (hit) {
+                onHit(meleeEntity, target);
+            }
         }
     }
+
+    
 
     private void onHit(Entity bullet, Entity target) {
         ProjectileComponent pc = bullet.getComponent(ProjectileComponent.class);
@@ -105,6 +172,7 @@ public class ProjectileCollisionSystem extends EntitySystem {
         System.out.println("Bullet hit enemy!");
         target.add(new HitFlashComponent(.15f));
         // Remove bullet from engine
+        if (pc.isMeele) return;
         getEngine().removeEntity(bullet);
 
 

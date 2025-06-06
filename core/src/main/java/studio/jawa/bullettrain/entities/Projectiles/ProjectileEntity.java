@@ -40,4 +40,17 @@ public class ProjectileEntity extends Entity {
         add(new ProjectileComponent(speed, team));
         add(new CircleColliderComponent(0f, 0f, 40f));
     }
+
+    public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float scale, boolean isMelee, float meleeDuration, ProjectileComponent.Team team) {
+        TransformComponent transform = new TransformComponent(x, y);
+        transform.rotation = direction.angleDeg();
+        transform.origin.set(0.5f, 0.5f);
+        transform.scale = 0.5f; // Adjust size
+        add(transform);
+
+
+        add(new SpriteComponent(new Sprite(tex)));
+        add(new ProjectileComponent(team, isMelee, meleeDuration));
+        add(new CircleColliderComponent(0f, 0f, 40f));
+    }
 }

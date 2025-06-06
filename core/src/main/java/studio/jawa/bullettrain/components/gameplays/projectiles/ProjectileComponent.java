@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity;
 
 public class ProjectileComponent implements Component {
     public float speed = 0;
-    public boolean isMeele;
+    public boolean isMeele = false;
     public float meleeDuration = 0;
     public Entity owner;   // Who fired the bullet
     public Team team;
@@ -20,9 +20,9 @@ public class ProjectileComponent implements Component {
         this.team = team;
     }
 
-    public ProjectileComponent(float speed, boolean isMeele, float meleeDuration) {
-        this.speed = speed;
+    public ProjectileComponent(Team team, boolean isMeele, float meleeDuration) {
         this.isMeele = isMeele;
+        this.team  = team;
         this.meleeDuration = meleeDuration;
     }
 }
