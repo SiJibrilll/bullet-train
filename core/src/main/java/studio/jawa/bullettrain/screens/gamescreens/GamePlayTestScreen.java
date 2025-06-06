@@ -28,6 +28,10 @@ import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
 import studio.jawa.bullettrain.systems.technicals.CollisionSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemySpawnSystem;
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyChaseSystem;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
+import studio.jawa.bullettrain.systems.technicals.MovementSystem;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 
@@ -83,7 +87,14 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new CarriageTransitionSystem());
         engine.addSystem(new DoorInteractionSystem());
         engine.addSystem(new CollisionSystem());
-        engine.addSystem(new EnemySpawnSystem(assetManager)); // Add enemy spawn system
+        engine.addSystem(new EnemySpawnSystem(assetManager));
+        
+        // Add missing enemy movement systems
+        engine.addSystem(new EnemyIdleSystem(engine));
+        engine.addSystem(new EnemyChaseSystem());
+        engine.addSystem(new EnemyStrafeSystem());
+        engine.addSystem(new MovementSystem(engine));
+        
         cameraSystem = new CameraSystem(camera);
         engine.addSystem(cameraSystem);
         renderingSystem = new RenderingSystem(camera);
