@@ -1,39 +1,71 @@
 package studio.jawa.bullettrain.screens.gamescreens;
 
 import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import studio.jawa.bullettrain.entities.testing.TestingDummy;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+
+import com.badlogic.gdx.utils.viewport.Viewport;
+import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
+import studio.jawa.bullettrain.entities.players.PlayerEntity;
+import studio.jawa.bullettrain.factories.EnemyFactory;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyChaseSystem;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
+import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
+import studio.jawa.bullettrain.systems.technicals.MovementSystem;
 import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 
 /** First screen of the application. Displayed after the application is created. */
 public class TestScreen implements Screen {
     private Engine engine;
     private OrthographicCamera camera;
+    private Viewport viewport;
 
     @Override
     public void show() {
         engine = new Engine();
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+        viewport = new ExtendViewport(camera.viewportWidth, camera.viewportHeight, camera);
         camera.update();
 
-        engine.addSystem(new RenderingSystem(camera));
+
         AssetManager manager = new AssetManager();
 
         manager.load("testing/dummy.png", Texture.class);
+        manager.load("testing/dummy2.png", Texture.class);
 
         manager.finishLoading();
 
         Texture tex = manager.get("testing/dummy.png", Texture.class);
+        Texture enemytex = manager.get("testing/dummy2.png", Texture.class);
 
-        TestingDummy dummy = new TestingDummy(50, 50, tex);
+        GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
+        PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
 
-        engine.addEntity(dummy);
+        Entity enemy = EnemyFactory.createRangedEnemy(200, 200, 1, enemytex);
+        Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, 1, enemytex);
+
+        System.out.println("Enemy 1: " + enemy);
+        System.out.println("Enemy 2: " + enemy2);
+
+        engine.addEntity(player);
+        engine.addEntity(enemy2);
+        engine.addEntity(enemy);
+        engine.addSystem(new InputMovementSystem(engine));
+        engine.addSystem(new EnemyIdleSystem(engine));
+        engine.addSystem(new EnemyChaseSystem());
+        engine.addSystem(new EnemyStrafeSystem());
+        engine.addSystem(new MovementSystem(engine));
+
+
+        engine.addSystem(new RenderingSystem(camera));
     }
 
     @Override
@@ -46,6 +78,7 @@ public class TestScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
+        viewport.update(width, height);
         // If the window is minimized on a desktop (LWJGL3) platform, width and height are 0, which causes problems.
         // In that case, we don't resize anything, and wait for the window to be a normal size before updating.
         if(width <= 0 || height <= 0) return;
