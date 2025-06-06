@@ -36,7 +36,6 @@ public class CarriageFactory {
 
         // Add boundary component
         CarriageBoundaryComponent boundary = new CarriageBoundaryComponent();
-        // Adjust boundaries for carriage position
         boundary.carriageBounds.y = carriageY;
         boundary.playableBounds.y = carriageY + GameConstants.ENTRY_ZONE_HEIGHT;
         boundary.entryZone.y = carriageY;

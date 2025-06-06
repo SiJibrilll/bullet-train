@@ -28,7 +28,7 @@ public class InputMovementSystem extends EntitySystem {
             if (Gdx.input.isKeyPressed(Input.Keys.A)) input.direction.x -= 1;
             if (Gdx.input.isKeyPressed(Input.Keys.D)) input.direction.x += 1;
 
-            input.direction.clamp(0, 1); // Optional normalization
+            input.direction.clamp(0, 1); 
         }
     }
 }

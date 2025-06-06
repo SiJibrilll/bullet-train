@@ -9,11 +9,13 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.level.OpenLayoutComponent;
 import studio.jawa.bullettrain.components.level.TrainCarriageComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.factories.EnemyFactory;
+import studio.jawa.bullettrain.data.GameConstants;
 
 public class EnemySpawnSystem extends EntitySystem {
 
@@ -32,9 +34,6 @@ public class EnemySpawnSystem extends EntitySystem {
     public EnemySpawnSystem(AssetManager assetManager) {
         this.assetManager = assetManager;
 
-        // Hapus setSeed - biarkan LibGDX gunakan seed random bawaan
-        // MathUtils.random.setSeed(System.currentTimeMillis()); // ← HAPUS INI
-
         playerMapper = ComponentMapper.getFor(PlayerComponent.class);
         transformMapper = ComponentMapper.getFor(TransformComponent.class);
         carriageMapper = ComponentMapper.getFor(TrainCarriageComponent.class);
@@ -44,8 +43,6 @@ public class EnemySpawnSystem extends EntitySystem {
     }
 
     private void loadEnemyTextures() {
-        // Load enemy textures - sesuaikan path dengan CarriageTransitionSystem
-        // Textures sudah di-load di CarriageTransitionSystem, kita gunakan yang sama
         if (assetManager.isLoaded("textures/enemies/melee_enemy.png")) {
             meleeEnemyTexture = assetManager.get("textures/enemies/melee_enemy.png", Texture.class);
         }
@@ -109,20 +106,21 @@ public class EnemySpawnSystem extends EntitySystem {
         // Random enemy count based on carriage level
         int[] enemyRange = calculateEnemyRangeForCarriage(carriage.carriageNumber);
         int randomEnemyCount = MathUtils.random(enemyRange[0], enemyRange[1]);
+
+        // Generate proper spawn points within carriage boundaries
+        generateSpawnPointsForCarriage(layout, carriage.carriageNumber);
+
         int enemiesToSpawn = Math.min(randomEnemyCount, layout.enemySpawnPoints.size);
 
-        // Shuffle spawn points untuk variasi posisi
-        layout.enemySpawnPoints.shuffle();
-
-        // Spawn enemies dari spawn points yang sudah di-shuffle
+        // Spawn enemies dari spawn points yang sudah di-generate
         for (int i = 0; i < enemiesToSpawn; i++) {
-            if (i < layout.enemyEntities.size) continue; // Enemy sudah di-spawn
+            if (i < layout.enemyEntities.size) continue; 
 
             float x = layout.enemySpawnPoints.get(i).x;
             float y = layout.enemySpawnPoints.get(i).y;
 
-            // Random enemy type untuk setiap enemy
-            Entity enemy = createRandomEnemy(x, y, 1.0f);
+            // Random enemy type 
+            Entity enemy = createRandomEnemy(x, y, carriage.carriageNumber);
 
             if (enemy != null) {
                 getEngine().addEntity(enemy);
@@ -131,6 +129,30 @@ public class EnemySpawnSystem extends EntitySystem {
                 System.out.println("👹 Enemy spawned at (" + x + ", " + y + ") in Car " + carriage.carriageNumber);
             }
         }
+    }
+
+    private void generateSpawnPointsForCarriage(OpenLayoutComponent layout, int carriageNumber) {
+        // Clear existing spawn points
+        layout.enemySpawnPoints.clear();
+
+        // Calculate carriage offset
+        float carriageOffsetY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
+
+        // Calculate playable bounds
+        float leftBound = (GameConstants.CARRIAGE_WIDTH - GameConstants.PLAYABLE_WIDTH) / 2f + 40f;
+        float rightBound = leftBound + GameConstants.PLAYABLE_WIDTH - 80f;
+        float bottomBound = carriageOffsetY + GameConstants.ENTRY_ZONE_HEIGHT + 40f;
+        float topBound = carriageOffsetY + GameConstants.CARRIAGE_HEIGHT - GameConstants.EXIT_ZONE_HEIGHT - 40f;
+
+        // Generate random spawn points within bounds
+        int maxSpawnPoints = 8; 
+        for (int i = 0; i < maxSpawnPoints; i++) {
+            float x = MathUtils.random(leftBound, rightBound);
+            float y = MathUtils.random(bottomBound, topBound);
+            layout.enemySpawnPoints.add(new Vector2(x, y));
+        }
+
+        // System.out.println("🎯 Generated " + maxSpawnPoints + " spawn points for Car " + carriageNumber);
     }
 
     private int[] calculateEnemyRangeForCarriage(int carriageNumber) {
@@ -145,14 +167,14 @@ public class EnemySpawnSystem extends EntitySystem {
         }
     }
 
-    private Entity createRandomEnemy(float x, float y, float difficultyMultiplier) {
+    private Entity createRandomEnemy(float x, float y, int carriageNumber) {
         // Random tipe enemy: 60% melee, 40% ranged
         boolean isMelee = MathUtils.randomBoolean(0.6f);
 
         if (isMelee) {
-            return EnemyFactory.createMeleeEnemy(x, y, meleeEnemyTexture);
+            return EnemyFactory.createMeleeEnemy(x, y, carriageNumber, meleeEnemyTexture);
         } else {
-            return EnemyFactory.createRangedEnemy(x, y, rangedEnemyTexture);
+            return EnemyFactory.createRangedEnemy(x, y, carriageNumber, rangedEnemyTexture);
         }
     }
 }

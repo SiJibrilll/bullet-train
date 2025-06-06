@@ -183,11 +183,20 @@ public class CarriageTransitionSystem extends EntitySystem {
         );
 
         Entity carriage = carriageEntities[0];
+        
+        // Update boundary for correct carriage number
+        CarriageBoundaryComponent boundary = boundaryMapper.get(carriage);
+        if (boundary != null) {
+            boundary.updateForCarriage(carriageNumber);
+        }
+        
         manager.addCarriage(carriageNumber, carriage);
 
         for (Entity entity : carriageEntities) {
             getEngine().addEntity(entity);
         }
+        
+        System.out.println("🚂 Loaded Car " + carriageNumber + " with proper boundaries");
     }
 
     private void unloadCarriage(int carriageNumber, CarriageManagerComponent manager) {

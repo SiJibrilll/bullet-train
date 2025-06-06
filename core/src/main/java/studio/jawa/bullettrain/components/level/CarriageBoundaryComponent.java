@@ -15,20 +15,35 @@ public class CarriageBoundaryComponent implements Component {
         setupDefaultBounds();
     }
     
+    public CarriageBoundaryComponent(int carriageNumber) {
+        setupBoundsForCarriage(carriageNumber);
+    }
+    
     private void setupDefaultBounds() {
+        setupBoundsForCarriage(1);
+    }
+    
+    private void setupBoundsForCarriage(int carriageNumber) {
+        // Calculate carriage offset
+        float carriageOffsetY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
+        
         // Full carriage bounds
-        carriageBounds.set(0, 0, GameConstants.CARRIAGE_WIDTH, GameConstants.CARRIAGE_HEIGHT);
+        carriageBounds.set(0, carriageOffsetY, GameConstants.CARRIAGE_WIDTH, GameConstants.CARRIAGE_HEIGHT);
         
         // Playable area (center)
         float offsetX = (GameConstants.CARRIAGE_WIDTH - GameConstants.PLAYABLE_WIDTH) / 2f;
-        playableBounds.set(offsetX, GameConstants.ENTRY_ZONE_HEIGHT, 
+        playableBounds.set(offsetX, carriageOffsetY + GameConstants.ENTRY_ZONE_HEIGHT, 
                           GameConstants.PLAYABLE_WIDTH, GameConstants.PLAYABLE_HEIGHT);
         
         // Entry zone (bottom)
-        entryZone.set(offsetX, 0, GameConstants.PLAYABLE_WIDTH, GameConstants.ENTRY_ZONE_HEIGHT);
+        entryZone.set(offsetX, carriageOffsetY, GameConstants.PLAYABLE_WIDTH, GameConstants.ENTRY_ZONE_HEIGHT);
         
         // Exit zone (top)
-        exitZone.set(offsetX, GameConstants.CARRIAGE_HEIGHT - GameConstants.EXIT_ZONE_HEIGHT,
+        exitZone.set(offsetX, carriageOffsetY + GameConstants.CARRIAGE_HEIGHT - GameConstants.EXIT_ZONE_HEIGHT,
                     GameConstants.PLAYABLE_WIDTH, GameConstants.EXIT_ZONE_HEIGHT);
+    }
+    
+    public void updateForCarriage(int carriageNumber) {
+        setupBoundsForCarriage(carriageNumber);
     }
 }

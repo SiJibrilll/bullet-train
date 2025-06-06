@@ -49,8 +49,8 @@ public class TestScreen implements Screen {
         GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
         PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
 
-        Entity enemy = EnemyFactory.createRangedEnemy(200, 200, enemytex);
-        Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, enemytex);
+        Entity enemy = EnemyFactory.createRangedEnemy(200, 200, 1, enemytex);
+        Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, 1, enemytex);
 
         System.out.println("Enemy 1: " + enemy);
         System.out.println("Enemy 2: " + enemy2);

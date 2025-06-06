@@ -10,6 +10,7 @@ import studio.jawa.bullettrain.components.gameplays.enemies.*;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
+import studio.jawa.bullettrain.data.GameConstants;
 
 public class EnemyStrafeSystem extends EntitySystem {
     private final ComponentMapper<EnemyStateComponent> sm = ComponentMapper.getFor(EnemyStateComponent.class);
@@ -18,6 +19,7 @@ public class EnemyStrafeSystem extends EntitySystem {
     private final ComponentMapper<EnemyStrafeComponent> stm = ComponentMapper.getFor(EnemyStrafeComponent.class);
     private final ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
     private final ComponentMapper<GeneralStatsComponent> gsm = ComponentMapper.getFor(GeneralStatsComponent.class);
+    private final ComponentMapper<EnemyComponent> em = ComponentMapper.getFor(EnemyComponent.class);
 
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
 
@@ -39,7 +41,7 @@ public class EnemyStrafeSystem extends EntitySystem {
         for (Entity entity : entities) {
 
             EnemyStateComponent state = sm.get(entity);
-            if (state.state != EnemyStateComponent.STATES.STRAFE) continue; // if not strafing, return
+            if (state.state != EnemyStateComponent.STATES.STRAFE) continue; 
 
             // get reference to player
             ImmutableArray<Entity> players = getEngine().getEntitiesFor(playerFamily);
@@ -47,7 +49,7 @@ public class EnemyStrafeSystem extends EntitySystem {
 
             // check for player existance
             if (player == null) {
-                state.state = EnemyStateComponent.STATES.IDLE; // if no player then just return
+                state.state = EnemyStateComponent.STATES.IDLE; 
                 return;
             }
 
@@ -75,6 +77,13 @@ public class EnemyStrafeSystem extends EntitySystem {
 
            vel.velocity.set(direction);
 
+           // Apply movement
+           transform.position.x += vel.velocity.x * deltaTime;
+           transform.position.y += vel.velocity.y * deltaTime;
+
+           // Keep enemy within carriage bounds
+           constrainEnemyToCarriage(entity, transform);
+
            strafe.duration -= deltaTime;
 
            if (strafe.duration < 0) {
@@ -84,6 +93,26 @@ public class EnemyStrafeSystem extends EntitySystem {
 
         }
 
+    }
+
+    private void constrainEnemyToCarriage(Entity entity, TransformComponent transform) {
+        EnemyComponent enemy = em.get(entity);
+        if (enemy == null) return;
+
+        // Calculate current carriage bounds
+        float carriageOffsetY = (enemy.carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
+
+        // Horizontal bounds
+        float leftBound = (GameConstants.CARRIAGE_WIDTH - GameConstants.PLAYABLE_WIDTH) / 2f + 20f;
+        float rightBound = leftBound + GameConstants.PLAYABLE_WIDTH - 40f;
+
+        // Vertical bounds
+        float bottomBound = carriageOffsetY + 20f;
+        float topBound = carriageOffsetY + GameConstants.CARRIAGE_HEIGHT - 20f;
+
+        // Constrain position
+        transform.position.x = Math.max(leftBound, Math.min(rightBound, transform.position.x));
+        transform.position.y = Math.max(bottomBound, Math.min(topBound, transform.position.y));
     }
 
     protected Vector2 moveLogic(float deltaTime, TransformComponent playerTransform, TransformComponent enemyTransform, EnemyStrafeComponent strafe, EnemyBehaviourComponent behaviour) {

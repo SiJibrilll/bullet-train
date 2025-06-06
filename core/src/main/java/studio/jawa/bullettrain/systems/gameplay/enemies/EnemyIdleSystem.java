@@ -23,7 +23,6 @@ public class EnemyIdleSystem extends EntitySystem {
     @Override
     public void update(float deltaTime) {
         for (Entity entity : entities) {
-            // get enemy state, if state is not idle then return
             EnemyStateComponent state = sm.get(entity);
 
             if (state.state != EnemyStateComponent.STATES.IDLE) continue;

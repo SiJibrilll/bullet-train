@@ -13,10 +13,15 @@ import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 
 public class EnemyEntity extends Entity {
-    public EnemyEntity(float x, float y, Texture tex, EnemyStateComponent.STATES state, EnemyBehaviourComponent behaviour, GeneralStatsComponent stats) {
+    public EnemyEntity(float x, float y, int carriageNumber, Texture tex, EnemyStateComponent.STATES state, EnemyBehaviourComponent behaviour, GeneralStatsComponent stats) {
         add(new TransformComponent(x, y));
         add(new VelocityComponent());
-        add(new EnemyComponent());
+        
+        // Create EnemyComponent with carriage number
+        EnemyComponent enemyComp = new EnemyComponent();
+        enemyComp.carriageNumber = carriageNumber;
+        add(enemyComp);
+        
         add(new EnemyStateComponent(state));
         add(behaviour);
         add(stats);
