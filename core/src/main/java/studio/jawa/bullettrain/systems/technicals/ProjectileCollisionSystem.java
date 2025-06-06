@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import studio.jawa.bullettrain.components.effects.HitFlashComponent;
 import studio.jawa.bullettrain.components.gameplays.TeamComponent;
 import studio.jawa.bullettrain.components.gameplays.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.BoxColliderComponent;
@@ -102,7 +103,7 @@ public class ProjectileCollisionSystem extends EntitySystem {
 
         // ✅ Passed team checks — apply hit
         System.out.println("Bullet hit enemy!");
-
+        target.add(new HitFlashComponent(.15f));
         // Remove bullet from engine
         getEngine().removeEntity(bullet);
 

@@ -5,9 +5,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -15,6 +14,7 @@ import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 import studio.jawa.bullettrain.factories.EnemyFactory;
 import studio.jawa.bullettrain.helpers.AssetLocator;
+import studio.jawa.bullettrain.systems.effects.HitFlashSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyStrafeSystem;
@@ -34,6 +34,15 @@ public class TestScreen implements Screen {
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
         viewport = new ExtendViewport(camera.viewportWidth, camera.viewportHeight, camera);
         camera.update();
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+
+        Texture solidWhite = new Texture(pixmap);
+        pixmap.dispose(); // Done with it
+
+
+        SpriteBatch sharedBatch = new SpriteBatch();
 
 
         AssetManager manager = new AssetManager();
@@ -68,8 +77,9 @@ public class TestScreen implements Screen {
         engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, bulletTex));
         engine.addSystem(new ProjectileCollisionSystem(engine));
 
-
-        engine.addSystem(new RenderingSystem(camera));
+        engine.addSystem(new HitFlashSystem());
+        engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch, solidWhite));
+        engine.addSystem(new RenderingSystem(camera, sharedBatch));
         engine.addSystem(new DebugRenderSystem(camera, engine));
     }
 

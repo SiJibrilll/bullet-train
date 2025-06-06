@@ -17,9 +17,9 @@ public class RenderingSystem extends EntitySystem {
     private ComponentMapper<TransformComponent> tm = ComponentMapper.getFor(TransformComponent.class);
     private ComponentMapper<SpriteComponent> sm = ComponentMapper.getFor(SpriteComponent.class);
 
-    public RenderingSystem(OrthographicCamera camera) {
+    public RenderingSystem(OrthographicCamera camera, SpriteBatch batch) {
         this.camera = camera;
-        this.batch = new SpriteBatch();
+        this.batch = batch;
     }
 
     @Override
@@ -56,7 +56,14 @@ public class RenderingSystem extends EntitySystem {
             sprite.setScale(transform.scale);
 
             sprite.draw(batch);
+            sprite.setColor(Color.WHITE);
         }
+
+
+        // 2. Draw flashing on top
+        getEngine().getSystem(HitFlashRenderSystem.class).render();
+
+
 
         batch.end();
     }
