@@ -26,7 +26,7 @@ import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 import studio.jawa.bullettrain.components.level.DoorComponent;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
 import studio.jawa.bullettrain.systems.technicals.CollisionSystem;
-import studio.jawa.bullettrain.systems.gameplays.enemies.EnemySpawnSystem;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemySpawnSystem;
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
