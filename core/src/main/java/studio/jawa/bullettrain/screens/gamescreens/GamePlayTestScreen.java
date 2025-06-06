@@ -26,7 +26,7 @@ import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 import studio.jawa.bullettrain.components.level.DoorComponent;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
 import studio.jawa.bullettrain.systems.technicals.CollisionSystem;
-import studio.jawa.bullettrain.systems.gameplay.EnemySpawnSystem;
+import studio.jawa.bullettrain.systems.gameplays.enemies.EnemySpawnSystem;
 import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
@@ -197,11 +197,11 @@ public class GamePlayTestScreen implements Screen {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Draw player (bright blue circle)
-        shapeRenderer.setColor(0, 0.5f, 1, 1);
-        shapeRenderer.circle(transform.position.x, transform.position.y, 20);
+        // Remove the blue circle - player sprite is already rendered by RenderingSystem
+        // shapeRenderer.setColor(0, 0.5f, 1, 1);
+        // shapeRenderer.circle(transform.position.x, transform.position.y, 20);
 
-        // Draw direction indicator (small triangle pointing up)
+        // Keep only the direction indicator (small triangle pointing up)
         shapeRenderer.setColor(1, 1, 1, 1);
         float px = transform.position.x;
         float py = transform.position.y + 25;

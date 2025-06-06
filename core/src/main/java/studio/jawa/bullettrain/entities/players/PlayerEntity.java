@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.technicals.*;
 import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
+import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 
 public class PlayerEntity extends Entity {
     public PlayerEntity(float x, float y, Texture tex, GeneralStatsComponent stats) {
@@ -15,6 +16,7 @@ public class PlayerEntity extends Entity {
         add(new VelocityComponent());
         add(new PlayerControlledComponent());
         add(new InputComponent());
+        add(new PlayerComponent());
         add(stats);
     }
 }

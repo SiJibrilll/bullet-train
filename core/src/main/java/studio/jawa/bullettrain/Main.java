@@ -9,6 +9,6 @@ import studio.jawa.bullettrain.screens.gamescreens.GamePlayTestScreen;
 public class Main extends Game {
     @Override
     public void create() {
-        setScreen(new GamePlayTestScreen());
+        setScreen(new TestScreen());
     }
 }

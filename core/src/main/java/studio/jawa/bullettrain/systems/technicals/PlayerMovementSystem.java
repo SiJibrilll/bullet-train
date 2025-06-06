@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.data.GameConstants;
@@ -17,13 +18,15 @@ public class PlayerMovementSystem extends IteratingSystem {
     private ComponentMapper<TransformComponent> transformMapper;
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<GeneralStatsComponent> statsMapper;
 
     public PlayerMovementSystem() {
-        super(Family.all(PlayerComponent.class, TransformComponent.class, VelocityComponent.class).get());
+        super(Family.all(PlayerComponent.class, TransformComponent.class, VelocityComponent.class, GeneralStatsComponent.class).get());
 
         transformMapper = ComponentMapper.getFor(TransformComponent.class);
         velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
         playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+        statsMapper = ComponentMapper.getFor(GeneralStatsComponent.class);
     }
 
     @Override
@@ -31,9 +34,10 @@ public class PlayerMovementSystem extends IteratingSystem {
         TransformComponent transform = transformMapper.get(entity);
         VelocityComponent velocity = velocityMapper.get(entity);
         PlayerComponent player = playerMapper.get(entity);
+        GeneralStatsComponent stats = statsMapper.get(entity);
 
         // Handle input
-        handleInput(velocity, player);
+        handleInput(velocity, stats);
 
         // Apply movement
         applyMovement(transform, velocity, deltaTime);
@@ -42,7 +46,7 @@ public class PlayerMovementSystem extends IteratingSystem {
         constrainToPlayableArea(entity, transform);
     }
 
-    private void handleInput(VelocityComponent velocity, PlayerComponent player) {
+    private void handleInput(VelocityComponent velocity, GeneralStatsComponent stats) {
         Vector2 inputVelocity = new Vector2();
 
         // WASD movement
@@ -61,7 +65,7 @@ public class PlayerMovementSystem extends IteratingSystem {
 
         // Normalize diagonal movement
         if (inputVelocity.len() > 0) {
-            inputVelocity.nor().scl(player.speed);
+            inputVelocity.nor().scl(stats.speed);
         }
 
         velocity.velocity.set(inputVelocity);
