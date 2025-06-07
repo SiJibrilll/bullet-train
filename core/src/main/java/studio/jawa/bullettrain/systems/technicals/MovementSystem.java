@@ -3,11 +3,11 @@ package studio.jawa.bullettrain.systems.technicals;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Vector2;
-import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
+import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
+import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
 import studio.jawa.bullettrain.data.GameConstants;
 
 

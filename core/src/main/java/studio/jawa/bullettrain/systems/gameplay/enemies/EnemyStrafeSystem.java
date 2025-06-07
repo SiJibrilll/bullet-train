@@ -6,13 +6,14 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
-import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.*;
+import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
+import studio.jawa.bullettrain.components.gameplay.enemies.*;
 
-import studio.jawa.bullettrain.components.gameplays.projectiles.ProjectileComponent;
+import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
+import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
 import studio.jawa.bullettrain.helpers.AssetLocator;
 

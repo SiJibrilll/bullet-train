@@ -10,14 +10,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import com.badlogic.gdx.utils.viewport.Viewport;
-import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
+import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 import studio.jawa.bullettrain.factories.EnemyFactory;
 import studio.jawa.bullettrain.helpers.AssetLocator;
 import studio.jawa.bullettrain.systems.effects.HitFlashSystem;
-import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyChaseSystem;
-import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyIdleSystem;
-import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyStrafeSystem;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyChaseSystem;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
+import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
 import studio.jawa.bullettrain.systems.projectiles.PlayerProjectileSpawningSystem;
 import studio.jawa.bullettrain.systems.technicals.*;
 
@@ -63,25 +63,25 @@ public class TestScreen implements Screen {
         GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
         PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
 
-        Entity enemy = EnemyFactory.createRangedEnemy(200, 200, enemytex);
-        Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, enemytex);
+        //Entity enemy = EnemyFactory.createRangedEnemy(200, 200, enemytex);
+        //Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, enemytex);
 
-        System.out.println("Enemy 1: " + enemy);
-        System.out.println("Enemy 2: " + enemy2);
+        // System.out.println("Enemy 1: " + enemy);
+        // System.out.println("Enemy 2: " + enemy2);
 
-        engine.addEntity(player);
-        engine.addEntity(enemy2);
-        engine.addEntity(enemy);
+        // engine.addEntity(player);
+        // engine.addEntity(enemy2);
+        // engine.addEntity(enemy);
         engine.addSystem(new InputMovementSystem(engine));
         engine.addSystem(new EnemyIdleSystem(engine));
         engine.addSystem(new EnemyChaseSystem());
         engine.addSystem(new EnemyStrafeSystem(manager, engine));
         engine.addSystem(new MovementSystem(engine));
-        engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, slashTex));
+        //engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, slashTex));
         engine.addSystem(new ProjectileCollisionSystem(engine));
 
         engine.addSystem(new HitFlashSystem());
-        engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch, solidWhite));
+        //engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch, solidWhite));
         engine.addSystem(new RenderingSystem(camera, sharedBatch));
         engine.addSystem(new DebugRenderSystem(camera, engine));
     }

@@ -1,4 +1,4 @@
-package studio.jawa.bullettrain.components.gameplays.projectiles;
+package studio.jawa.bullettrain.components.gameplay.projectiles;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;

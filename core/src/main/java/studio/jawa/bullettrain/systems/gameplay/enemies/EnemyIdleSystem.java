@@ -2,7 +2,7 @@ package studio.jawa.bullettrain.systems.gameplay.enemies;
 
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
-import studio.jawa.bullettrain.components.gameplays.enemies.*;
+import studio.jawa.bullettrain.components.gameplay.enemies.*;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;

@@ -2,9 +2,9 @@ package studio.jawa.bullettrain.factories;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Texture;
-import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyBehaviourComponent;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyStateComponent;
+import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
+import studio.jawa.bullettrain.components.gameplay.enemies.EnemyBehaviourComponent;
+import studio.jawa.bullettrain.components.gameplay.enemies.EnemyStateComponent;
 import studio.jawa.bullettrain.entities.enemies.EnemyEntity;
 
 

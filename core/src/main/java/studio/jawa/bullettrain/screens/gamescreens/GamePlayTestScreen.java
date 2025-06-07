@@ -21,19 +21,25 @@ import studio.jawa.bullettrain.factories.PlayerFactory;
 import studio.jawa.bullettrain.systems.technicals.CameraSystem;
 import studio.jawa.bullettrain.systems.technicals.CarriageTransitionSystem;
 import studio.jawa.bullettrain.systems.technicals.DoorInteractionSystem;
+import studio.jawa.bullettrain.systems.technicals.HitFlashRenderSystem;
 import studio.jawa.bullettrain.systems.technicals.PlayerMovementSystem;
+import studio.jawa.bullettrain.systems.technicals.ProjectileCollisionSystem;
 import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 import studio.jawa.bullettrain.components.level.DoorComponent;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
 import studio.jawa.bullettrain.systems.technicals.CollisionSystem;
+import studio.jawa.bullettrain.systems.technicals.DebugRenderSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemySpawnSystem;
-import studio.jawa.bullettrain.components.gameplays.enemies.EnemyComponent;
+import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
+import studio.jawa.bullettrain.systems.effects.HitFlashSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
+import studio.jawa.bullettrain.systems.projectiles.PlayerProjectileSpawningSystem;
 import studio.jawa.bullettrain.systems.technicals.MovementSystem;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class GamePlayTestScreen implements Screen {
     private Engine engine;
@@ -81,6 +87,7 @@ public class GamePlayTestScreen implements Screen {
 
         // Setup AssetManager untuk enemy textures
         setupAssetManager();
+        SpriteBatch sharedBatch = new SpriteBatch();
 
         // Add systems
         engine.addSystem(new PlayerMovementSystem());
@@ -92,12 +99,20 @@ public class GamePlayTestScreen implements Screen {
         // Add missing enemy movement systems
         engine.addSystem(new EnemyIdleSystem(engine));
         engine.addSystem(new EnemyChaseSystem());
-        engine.addSystem(new EnemyStrafeSystem());
+        engine.addSystem(new EnemyStrafeSystem(assetManager, engine));
         engine.addSystem(new MovementSystem(engine));
+
+        engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, assetManager));
+        engine.addSystem(new ProjectileCollisionSystem(engine));
+
+        engine.addSystem(new HitFlashSystem());
+        engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch));
+        engine.addSystem(new RenderingSystem(camera, sharedBatch));
+        engine.addSystem(new DebugRenderSystem(camera, engine));
         
         cameraSystem = new CameraSystem(camera);
         engine.addSystem(cameraSystem);
-        renderingSystem = new RenderingSystem(camera);
+        renderingSystem = new RenderingSystem(camera, sharedBatch);
         engine.addSystem(renderingSystem);
 
         // Create player
@@ -111,6 +126,8 @@ public class GamePlayTestScreen implements Screen {
         //Enemy textures
         assetManager.load("textures/enemies/melee_enemy.png", Texture.class);
         assetManager.load("textures/enemies/ranged_enemy.png", Texture.class);
+        assetManager.load("testing/bullet.png", Texture.class);
+        assetManager.load("testing/slash.png", Texture.class);
         assetManager.finishLoading();
     }
 

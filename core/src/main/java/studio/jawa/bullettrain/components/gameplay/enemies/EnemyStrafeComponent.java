@@ -1,4 +1,4 @@
-package studio.jawa.bullettrain.components.gameplays.enemies;
+package studio.jawa.bullettrain.components.gameplay.enemies;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.math.MathUtils;

@@ -13,12 +13,11 @@ import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 public class HitFlashRenderSystem extends EntitySystem {
     private final SpriteBatch batch;
     private final OrthographicCamera camera;
-    private final Texture flash;
 
-    public HitFlashRenderSystem(OrthographicCamera camera, SpriteBatch sharedBatch, Texture flash) {
+
+    public HitFlashRenderSystem(OrthographicCamera camera, SpriteBatch sharedBatch) {
         this.camera = camera;
         this.batch = sharedBatch;
-        this.flash = flash;
     }
 
     public void render() {

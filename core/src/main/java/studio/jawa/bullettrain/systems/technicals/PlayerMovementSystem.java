@@ -8,7 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
-import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
+import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.data.GameConstants;
