@@ -156,7 +156,7 @@ public class CharacterSelectScreen implements Screen {
             Actions.delay(0.3f),
             Actions.moveBy(0, 300, 0.7f, Interpolation.pow3Out)
         ));
-    };
+    }
 
     public void updateCharacterInfo(CharacterInfo character) {
 //        portrait.setDrawable(new TextureRegionDrawable(new TextureRegion(character.portrait)));

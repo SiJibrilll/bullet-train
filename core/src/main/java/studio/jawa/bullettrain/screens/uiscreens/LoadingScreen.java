@@ -56,7 +56,7 @@ public class LoadingScreen implements Screen {
         assetManager.load("testing/train_v18.png", Texture.class);
 
         assetManager.finishLoading();
-    };
+    }
 
     @Override
     public void render(float delta) {
@@ -71,7 +71,7 @@ public class LoadingScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
-    };
+    }
 
     @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
     @Override public void pause() {}

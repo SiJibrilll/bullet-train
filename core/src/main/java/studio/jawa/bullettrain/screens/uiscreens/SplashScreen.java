@@ -61,7 +61,7 @@ public class SplashScreen implements Screen {
             Actions.run(() -> mainMenuStage.getRoot().addAction(Actions.fadeIn(3f))),
             Actions.run(() -> game.setScreen(mainMenuScreen))
         ));
-    };
+    }
 
     @Override
     public void render(float delta) {
@@ -72,7 +72,7 @@ public class SplashScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
-    };
+    }
 
     @Override public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
