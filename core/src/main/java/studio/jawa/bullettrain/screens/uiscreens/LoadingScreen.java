@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
@@ -19,7 +20,6 @@ public class LoadingScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private ProgressBar progressBar;
-    private Label loadingLabel;
 
     public LoadingScreen(Game game, AssetManager assetManager) {
         this.game = game;
@@ -36,7 +36,7 @@ public class LoadingScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
-        loadingLabel = new Label("Loading...", skin);
+        Label loadingLabel = new Label("Loading...", skin);
         loadingLabel.setFontScale(2);
 
         progressBar = new ProgressBar(0f, 1f, 0.01f, false, skin);
@@ -47,6 +47,13 @@ public class LoadingScreen implements Screen {
         root.add(progressBar).width(300).height(30);
 
         assetManager.load("ui/uiskin.json", Skin.class);
+        assetManager.load("testing/sky.png", Texture.class);
+        assetManager.load("testing/far-mountains.png", Texture.class);
+        assetManager.load("testing/middle-mountains.png", Texture.class);
+        assetManager.load("testing/far-trees.png", Texture.class);
+        assetManager.load("testing/myst.png", Texture.class);
+        assetManager.load("testing/near-trees.png", Texture.class);
+        assetManager.load("testing/train_v18.png", Texture.class);
 
         assetManager.finishLoading();
     };
@@ -57,7 +64,7 @@ public class LoadingScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (assetManager.update()) {
-            game.setScreen(new MainMenuScreen(game, assetManager));
+            game.setScreen(new SplashScreen(game, assetManager));
         }
 
         progressBar.setValue(assetManager.getProgress());

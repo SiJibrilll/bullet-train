@@ -5,13 +5,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import studio.jawa.bullettrain.screens.gamescreens.TestGameScreen;
@@ -19,7 +18,7 @@ import studio.jawa.bullettrain.screens.gamescreens.TestGameScreen;
 public class CharacterSelectScreen implements Screen {
     private final Game game;
     private final AssetManager assetManager;
-    private Stage stage;
+    private Stage uiStage;
     private Skin skin;
 
     private Image portrait;
@@ -37,8 +36,8 @@ public class CharacterSelectScreen implements Screen {
 
     @Override
     public void show() {
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
+        uiStage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(uiStage);
         skin = assetManager.get("ui/uiskin.json", Skin.class);
 
         characters = new CharacterInfo[] {
@@ -52,22 +51,42 @@ public class CharacterSelectScreen implements Screen {
         Image bgBar = new Image(skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 1f));
         bgBar.setSize(Gdx.graphics.getWidth(), 220);
         bgBar.setPosition(0, 0);
-        stage.addActor(bgBar);
+        uiStage.addActor(bgBar);
 
         Table root = new Table();
         root.setFillParent(true);
         root.pad(20);
-        stage.addActor(root);
+        uiStage.addActor(root);
 
-        Label infoLabel = new Label("Select your character", skin);
-        infoLabel.setFontScale(5);
-        root.top().padTop(40);
-        root.add(infoLabel).expandX().top().padBottom(20).row();
+        Table confirmTable = new Table();
+        confirmTable.setFillParent(true);
+        confirmTable.align(Align.bottom | Align.center);
 
         Table bottomContainer = new Table();
         bottomContainer.setFillParent(true);
         bottomContainer.bottom().padBottom(30).left().padLeft(30);
-        stage.addActor(bottomContainer);
+        uiStage.addActor(bottomContainer);
+
+        TextButton backButton = new TextButton("Back", skin);
+        backButton.getLabel().setFontScale(1.5f);
+        root.add(backButton).left().top().width(150).height(60).padLeft(60).row();
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new MainMenuScreen(game, assetManager));
+            }
+        });
+
+        Label infoLabel = new Label("Select your character", skin);
+        infoLabel.setAlignment(Align.center);
+        infoLabel.setFontScale(5);
+        root.top().padTop(40);
+        root.add(infoLabel).expandX().center().top().padBottom(20).row();
+
+        portrait = new Image(skin.newDrawable("white", 1, 1, 1, 1));
+        portrait.setSize(400, 400);
+        portrait.setPosition(-portrait.getWidth(), 100);
+        uiStage.addActor(portrait);
 
 //        portrait = new Image(new TextureRegionDrawable(characters[0].portrait));
 //        bottomContainer.add(portrait).width(500).height(500).left().padLeft(30).bottom().padBottom(30);
@@ -115,17 +134,28 @@ public class CharacterSelectScreen implements Screen {
             }
         });
 
-        Table confirmTable = new Table();
-        confirmTable.setFillParent(true);
-        confirmTable.align(Align.bottom | Align.center);
-        confirmTable.add(confirmButton).width(250).height(60).padBottom(80);
-        stage.addActor(confirmTable);
+        confirmTable.add(confirmButton).width(250).height(60).padBottom(60);
+        uiStage.addActor(confirmTable);
 
         rightContainer.add(selectionTable).padBottom(20).row();
-//        rightContainer.add(confirmButton).center().width(200).height(60);
-
         bottomContainer.add(rightContainer).expandX().bottom().right().padRight(150);
-        root.add(bottomContainer).expand().fill().bottom().row();
+
+        portrait.addAction(Actions.sequence(
+            Actions.delay(0.2f),
+            Actions.moveTo(30, 100, 0.7f, Interpolation.pow3Out)
+        ));
+
+        confirmTable.moveBy(0, -200);
+        confirmTable.addAction(Actions.sequence(
+            Actions.delay(0.5f),
+            Actions.moveBy(0, 200, 0.7f, Interpolation.pow3Out)
+        ));
+
+        bottomContainer.moveBy(0, -300);
+        bottomContainer.addAction(Actions.sequence(
+            Actions.delay(0.3f),
+            Actions.moveBy(0, 300, 0.7f, Interpolation.pow3Out)
+        ));
     };
 
     public void updateCharacterInfo(CharacterInfo character) {
@@ -139,13 +169,13 @@ public class CharacterSelectScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(delta);
-        stage.draw();
+        uiStage.act(delta);
+        uiStage.draw();
     }
 
-    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
+    @Override public void resize(int width, int height) { uiStage.getViewport().update(width, height, true); }
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-    @Override public void dispose() { stage.dispose(); }
+    @Override public void dispose() { uiStage.dispose(); }
 }
