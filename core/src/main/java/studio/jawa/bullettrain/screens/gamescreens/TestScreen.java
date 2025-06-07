@@ -5,21 +5,21 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import com.badlogic.gdx.utils.viewport.Viewport;
 import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 import studio.jawa.bullettrain.factories.EnemyFactory;
-import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyChaseSystem;
-import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
-import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
-import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
-import studio.jawa.bullettrain.systems.technicals.MovementSystem;
-import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
+import studio.jawa.bullettrain.helpers.AssetLocator;
+import studio.jawa.bullettrain.systems.effects.HitFlashSystem;
+import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyChaseSystem;
+import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyIdleSystem;
+import studio.jawa.bullettrain.systems.gameplays.enemies.EnemyStrafeSystem;
+import studio.jawa.bullettrain.systems.projectiles.PlayerProjectileSpawningSystem;
+import studio.jawa.bullettrain.systems.technicals.*;
 
 /** First screen of the application. Displayed after the application is created. */
 public class TestScreen implements Screen {
@@ -34,23 +34,37 @@ public class TestScreen implements Screen {
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
         viewport = new ExtendViewport(camera.viewportWidth, camera.viewportHeight, camera);
         camera.update();
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+
+        Texture solidWhite = new Texture(pixmap);
+        pixmap.dispose(); // Done with it
+
+
+        SpriteBatch sharedBatch = new SpriteBatch();
 
 
         AssetManager manager = new AssetManager();
+        AssetLocator.setAssetManager(manager);
 
         manager.load("testing/dummy.png", Texture.class);
         manager.load("testing/dummy2.png", Texture.class);
+        manager.load("testing/bullet.png", Texture.class);
+        manager.load("testing/slash.png", Texture.class);
 
         manager.finishLoading();
 
         Texture tex = manager.get("testing/dummy.png", Texture.class);
         Texture enemytex = manager.get("testing/dummy2.png", Texture.class);
+        Texture bulletTex = manager.get("testing/bullet.png", Texture.class);
+        Texture slashTex = manager.get("testing/slash.png", Texture.class);
 
         GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
         PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
 
-        Entity enemy = EnemyFactory.createRangedEnemy(200, 200, 1, enemytex);
-        Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, 1, enemytex);
+        Entity enemy = EnemyFactory.createRangedEnemy(200, 200, enemytex);
+        Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, enemytex);
 
         System.out.println("Enemy 1: " + enemy);
         System.out.println("Enemy 2: " + enemy2);
@@ -61,11 +75,15 @@ public class TestScreen implements Screen {
         engine.addSystem(new InputMovementSystem(engine));
         engine.addSystem(new EnemyIdleSystem(engine));
         engine.addSystem(new EnemyChaseSystem());
-        engine.addSystem(new EnemyStrafeSystem());
+        engine.addSystem(new EnemyStrafeSystem(manager, engine));
         engine.addSystem(new MovementSystem(engine));
+        engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, slashTex));
+        engine.addSystem(new ProjectileCollisionSystem(engine));
 
-
-        engine.addSystem(new RenderingSystem(camera));
+        engine.addSystem(new HitFlashSystem());
+        engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch, solidWhite));
+        engine.addSystem(new RenderingSystem(camera, sharedBatch));
+        engine.addSystem(new DebugRenderSystem(camera, engine));
     }
 
     @Override

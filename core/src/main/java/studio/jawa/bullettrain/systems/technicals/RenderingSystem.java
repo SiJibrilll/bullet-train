@@ -20,9 +20,9 @@ public class RenderingSystem extends EntitySystem {
     private ComponentMapper<SpriteComponent> sm = ComponentMapper.getFor(SpriteComponent.class);
     private ComponentMapper<BaseObjectComponent> om = ComponentMapper.getFor(BaseObjectComponent.class);
 
-    public RenderingSystem(OrthographicCamera camera) {
+    public RenderingSystem(OrthographicCamera camera, SpriteBatch batch) {
         this.camera = camera;
-        this.batch = new SpriteBatch();
+        this.batch = batch;
     }
 
     @Override
@@ -46,15 +46,30 @@ public class RenderingSystem extends EntitySystem {
             
             Sprite sprite = spriteComp.sprite;
 
+            // Apply anchor
+            float width = sprite.getWidth();
+            float height = sprite.getHeight();
+
+            float originX = width * transform.origin.x;
+            float originY = height * transform.origin.y;
+
+            sprite.setOrigin(originX, originY);
             sprite.setPosition(
-                transform.position.x - sprite.getWidth()/2f, 
-                transform.position.y - sprite.getHeight()/2f
+                transform.position.x - originX,
+                transform.position.y - originY
             );
             sprite.setRotation(transform.rotation);
             sprite.setScale(transform.scale);
 
             sprite.draw(batch);
+            sprite.setColor(Color.WHITE);
         }
+
+
+        // 2. Draw flashing on top
+        getEngine().getSystem(HitFlashRenderSystem.class).render();
+
+
 
         batch.end();
     }

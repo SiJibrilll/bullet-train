@@ -3,14 +3,18 @@ package studio.jawa.bullettrain.systems.gameplay.enemies;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplays.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplays.enemies.*;
 
+import studio.jawa.bullettrain.components.gameplays.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
-import studio.jawa.bullettrain.data.GameConstants;
+import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
+import studio.jawa.bullettrain.helpers.AssetLocator;
 
 public class EnemyStrafeSystem extends EntitySystem {
     private final ComponentMapper<EnemyStateComponent> sm = ComponentMapper.getFor(EnemyStateComponent.class);
@@ -24,9 +28,14 @@ public class EnemyStrafeSystem extends EntitySystem {
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
 
     private ImmutableArray<Entity> entities;
-//    public EnemyStrafeSystem(Engine engine) {
+    private AssetManager assetmanager;
+    private  Engine engine;
+
+    public EnemyStrafeSystem(AssetManager assetmanager, Engine engine) {
 //        this.entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, EnemyStateComponent.class, EnemyBehaviourComponent.class).get());
-//    }
+        this.assetmanager = assetmanager;
+        this.engine = engine;
+    }
     @Override
     public void addedToEngine(Engine engine) {
         entities = engine.getEntitiesFor(Family.all(
@@ -53,21 +62,22 @@ public class EnemyStrafeSystem extends EntitySystem {
                 return;
             }
 
-            // System.out.println("Im here!");
-
             // enemy info
             EnemyStrafeComponent strafe = stm.get(entity);
             VelocityComponent vel = vm.get(entity);
             GeneralStatsComponent stat = gsm.get(entity);
-
-            // Get important datas
             TransformComponent transform = tm.get(entity);
             EnemyBehaviourComponent behaviour = bm.get(entity);
+
+            // Get important datas
             TransformComponent playerTransform = player.getComponent(TransformComponent.class);
 
 
            if (strafe.attack) {
-               System.out.println("BANG");
+               Texture bulletTex = assetmanager.get("testing/bullet.png", Texture.class);
+               Vector2 aim = new Vector2(playerTransform.position).sub(transform.position);
+               ProjectileEntity bullet = new ProjectileEntity(transform.position.x, transform.position.y, aim, bulletTex, 3f, 0.5f, ProjectileComponent.Team.ENEMY);
+               engine.addEntity(bullet);
                strafe.attack = false;
            }
 
