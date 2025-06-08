@@ -2,6 +2,8 @@ package studio.jawa.bullettrain.systems.gameplay.enemies;
 
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
+
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.*;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
@@ -17,7 +19,7 @@ public class EnemyIdleSystem extends EntitySystem {
     private ImmutableArray<Entity> entities;
 
     public EnemyIdleSystem(Engine engine) {
-        this.entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, EnemyStateComponent.class, EnemyBehaviourComponent.class).get());
+        this.entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, EnemyStateComponent.class, EnemyBehaviourComponent.class).exclude(DeathComponent.class).get());
     }
 
     @Override

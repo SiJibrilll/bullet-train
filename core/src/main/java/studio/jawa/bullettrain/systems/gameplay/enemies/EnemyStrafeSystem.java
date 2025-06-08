@@ -5,17 +5,20 @@ import com.badlogic.ashley.utils.ImmutableArray;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.*;
 
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
+import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
-import studio.jawa.bullettrain.helpers.AssetLocator;
 
 public class EnemyStrafeSystem extends EntitySystem {
     private final ComponentMapper<EnemyStateComponent> sm = ComponentMapper.getFor(EnemyStateComponent.class);
@@ -43,7 +46,7 @@ public class EnemyStrafeSystem extends EntitySystem {
             EnemyComponent.class,
             EnemyStateComponent.class,
             EnemyBehaviourComponent.class
-        ).get());
+        ).exclude(DeathComponent.class).get());
     }
 
     @Override
@@ -51,7 +54,7 @@ public class EnemyStrafeSystem extends EntitySystem {
         for (Entity entity : entities) {
 
             EnemyStateComponent state = sm.get(entity);
-            if (state.state != EnemyStateComponent.STATES.STRAFE) continue; 
+            if (state.state != EnemyStateComponent.STATES.STRAFE) continue; // if not strafing, return
 
             // get reference to player
             ImmutableArray<Entity> players = getEngine().getEntitiesFor(playerFamily);
@@ -59,7 +62,7 @@ public class EnemyStrafeSystem extends EntitySystem {
 
             // check for player existance
             if (player == null) {
-                state.state = EnemyStateComponent.STATES.IDLE; 
+                state.state = EnemyStateComponent.STATES.IDLE; // if no player then just return
                 return;
             }
 
@@ -77,7 +80,7 @@ public class EnemyStrafeSystem extends EntitySystem {
            if (strafe.attack) {
                Texture bulletTex = assetmanager.get("testing/bullet.png", Texture.class);
                Vector2 aim = new Vector2(playerTransform.position).sub(transform.position);
-               ProjectileEntity bullet = new ProjectileEntity(transform.position.x, transform.position.y, aim, bulletTex, 2f, 0.5f, ProjectileComponent.Team.ENEMY);
+               ProjectileEntity bullet = new ProjectileEntity(transform.position.x, transform.position.y, aim, bulletTex, 3f, 0.5f, ProjectileComponent.Team.ENEMY);
                engine.addEntity(bullet);
                strafe.attack = false;
            }
@@ -88,13 +91,6 @@ public class EnemyStrafeSystem extends EntitySystem {
 
            vel.velocity.set(direction);
 
-           // Apply movement
-           transform.position.x += vel.velocity.x * deltaTime;
-           transform.position.y += vel.velocity.y * deltaTime;
-
-           // Keep enemy within carriage bounds
-           constrainEnemyToCarriage(entity, transform);
-
            strafe.duration -= deltaTime;
 
            if (strafe.duration < 0) {
@@ -104,26 +100,6 @@ public class EnemyStrafeSystem extends EntitySystem {
 
         }
 
-    }
-
-    private void constrainEnemyToCarriage(Entity entity, TransformComponent transform) {
-        EnemyComponent enemy = em.get(entity);
-        if (enemy == null) return;
-
-        // Calculate current carriage bounds
-        float carriageOffsetY = (enemy.carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
-
-        // Horizontal bounds
-        float leftBound = (GameConstants.CARRIAGE_WIDTH - GameConstants.PLAYABLE_WIDTH) / 2f + 20f;
-        float rightBound = leftBound + GameConstants.PLAYABLE_WIDTH - 40f;
-
-        // Vertical bounds
-        float bottomBound = carriageOffsetY + 20f;
-        float topBound = carriageOffsetY + GameConstants.CARRIAGE_HEIGHT - 20f;
-
-        // Constrain position
-        transform.position.x = Math.max(leftBound, Math.min(rightBound, transform.position.x));
-        transform.position.y = Math.max(bottomBound, Math.min(topBound, transform.position.y));
     }
 
     protected Vector2 moveLogic(float deltaTime, TransformComponent playerTransform, TransformComponent enemyTransform, EnemyStrafeComponent strafe, EnemyBehaviourComponent behaviour) {

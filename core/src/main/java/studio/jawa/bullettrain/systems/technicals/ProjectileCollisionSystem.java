@@ -6,15 +6,20 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+
 import studio.jawa.bullettrain.components.effects.HitFlashComponent;
+import studio.jawa.bullettrain.components.gameplay.DamageComponent;
 import studio.jawa.bullettrain.components.gameplay.TeamComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.BoxColliderComponent;
 import studio.jawa.bullettrain.components.technicals.CircleColliderComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
+import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 
 public class ProjectileCollisionSystem extends EntitySystem {
     private final ComponentMapper<TransformComponent> tm = ComponentMapper.getFor(TransformComponent.class);
+    private final ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
     private final ComponentMapper<CircleColliderComponent> circleCm = ComponentMapper.getFor(CircleColliderComponent.class);
     private final ComponentMapper<BoxColliderComponent> rectCm = ComponentMapper.getFor(BoxColliderComponent.class);
     private final ComponentMapper<ProjectileComponent> bulletCm = ComponentMapper.getFor(ProjectileComponent.class);
@@ -159,6 +164,7 @@ public class ProjectileCollisionSystem extends EntitySystem {
 
     private void onHit(Entity bullet, Entity target) {
         ProjectileComponent pc = bullet.getComponent(ProjectileComponent.class);
+        TransformComponent transform = tm.get(bullet);
         if (pc == null) return;
 
         // 1. Don't hit your shooter
@@ -169,8 +175,15 @@ public class ProjectileCollisionSystem extends EntitySystem {
         if (targetTeam != null && pc.team == targetTeam.team) return;
 
         // ✅ Passed team checks — apply hit
-        System.out.println("Bullet hit enemy!");
+        if (pc.hitEntities.contains(target)) return;
+         // Track this entity to avoid multiple hits
+        pc.hitEntities.add(target);
+
+        float radians = MathUtils.degreesToRadians * transform.rotation;
+        Vector2 direction = new Vector2(MathUtils.cos(radians), MathUtils.sin(radians)).nor();
+        // System.out.println("Bullet hit enemy!");
         target.add(new HitFlashComponent(.15f));
+        target.add(new DamageComponent(5, direction));
         // Remove bullet from engine
         if (pc.isMeele) return;
         getEngine().removeEntity(bullet);

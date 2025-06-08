@@ -1,5 +1,8 @@
 package studio.jawa.bullettrain.components.gameplay.projectiles;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 
@@ -9,6 +12,7 @@ public class ProjectileComponent implements Component {
     public float meleeDuration = 0;
     public Entity owner;   // Who fired the bullet
     public Team team;
+    public Set<Entity> hitEntities = new HashSet<>();
 
     public enum Team {
         PLAYER,

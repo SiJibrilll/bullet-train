@@ -3,18 +3,24 @@ package studio.jawa.bullettrain.systems.gameplay.enemies;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyBehaviourComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyChaseComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyStateComponent;
+import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent.Team;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.data.GameConstants;
+import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
 
 public class EnemyChaseSystem extends EntitySystem {
     private final ComponentMapper<EnemyStateComponent> sm = ComponentMapper.getFor(EnemyStateComponent.class);
@@ -27,17 +33,18 @@ public class EnemyChaseSystem extends EntitySystem {
 
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
 
+    private final AssetManager manager;
     private ImmutableArray<Entity> entities;
-//    public EnemyChaseSystem(Engine engine) {
-//        this.entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, EnemyStateComponent.class, EnemyBehaviourComponent.class).get());
-//    }
+   public EnemyChaseSystem(AssetManager manager) {
+    this.manager = manager;
+   }
     @Override
     public void addedToEngine(Engine engine) {
         entities = engine.getEntitiesFor(Family.all(
             EnemyComponent.class,
             EnemyStateComponent.class,
             EnemyBehaviourComponent.class
-        ).get());
+        ).exclude(DeathComponent.class).get());
     }
 
     @Override
@@ -46,7 +53,7 @@ public class EnemyChaseSystem extends EntitySystem {
 
             EnemyStateComponent state = sm.get(entity);
 
-            if (state.state != EnemyStateComponent.STATES.CHASE) continue;
+            if (state.state != EnemyStateComponent.STATES.CHASE) continue; // if not chasing, return
 
             // get reference to player
             ImmutableArray<Entity> players = getEngine().getEntitiesFor(playerFamily);
@@ -54,7 +61,7 @@ public class EnemyChaseSystem extends EntitySystem {
 
             // check for player existance
             if (player == null) {
-                state.state = EnemyStateComponent.STATES.IDLE; 
+                state.state = EnemyStateComponent.STATES.IDLE; // if no player then just return
                 return;
             }
 
@@ -69,13 +76,16 @@ public class EnemyChaseSystem extends EntitySystem {
             TransformComponent playerTransform = player.getComponent(TransformComponent.class);
             InputComponent enemyInput = entity.getComponent(InputComponent.class);
 
+            //if were winding up
             if (chase.windup) {
                 Vector2 toEnemy = new Vector2(transform.position).sub(playerTransform.position).nor();
 
+                // Step 2: Randomize direction slightly (±10 degrees for example)
                 toEnemy.setAngleDeg(toEnemy.angleDeg() + chase.windupDirection).nor();
 
                 vel.velocity.set(toEnemy).scl(stat.speed);
 
+                //vel.velocity.set(chase.windupDirection).scl(stat.speed);
 
                 chase.windupDuration -= deltaTime;
 
@@ -86,50 +96,31 @@ public class EnemyChaseSystem extends EntitySystem {
                 return;
             }
 
+            // Get the difference
             float dx = playerTransform.position.x - transform.position.x;
             float dy = playerTransform.position.y - transform.position.y;
 
             // Create the direction vector and normalize it
-            Vector2 direction = new Vector2(dx, dy).nor().clamp(0, 1);  
+            Vector2 direction = new Vector2(dx, dy).nor().clamp(0, 1);  // 'nor' makes it unit length (length = 1)
 
             vel.velocity.set(direction).scl(stat.dash);
 
             float distance = transform.position.dst(playerTransform.position);
 
             if (distance < behaviour.attackRange) {
+                float spawnDistance = 100f;
+                float spawnX = transform.position.x + direction.x * spawnDistance;
+                float spawnY = transform.position.y + direction.y * spawnDistance;
+                Texture bulletTex = manager.get("testing/slash.png", Texture.class);
+                ProjectileEntity slash = new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 0.5f, true, 0.2f, Team.PLAYER);
+                getEngine().addEntity(slash);
                 System.out.println("ATTACK");
+                
                 chase.windup = true;
 
                 // Create a new direction vector from the new angle
                 chase.windupDirection = MathUtils.random(-60f, 60f);
             }
-
-            // Apply movement
-            transform.position.x += vel.velocity.x * deltaTime;
-            transform.position.y += vel.velocity.y * deltaTime;
-
-            // Keep enemy within carriage bounds
-            constrainEnemyToCarriage(entity, transform);
         }
-    }
-
-    private void constrainEnemyToCarriage(Entity entity, TransformComponent transform) {
-        EnemyComponent enemy = em.get(entity);
-        if (enemy == null) return;
-
-        // Calculate current carriage bounds
-        float carriageOffsetY = (enemy.carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
-
-        // Horizontal bounds
-        float leftBound = (GameConstants.CARRIAGE_WIDTH - GameConstants.PLAYABLE_WIDTH) / 2f + 20f;
-        float rightBound = leftBound + GameConstants.PLAYABLE_WIDTH - 40f;
-
-        // Vertical bounds
-        float bottomBound = carriageOffsetY + 20f;
-        float topBound = carriageOffsetY + GameConstants.CARRIAGE_HEIGHT - 20f;
-
-        // Constrain position
-        transform.position.x = Math.max(leftBound, Math.min(rightBound, transform.position.x));
-        transform.position.y = Math.max(bottomBound, Math.min(topBound, transform.position.y));
     }
 }

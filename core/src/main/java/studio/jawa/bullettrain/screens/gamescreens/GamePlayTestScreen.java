@@ -28,10 +28,13 @@ import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
 import studio.jawa.bullettrain.components.level.DoorComponent;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
 import studio.jawa.bullettrain.systems.technicals.CollisionSystem;
+import studio.jawa.bullettrain.systems.technicals.DeathDragSystem;
 import studio.jawa.bullettrain.systems.technicals.DebugRenderSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemySpawnSystem;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
 import studio.jawa.bullettrain.systems.effects.HitFlashSystem;
+import studio.jawa.bullettrain.systems.gameplay.DamageSystem;
+import studio.jawa.bullettrain.systems.gameplay.DeathSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
@@ -98,9 +101,10 @@ public class GamePlayTestScreen implements Screen {
         
         // Add missing enemy movement systems
         engine.addSystem(new EnemyIdleSystem(engine));
-        engine.addSystem(new EnemyChaseSystem());
+        engine.addSystem(new EnemyChaseSystem(assetManager));
         engine.addSystem(new EnemyStrafeSystem(assetManager, engine));
         engine.addSystem(new MovementSystem(engine));
+        engine.addSystem(new DeathDragSystem());
 
         engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, assetManager));
         engine.addSystem(new ProjectileCollisionSystem(engine));
@@ -114,6 +118,8 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(cameraSystem);
         renderingSystem = new RenderingSystem(camera, sharedBatch);
         engine.addSystem(renderingSystem);
+        engine.addSystem(new DeathSystem(assetManager));
+        engine.addSystem(new DamageSystem());
 
         // Create player
         createPlayer();
@@ -129,6 +135,7 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("textures/enemies/ranged_enemy.png", Texture.class);
         assetManager.load("testing/bullet.png", Texture.class);
         assetManager.load("testing/slash.png", Texture.class);
+        assetManager.load("testing/death.png", Texture.class);
         assetManager.finishLoading();
     }
 

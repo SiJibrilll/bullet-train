@@ -10,7 +10,7 @@ import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
 public class JingCharacter extends BaseCharacter{
     public JingCharacter() {
         this.name = "Jing Wei";
-        this.hp = 10;
+        this.hp = 100000000; //TODO jingwei is immortal for testing reasons
         this.speed = 550;
         this.idlePath = "testing/dummy2.png";
         this.runPath = "some/path/to/run.png";
