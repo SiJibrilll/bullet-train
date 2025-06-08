@@ -22,7 +22,7 @@ public class PlayerFactory {
         // Create player with PlayerEntity
         GeneralStatsComponent stats = new GeneralStatsComponent(100, 200);
         // PlayerEntity player = new PlayerEntity(spawnX, spawnY, playerTexture, stats);
-        PlayerEntity player = CharacterFactory.createGrace(spawnX, spawnY, assetManager);
+        PlayerEntity player = CharacterFactory.createJing(spawnX, spawnY, assetManager);
         // player.add(new PlayerComponent());
         // TODO i removed the player component addition here because i afraid itll cause duplication errors
         // revisit if this results in a bug
