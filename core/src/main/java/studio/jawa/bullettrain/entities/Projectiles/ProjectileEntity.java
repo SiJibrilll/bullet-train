@@ -9,20 +9,20 @@ import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileCompone
 import studio.jawa.bullettrain.components.technicals.*;
 
 public class ProjectileEntity extends Entity {
-    public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float speed) {
-        TransformComponent transform = new TransformComponent(x, y);
-        transform.rotation = direction.angleDeg();
-        transform.origin.set(0f, 0.5f);
-        add(transform);
+    // public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float speed) {
+    //     TransformComponent transform = new TransformComponent(x, y);
+    //     transform.rotation = direction.angleDeg();
+    //     transform.origin.set(0f, 0.5f);
+    //     add(transform);
 
-        VelocityComponent vel = new VelocityComponent();
-        vel.velocity.x = direction.x * speed;
-        vel.velocity.y = direction.y * speed;
-        add(vel);
+    //     VelocityComponent vel = new VelocityComponent();
+    //     vel.velocity.x = direction.x * speed;
+    //     vel.velocity.y = direction.y * speed;
+    //     add(vel);
 
-        add(new SpriteComponent(new Sprite(tex)));
+    //     add(new SpriteComponent(new Sprite(tex)));
 
-    }
+    // }
 
     public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float speed, float scale, ProjectileComponent.Team team) {
         TransformComponent transform = new TransformComponent(x, y);

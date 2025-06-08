@@ -123,6 +123,7 @@ public class GamePlayTestScreen implements Screen {
         assetManager = new AssetManager();
         // Player texture
         assetManager.load("testing/dummy.png", Texture.class);
+        assetManager.load("testing/dummy2.png", Texture.class);
         //Enemy textures
         assetManager.load("textures/enemies/melee_enemy.png", Texture.class);
         assetManager.load("textures/enemies/ranged_enemy.png", Texture.class);
@@ -133,7 +134,7 @@ public class GamePlayTestScreen implements Screen {
 
     private void createPlayer() {
         Texture playerTexture = assetManager.get("testing/dummy.png", Texture.class);
-        player = PlayerFactory.createPlayerAtCarriageEntry(1, playerTexture);
+        player = PlayerFactory.createPlayerAtCarriageEntry(1, assetManager);
         engine.addEntity(player);
     }
 

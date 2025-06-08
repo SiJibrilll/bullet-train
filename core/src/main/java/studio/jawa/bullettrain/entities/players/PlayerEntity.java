@@ -8,7 +8,6 @@ import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplay.TeamComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.*;
-import studio.jawa.bullettrain.systems.technicals.InputMovementSystem;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 
 public class PlayerEntity extends Entity {
