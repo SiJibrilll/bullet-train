@@ -5,7 +5,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -18,16 +22,21 @@ import studio.jawa.bullettrain.screens.gamescreens.TestGameScreen;
 public class CharacterSelectScreen implements Screen {
     private final Game game;
     private final AssetManager assetManager;
+
     private Stage uiStage;
+    private Stage worldStage;
+    private OrthographicCamera worldCamera;
+
     private Skin skin;
 
     private Image portrait;
-    private Label nameLabel;
-    private Label info1Label;
-    private Label info2Label;
-
+    private Label nameLabel, info1Label, info2Label;
     private CharacterInfo[] characters;
     private CharacterInfo selectedCharacter;
+
+    private Actor graceActor, jingWeiActor;
+
+    private Vector2 targetCameraPos = new Vector2();
 
     public CharacterSelectScreen(Game game, AssetManager assetManager) {
         this.game = game;
@@ -36,9 +45,9 @@ public class CharacterSelectScreen implements Screen {
 
     @Override
     public void show() {
-        uiStage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(uiStage);
-        skin = assetManager.get("ui/uiskin.json", Skin.class);
+        worldCamera = new OrthographicCamera();
+        worldCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        worldStage = new Stage(new ScreenViewport(worldCamera));
 
         characters = new CharacterInfo[] {
 //            new CharacterInfo("Grace", assetManager.get("grace.png", Texture.class), "Daughter of a Raider warlord", "Glass canon"),
@@ -47,6 +56,44 @@ public class CharacterSelectScreen implements Screen {
             new CharacterInfo("Jing Wei", "Guardian Automata", "Quick dashes")
         };
         selectedCharacter = characters[0];
+
+        skin = assetManager.get("ui/uiskin.json", Skin.class);
+
+        Image desertBackground = new Image(skin.newDrawable("white", 0.8f, 0.6f, 0.4f, 1f));
+        desertBackground.setSize(1920, 1080);
+        desertBackground.setPosition(0, 0);
+        worldStage.addActor(desertBackground);
+
+        Image campfire = new Image(skin.newDrawable("white", 1f, 0.2f, 0.2f, 1f));
+        campfire.setSize(80, 80);
+        campfire.setPosition(920, 150);
+        worldStage.addActor(campfire);
+
+        graceActor = new Image(skin.newDrawable("white", 0.6f, 0.6f, 1f, 1f));
+        graceActor.setSize(100, 150);
+        graceActor.setPosition(770, 150);
+        worldStage.addActor(graceActor);
+
+        jingWeiActor = new Image(skin.newDrawable("white", 1f, 1f, 0.6f, 1f));
+        jingWeiActor.setSize(100, 150);
+        jingWeiActor.setPosition(1070, 150);
+        worldStage.addActor(jingWeiActor);
+
+        characters[0].actor = graceActor;
+        characters[1].actor = jingWeiActor;
+
+        uiStage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(uiStage);
+
+        setupUI();
+
+        targetCameraPos.set(graceActor.getX() + graceActor.getWidth() / 2f, graceActor.getY() + graceActor.getHeight() / 2f);
+        worldCamera.position.set(targetCameraPos, 0);
+
+    }
+
+    private void setupUI() {
+        skin = assetManager.get("ui/uiskin.json", Skin.class);
 
         Image bgBar = new Image(skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 1f));
         bgBar.setSize(Gdx.graphics.getWidth(), 220);
@@ -118,6 +165,9 @@ public class CharacterSelectScreen implements Screen {
                 public void clicked(InputEvent event, float x, float y) {
                     updateCharacterInfo(character);
                     selectedCharacter = character;
+                    if (character.actor != null) {
+                        updateCameraTarget(character.actor);
+                    }
                 }
             });
             selectionTable.add(charButton).width(180).height(60).pad(10);
@@ -158,6 +208,13 @@ public class CharacterSelectScreen implements Screen {
         ));
     }
 
+    private void updateCameraTarget(Actor actor) {
+        targetCameraPos.set(
+            actor.getX() + actor.getWidth() / 2f,
+            actor.getY() + actor.getHeight() / 2f
+        );
+    }
+
     public void updateCharacterInfo(CharacterInfo character) {
 //        portrait.setDrawable(new TextureRegionDrawable(new TextureRegion(character.portrait)));
         nameLabel.setText(character.name);
@@ -167,15 +224,22 @@ public class CharacterSelectScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        float lerp = 3f * delta;
+        worldCamera.position.lerp(new Vector3(targetCameraPos.x, targetCameraPos.y, 0), lerp);
+        worldCamera.update();
+
         Gdx.gl.glClearColor(0, 0, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        worldStage.act(delta);
+        worldStage.draw();
+
         uiStage.act(delta);
         uiStage.draw();
     }
 
-    @Override public void resize(int width, int height) { uiStage.getViewport().update(width, height, true); }
+    @Override public void resize(int width, int height) { uiStage.getViewport().update(width, height, true); worldStage.getViewport().update(width, height, true); }
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-    @Override public void dispose() { uiStage.dispose(); }
+    @Override public void dispose() { uiStage.dispose(); worldStage.dispose(); }
 }
