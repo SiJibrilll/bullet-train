@@ -1,5 +1,6 @@
 package studio.jawa.bullettrain.data.characters;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
@@ -12,10 +13,11 @@ public abstract class BaseCharacter {
     protected Integer hp = 10;
     protected Integer speed = 10;
 
-    protected String idlePath;
+    protected String idlePath = "testing/dummy.png";
     protected String runPath;
     protected String deathPath;
     protected String bulletPath;
+    protected String attackpath = "testing/bullet.png";
 
     public enum Animation {
         IDLE,
@@ -40,5 +42,5 @@ public abstract class BaseCharacter {
         return new GeneralStatsComponent(hp, speed);
     }
 
-    abstract ProjectileEntity attack(float x, float y, Vector2 direction, Texture bulletTex);
+    public abstract ProjectileEntity attack(float x, float y, Vector2 direction, AssetManager manager);
 }

@@ -61,7 +61,7 @@ public class TestScreen implements Screen {
         Texture slashTex = manager.get("testing/slash.png", Texture.class);
 
         GeneralStatsComponent stat = new GeneralStatsComponent(10, 500);
-        PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
+        // PlayerEntity player = new PlayerEntity(50, 50, tex, stat);
 
         //Entity enemy = EnemyFactory.createRangedEnemy(200, 200, enemytex);
         //Entity enemy2 = EnemyFactory.createMeleeEnemy(300, 300, enemytex);

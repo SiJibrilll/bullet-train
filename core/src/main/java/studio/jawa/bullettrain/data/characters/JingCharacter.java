@@ -1,5 +1,6 @@
 package studio.jawa.bullettrain.data.characters;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
@@ -14,11 +15,15 @@ public class JingCharacter extends BaseCharacter{
         this.idlePath = "testing/dummy2.png";
         this.runPath = "some/path/to/run.png";
         this.deathPath = "some/path/to/death.png";
-        this.bulletPath = "some/path/to/bullet.png";
+        this.attackpath = "testing/slash.png";
     }
 
     @Override
-    public ProjectileEntity attack(float x, float y, Vector2 direction, Texture bulletTex) {
-        return new ProjectileEntity(x, y, direction, bulletTex, 0.5f, true, 0.2f, Team.PLAYER);
+    public ProjectileEntity attack(float x, float y, Vector2 direction, AssetManager manager) {
+        float spawnDistance = 100f;
+        float spawnX = x + direction.x * spawnDistance;
+        float spawnY = y + direction.y * spawnDistance;
+        Texture bulletTex = manager.get(attackpath, Texture.class);
+        return new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 0.5f, true, 0.2f, Team.PLAYER);
     }
 }

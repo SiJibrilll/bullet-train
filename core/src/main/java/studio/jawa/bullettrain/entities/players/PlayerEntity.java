@@ -8,16 +8,19 @@ import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplay.TeamComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.*;
+import studio.jawa.bullettrain.data.characters.BaseCharacter;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 
 public class PlayerEntity extends Entity {
-    public PlayerEntity(float x, float y, Texture tex, GeneralStatsComponent stats) {
+    public PlayerEntity(float x, float y, Texture tex, GeneralStatsComponent stats, BaseCharacter character) {
         add(new TransformComponent(x, y));
         add(new SpriteComponent(new Sprite(tex)));
         add(new VelocityComponent());
         add(new PlayerControlledComponent());
         add(new InputComponent());
-        add(new PlayerComponent());
+        PlayerComponent pc = new PlayerComponent();
+        pc.character = character;
+        add(pc);
         add(stats);
         add(new BoxColliderComponent(new Rectangle(-50, -65, 100, 100)));
         add(new TeamComponent(ProjectileComponent.Team.PLAYER));

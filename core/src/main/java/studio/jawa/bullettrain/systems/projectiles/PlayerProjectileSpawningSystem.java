@@ -8,19 +8,23 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+
+import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent.Team;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
+import studio.jawa.bullettrain.data.characters.BaseCharacter;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
 
 public class PlayerProjectileSpawningSystem extends EntitySystem {
     private final Camera camera;
     private final Engine engine;
+    private final AssetManager manager;
     private final ComponentMapper<ProjectileComponent> pm = ComponentMapper.getFor(ProjectileComponent.class);
-    private ImmutableArray<Entity> players;
+    private final ComponentMapper<PlayerComponent> pcm = ComponentMapper.getFor(PlayerComponent.class);
 
-    private final Texture bulletTexture;
+    private ImmutableArray<Entity> players;
 
     @Override
     public void addedToEngine(Engine engine) {
@@ -31,7 +35,7 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
     public PlayerProjectileSpawningSystem(Camera camera, Engine engine, AssetManager manager) {
         this.camera = camera;
         this.engine = engine;
-        this.bulletTexture = manager.get("testing/bullet.png", Texture.class);
+        this.manager = manager;
     }
 
     @Override
@@ -53,14 +57,9 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
         // 3. Calculate normalized direction
         Vector2 direction = new Vector2(mouseWorld.x, mouseWorld.y).sub(start).nor();
 
-        ProjectileEntity projectile = new ProjectileEntity(start.x, start.y, direction, bulletTexture, 2000f, 0.5f, ProjectileComponent.Team.PLAYER);
+        BaseCharacter character = pcm.get(player).character;
 
-        // TODO melee/ranged masih hardcode
-        float spawnDistance = 100f;
-        float spawnX = start.x + direction.x * spawnDistance;
-        float spawnY = start.y + direction.y * spawnDistance;
-
-        // ProjectileEntity projectile = new ProjectileEntity(spawnX, spawnY, direction, bulletTexture, 0.5f, true, 0.2f, Team.PLAYER);
+        ProjectileEntity projectile = character.attack(start.x, start.y, direction, manager);
         engine.addEntity(projectile);
     }
 }
