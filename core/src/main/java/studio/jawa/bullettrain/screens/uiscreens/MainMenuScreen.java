@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-
 public class MainMenuScreen implements Screen {
     private final Game game;
     private final AssetManager assetManager;
