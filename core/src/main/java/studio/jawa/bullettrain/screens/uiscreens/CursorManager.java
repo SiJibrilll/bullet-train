@@ -1,108 +1,109 @@
 package studio.jawa.bullettrain.screens.uiscreens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.assets.AssetManager;
 
-public class CursorManager implements Disposable {
-    private static final int MAX_AMMO = 10;
-    private int currentAmmo = MAX_AMMO;
-    private boolean reloading = false;
-    private float reloadTime = 2f;
+public class CursorManager {
+    private Cursor crosshairCursor;
+    private Cursor emptyCursor;
+
+    private boolean isReloading = false;
+    private float reloadDuration = 2f; // total waktu reload
     private float reloadTimer = 0f;
 
-    private Texture crosshairTexture;
     private TextureRegion[] reloadFrames;
+    private int totalFrames = 12;
     private float frameDuration;
-    private float animationTime;
-
-    private Cursor crosshairCursor;
+    private int currentFrameIndex = 0;
 
     public CursorManager(AssetManager assetManager) {
-        // Load textures
-        crosshairTexture = assetManager.get("cursor/crosshair.png", Texture.class);
+        Pixmap crosshairPixmap = new Pixmap(Gdx.files.internal("cursor/crosshair.png"));
+        crosshairCursor = Gdx.graphics.newCursor(
+            crosshairPixmap,
+            crosshairPixmap.getWidth() / 2,
+            crosshairPixmap.getHeight() / 2
+        );
+        crosshairPixmap.dispose();
 
-        // Custom cursor from image
-        Pixmap pixmap = new Pixmap(Gdx.files.internal("cursor/crosshair.png"));
-        crosshairCursor = Gdx.graphics.newCursor(pixmap, pixmap.getWidth() / 2, pixmap.getHeight() / 2);
+        Pixmap emptyPixmap = new Pixmap(16, 16, Pixmap.Format.RGBA8888);
+        emptyPixmap.setColor(0, 0, 0, 0);
+        emptyPixmap.fill();
+        emptyCursor = Gdx.graphics.newCursor(emptyPixmap, 0, 0);
+        emptyPixmap.dispose();
+
         Gdx.graphics.setCursor(crosshairCursor);
-        pixmap.dispose();
 
-        // Load reload animation frames (assumed 8 frames)
-        reloadFrames = new TextureRegion[12];
-        for (int i = 0; i < 12; i++) {
-            Texture texture = assetManager.get("cursor/reload" + i + ".png", Texture.class);
+        frameDuration = reloadDuration / totalFrames;
+
+        reloadFrames = new TextureRegion[totalFrames];
+        for (int i = 0; i < totalFrames; i++) {
+            String path = "cursor/reload" + i + ".png";
+            if (!assetManager.isLoaded(path)) {
+                throw new RuntimeException("Missing cursor asset: " + path);
+            }
+            Texture texture = assetManager.get(path, Texture.class);
             reloadFrames[i] = new TextureRegion(texture);
         }
-        frameDuration = reloadTime / reloadFrames.length;
     }
 
     public void update(float delta) {
-        if (reloading) {
+        if (isReloading) {
             reloadTimer += delta;
-            animationTime += delta;
 
-            if (reloadTimer >= reloadTime) {
-                reloading = false;
-                reloadTimer = 0;
-                animationTime = 0;
-                currentAmmo = MAX_AMMO;
-                Gdx.graphics.setCursor(crosshairCursor);
+            currentFrameIndex = Math.min((int)(reloadTimer / frameDuration), totalFrames - 1);
+
+            if (reloadTimer >= reloadDuration) {
+                stopReload();
             }
         }
     }
 
-    public void renderReloadCursor(SpriteBatch batch) {
-        if (!reloading) return;
+    public void render(Batch batch) {
+        if (isReloading) {
+            TextureRegion frame = reloadFrames[currentFrameIndex];
 
-        int frameIndex = (int)(animationTime / frameDuration) % reloadFrames.length;
-        TextureRegion currentFrame = reloadFrames[frameIndex];
+            int mouseX = Gdx.input.getX();
+            int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y axis
 
-        float x = Gdx.input.getX() - currentFrame.getRegionWidth() / 2f;
-        float y = Gdx.graphics.getHeight() - Gdx.input.getY() - currentFrame.getRegionHeight() / 2f;
-
-        batch.begin();
-        batch.draw(currentFrame, x, y);
-        batch.end();
-    }
-
-    public boolean canShoot() {
-        return !reloading && currentAmmo > 0;
-    }
-
-    public void shoot() {
-        if (canShoot()) {
-            currentAmmo--;
-            if (currentAmmo == 0) {
-                startReload();
-            }
+            batch.begin();
+            batch.draw(frame, mouseX - frame.getRegionWidth() / 2f, mouseY - frame.getRegionHeight() / 2f);
+            batch.end();
         }
     }
 
     public void startReload() {
-        if (!reloading) {
-            reloading = true;
-            reloadTimer = 0;
-            animationTime = 0;
-        }
+        if (isReloading) return;
+
+        isReloading = true;
+        reloadTimer = 0f;
+        currentFrameIndex = 0;
+
+        Gdx.graphics.setCursor(emptyCursor);
+    }
+
+    public void stopReload() {
+        isReloading = false;
+        reloadTimer = 0f;
+        currentFrameIndex = 0;
+
+        Gdx.graphics.setCursor(crosshairCursor);
     }
 
     public boolean isReloading() {
-        return reloading;
+        return isReloading;
     }
 
-    public int getCurrentAmmo() {
-        return currentAmmo;
-    }
-
-    @Override
     public void dispose() {
-        crosshairTexture.dispose();
-        if (crosshairCursor != null) crosshairCursor.dispose();
+        if (crosshairCursor != null) {
+            crosshairCursor.dispose();
+        }
+        if (emptyCursor != null) {
+            emptyCursor.dispose();
+        }
     }
 }
