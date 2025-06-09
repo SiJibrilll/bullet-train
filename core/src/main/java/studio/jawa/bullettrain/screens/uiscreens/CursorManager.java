@@ -1,6 +1,7 @@
 package studio.jawa.bullettrain.screens.uiscreens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -21,7 +22,15 @@ public class CursorManager {
     private float frameDuration;
     private int currentFrameIndex = 0;
 
-    public CursorManager(AssetManager assetManager) {
+    private int ammo;
+    private int maxAmmo;
+
+    public interface ReloadListener {
+        void onReloadComplete(int ammo);
+    }
+    private ReloadListener reloadListener;
+
+    public CursorManager(AssetManager assetManager, int initialAmmo, int maxAmmo) {
         Pixmap crosshairPixmap = new Pixmap(Gdx.files.internal("cursor/crosshair.png"));
         crosshairCursor = Gdx.graphics.newCursor(
             crosshairPixmap,
@@ -30,7 +39,7 @@ public class CursorManager {
         );
         crosshairPixmap.dispose();
 
-        Pixmap emptyPixmap = new Pixmap(16, 16, Pixmap.Format.RGBA8888);
+        Pixmap emptyPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         emptyPixmap.setColor(0, 0, 0, 0);
         emptyPixmap.fill();
         emptyCursor = Gdx.graphics.newCursor(emptyPixmap, 0, 0);
@@ -48,6 +57,38 @@ public class CursorManager {
             }
             Texture texture = assetManager.get(path, Texture.class);
             reloadFrames[i] = new TextureRegion(texture);
+        }
+
+        this.ammo = initialAmmo;
+        this.maxAmmo = maxAmmo;
+    }
+
+    public void setReloadListener(ReloadListener listener) {
+        this.reloadListener = listener;
+    }
+
+    public void updateInput() {
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && !isReloading) {
+            if (ammo > 0) {
+                ammo--;
+                System.out.println("Sisa peluru: " + ammo);
+            }
+            if (ammo == 0) {
+                startReload();
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R) && !isReloading) {
+            startReload();
+            ammo = 0;
+        }
+
+        if (!isReloading && ammo == 0) {
+            ammo = maxAmmo;
+            System.out.println("Reload selesai! " + ammo);
+            if (reloadListener != null) {
+                reloadListener.onReloadComplete(ammo);
+            }
         }
     }
 
@@ -68,7 +109,7 @@ public class CursorManager {
             TextureRegion frame = reloadFrames[currentFrameIndex];
 
             int mouseX = Gdx.input.getX();
-            int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y axis
+            int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
             batch.begin();
             batch.draw(frame, mouseX - frame.getRegionWidth() / 2f, mouseY - frame.getRegionHeight() / 2f);
@@ -96,6 +137,10 @@ public class CursorManager {
 
     public boolean isReloading() {
         return isReloading;
+    }
+
+    public int getAmmo() {
+        return ammo;
     }
 
     public void dispose() {

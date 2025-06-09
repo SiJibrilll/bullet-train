@@ -27,9 +27,6 @@ public class TestGameScreen implements Screen {
 
     private float elapsedTime = 0f;
 
-    private int ammo = 10;
-    private final int maxAmmo = 10;
-
     public TestGameScreen(Game game, CharacterInfo selectedCharacter, AssetManager assetManager) {
         this.game = game;
         this.selectedCharacter = selectedCharacter;
@@ -46,7 +43,7 @@ public class TestGameScreen implements Screen {
         Gdx.input.setInputProcessor(hudStage);
 
         batch = new SpriteBatch();
-        cursorManager = new CursorManager(assetManager);
+        cursorManager = new CursorManager(assetManager, 10, 10);
     }
 
     @Override
@@ -65,25 +62,7 @@ public class TestGameScreen implements Screen {
             }
         }
 
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && !cursorManager.isReloading()) {
-            if (ammo > 0) {
-                ammo--;
-                System.out.println("Sisa peluru: " + ammo);
-            }
-            if (ammo == 0) {
-                cursorManager.startReload();
-            }
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R) && !cursorManager.isReloading()) {
-            cursorManager.startReload();
-            ammo = 0;
-        }
-
-        if (!cursorManager.isReloading() && ammo == 0) {
-            ammo = maxAmmo;
-            System.out.println("Reload selesai! " + ammo);
-        }
+        cursorManager.updateInput();
 
         cursorManager.update(delta);
 
