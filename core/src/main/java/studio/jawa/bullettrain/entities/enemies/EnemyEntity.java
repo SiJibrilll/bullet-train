@@ -11,13 +11,14 @@ import studio.jawa.bullettrain.components.gameplay.enemies.EnemyBehaviourCompone
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyStateComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
+import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.BoxColliderComponent;
 import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 
 public class EnemyEntity extends Entity {
-    public EnemyEntity(float x, float y, int carriageNumber, Texture tex, EnemyStateComponent.STATES state, EnemyBehaviourComponent behaviour, GeneralStatsComponent stats) {
+    public EnemyEntity(float x, float y, int carriageNumber, Texture tex, EnemyStateComponent.STATES state, EnemyBehaviourComponent behaviour, GeneralStatsComponent stats, AnimationComponent animation) {
         add(new TransformComponent(x, y));
         add(new VelocityComponent());
         
@@ -30,10 +31,10 @@ public class EnemyEntity extends Entity {
         add(behaviour);
         add(stats);
         
-        // Set ukuran sprite enemy agar tidak terlalu besar
+        
         Sprite enemySprite = new Sprite(tex);
-        enemySprite.setSize(64f, 64f); // Ukuran 64x64 pixels (sesuaikan sesuai kebutuhan)
         add(new SpriteComponent(enemySprite));
+        add(animation);
         add(new BoxColliderComponent(new Rectangle(-50, -65, 100, 100)));
         add(new TeamComponent(ProjectileComponent.Team.ENEMY));
     }

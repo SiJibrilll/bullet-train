@@ -4,6 +4,8 @@ import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+
+import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 
@@ -21,6 +23,9 @@ public class InputMovementSystem extends EntitySystem {
     public void update(float deltaTime) {
         for (Entity entity : entities) {
             InputComponent input = im.get(entity);
+            
+            AnimationComponent anim = entity.getComponent(AnimationComponent.class);
+            AnimationComponent.playAnimation(anim, "run", true);
 
             input.direction.set(0, 0);
             if (Gdx.input.isKeyPressed(Input.Keys.W)) input.direction.y += 1;

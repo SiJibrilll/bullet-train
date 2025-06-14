@@ -5,6 +5,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
@@ -15,8 +16,10 @@ import studio.jawa.bullettrain.components.gameplay.enemies.EnemyChaseComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyStateComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent.Team;
+import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
+import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.data.GameConstants;
@@ -76,6 +79,25 @@ public class EnemyChaseSystem extends EntitySystem {
             TransformComponent playerTransform = player.getComponent(TransformComponent.class);
             InputComponent enemyInput = entity.getComponent(InputComponent.class);
 
+            //animation stuffs
+            Sprite sprite = entity.getComponent(SpriteComponent.class).sprite;
+
+            AnimationComponent anim = entity.getComponent(AnimationComponent.class);
+            AnimationComponent.playAnimation(anim, "run", true);
+
+            // Get the difference
+            float dx = playerTransform.position.x - transform.position.x;
+            float dy = playerTransform.position.y - transform.position.y;
+
+            // Create the direction vector and normalize it
+            Vector2 direction = new Vector2(dx, dy).nor().clamp(0, 1);  // 'nor' makes it unit length (length = 1)
+
+            boolean shouldFaceLeft = direction.x < 0;
+            if (sprite.isFlipX() != shouldFaceLeft) {
+                sprite.flip(true, false);
+            }
+
+
             //if were winding up
             if (chase.windup) {
                 Vector2 toEnemy = new Vector2(transform.position).sub(playerTransform.position).nor();
@@ -95,13 +117,6 @@ public class EnemyChaseSystem extends EntitySystem {
                 }
                 return;
             }
-
-            // Get the difference
-            float dx = playerTransform.position.x - transform.position.x;
-            float dy = playerTransform.position.y - transform.position.y;
-
-            // Create the direction vector and normalize it
-            Vector2 direction = new Vector2(dx, dy).nor().clamp(0, 1);  // 'nor' makes it unit length (length = 1)
 
             vel.velocity.set(direction).scl(stat.dash);
 

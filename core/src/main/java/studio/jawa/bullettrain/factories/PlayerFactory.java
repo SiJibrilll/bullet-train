@@ -19,8 +19,7 @@ public class PlayerFactory {
         float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
         float spawnY = carriageY + GameConstants.ENTRY_ZONE_HEIGHT + 50f;
 
-        // Create player with PlayerEntity
-        GeneralStatsComponent stats = new GeneralStatsComponent(100, 200);
+        
         // PlayerEntity player = new PlayerEntity(spawnX, spawnY, playerTexture, stats);
         PlayerEntity player = CharacterFactory.createJing(spawnX, spawnY, assetManager);
         // player.add(new PlayerComponent());

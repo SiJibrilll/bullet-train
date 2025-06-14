@@ -18,6 +18,7 @@ import studio.jawa.bullettrain.components.level.OpenLayoutComponent;
 import studio.jawa.bullettrain.components.level.TrainCarriageComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.factories.PlayerFactory;
+import studio.jawa.bullettrain.systems.technicals.AnimationSystem;
 import studio.jawa.bullettrain.systems.technicals.CameraSystem;
 import studio.jawa.bullettrain.systems.technicals.CarriageTransitionSystem;
 import studio.jawa.bullettrain.systems.technicals.DoorInteractionSystem;
@@ -40,6 +41,9 @@ import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
 import studio.jawa.bullettrain.systems.projectiles.PlayerProjectileSpawningSystem;
 import studio.jawa.bullettrain.systems.technicals.MovementSystem;
+import studio.jawa.bullettrain.systems.technicals.PlayerFacingSystem;
+import studio.jawa.bullettrain.systems.technicals.PlayerMovementAnimationSystem;
+
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -98,6 +102,13 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new DoorInteractionSystem());
         engine.addSystem(new CollisionSystem());
         engine.addSystem(new EnemySpawnSystem(assetManager));
+
+        engine.addSystem(new AnimationSystem());
+        engine.addSystem(new PlayerFacingSystem(camera));
+        engine.addSystem(new PlayerMovementAnimationSystem());
+
+
+
         
         // Add missing enemy movement systems
         engine.addSystem(new EnemyIdleSystem(engine));
@@ -136,6 +147,12 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("testing/bullet.png", Texture.class);
         assetManager.load("testing/slash.png", Texture.class);
         assetManager.load("testing/death.png", Texture.class);
+
+        //load animations
+        assetManager.load("testing/animation/death.png", Texture.class);
+        assetManager.load("testing/animation/idle.png", Texture.class);
+        assetManager.load("testing/animation/run.png", Texture.class);
+        
         assetManager.finishLoading();
     }
 

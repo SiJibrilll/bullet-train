@@ -15,6 +15,7 @@ import studio.jawa.bullettrain.components.gameplay.DamageComponent;
 import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
+import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
@@ -47,18 +48,17 @@ public class DeathSystem extends EntitySystem {
             GeneralStatsComponent stats = gm.get(entity);
             
             if (stats.health <= 0) {
-                // entity.remove(EnemyComponent.class);
                 entity.add(new DeathComponent());
                 VelocityComponent velocity = vm.get(entity);
                 DamageComponent damage = dm.get(entity);
-                SpriteComponent sprite = sm.get(entity);
-                TransformComponent transform = tm.get(entity);
+                AnimationComponent anim = entity.getComponent(AnimationComponent.class);
 
-                // TODO ini masih testing bgt
-                sprite.sprite = new Sprite(manager.get("testing/death.png", Texture.class));
-                transform.scale = 0.2f;
+               
+                anim.currentAnimation = "death";
+                anim.looping = false;
+                anim.stateTime = 0f;
+                anim.isPlaying = true;
                 velocity.velocity = new Vector2(damage.direction).scl(1000f);
-                // getEngine().removeEntity(entity);
             }
         }   
     }

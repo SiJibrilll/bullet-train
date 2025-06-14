@@ -5,6 +5,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
@@ -13,8 +14,10 @@ import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.*;
 
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
+import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
+import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.data.GameConstants;
@@ -75,6 +78,24 @@ public class EnemyStrafeSystem extends EntitySystem {
 
             // Get important datas
             TransformComponent playerTransform = player.getComponent(TransformComponent.class);
+
+            //animation stuffs
+            Sprite sprite = entity.getComponent(SpriteComponent.class).sprite;
+
+            AnimationComponent anim = entity.getComponent(AnimationComponent.class);
+            AnimationComponent.playAnimation(anim, "run", true);
+
+            // Get the difference
+            float dx = playerTransform.position.x - transform.position.x;
+            float dy = playerTransform.position.y - transform.position.y;
+
+            // Create the direction vector and normalize it
+            Vector2 facing = new Vector2(dx, dy).nor().clamp(0, 1);  // 'nor' makes it unit length (length = 1)
+
+            boolean shouldFaceLeft = facing.x < 0;
+            if (sprite.isFlipX() != shouldFaceLeft) {
+                sprite.flip(true, false);
+            }
 
 
            if (strafe.attack) {

@@ -172,9 +172,9 @@ public class EnemySpawnSystem extends EntitySystem {
         boolean isMelee = MathUtils.randomBoolean(0.6f);
 
         if (isMelee) {
-            return EnemyFactory.createMeleeEnemy(x, y, carriageNumber, meleeEnemyTexture);
+            return EnemyFactory.createMeleeEnemy(x, y, carriageNumber, meleeEnemyTexture, assetManager);
         } else {
-            return EnemyFactory.createRangedEnemy(x, y, carriageNumber, rangedEnemyTexture);
+            return EnemyFactory.createRangedEnemy(x, y, carriageNumber, rangedEnemyTexture, assetManager);
         }
     }
 }
