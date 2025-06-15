@@ -68,8 +68,12 @@ public class GamePlayTestScreen implements Screen {
 
     private Entity player;
     private AssetManager assetManager;
-    private Texture roofTexture; 
-    private SpriteBatch sharedBatch; 
+    private Texture roofTexture;
+    private Texture grassTexture; 
+    private SpriteBatch sharedBatch;
+
+    private float grassOffsetY = 0f;
+    private float grassSpeed = 100f; 
 
     @Override
     public void show() {
@@ -160,9 +164,10 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("testing/sword.png", Texture.class);
         assetManager.load("testing/gun.png", Texture.class);
         assetManager.load("textures/world/roof.png", Texture.class); // Tambahkan roof
-
+        assetManager.load("textures/world/grass.png", Texture.class); // Tambahkan grass
         assetManager.finishLoading();
         roofTexture = assetManager.get("textures/world/roof.png", Texture.class); // Ambil roof setelah loading
+        grassTexture = assetManager.get("textures/world/grass.png", Texture.class); // Ambil grass setelah loading
     }
 
     private void createPlayer() {
@@ -175,23 +180,26 @@ public class GamePlayTestScreen implements Screen {
     public void render(float delta) {
         handleInput();
 
-        // Clear screen
+        // Update grass offset
+        if (grassTexture != null) {
+            float grassHeight = grassTexture.getHeight();
+            grassOffsetY += grassSpeed * delta;
+            grassOffsetY = grassOffsetY % grassHeight;
+            if (grassOffsetY < 0) grassOffsetY += grassHeight;
+        }
+
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Update ECS (this will update camera position and render sprites)
         engine.update(delta);
 
-        // Set camera matrix for shape rendering
         shapeRenderer.setProjectionMatrix(camera.combined);
 
-        // Render shapes AFTER sprite rendering (carriages, doors, player)
         renderAllCarriages();
         renderAllDoors();
         renderPlayer();
         renderUI();
 
-        // Note: Objects with sprites are rendered by RenderingSystem during engine.update()
     }
 
     private void handleInput() {
@@ -219,12 +227,10 @@ public class GamePlayTestScreen implements Screen {
             }
         }
 
-        // Render all loaded carriages
         for (int carriageNum : managerComp.loadedCarriages.keys().toArray().toArray()) {
             Entity carriage = managerComp.getCarriage(carriageNum);
             renderCarriage(carriage);
 
-            // Render roof hanya jika player TIDAK berada di carriage ini
             if (carriageNum != playerCarriageNumber) {
                 renderCarriageRoof(carriage);
             }
@@ -239,6 +245,41 @@ public class GamePlayTestScreen implements Screen {
         OpenLayoutComponent layout = layoutMapper.get(carriage);
 
         if (boundary == null || layout == null) return;
+
+        // Draw grass 
+        if (grassTexture != null) {
+            sharedBatch.begin();
+            sharedBatch.setProjectionMatrix(camera.combined);
+
+            float grassWidth = grassTexture.getWidth();
+            float grassHeight = grassTexture.getHeight();
+            float carriageX = boundary.carriageBounds.x;
+            float carriageY = boundary.carriageBounds.y;
+            float carriageWidth = boundary.carriageBounds.width;
+            float carriageHeight = boundary.carriageBounds.height;
+
+            for (int side = 0; side < 2; side++) {
+                float x = (side == 0)
+                    ? carriageX - grassWidth // kiri
+                    : carriageX + carriageWidth; // kanan
+
+                float startY = carriageY - grassOffsetY;
+                int numTiles = (int)Math.ceil((carriageHeight + grassHeight) / grassHeight);
+
+                for (int i = 0; i < numTiles; i++) {
+                    float y = startY + i * grassHeight;
+                    sharedBatch.draw(
+                        grassTexture,
+                        x,
+                        y,
+                        grassWidth,
+                        grassHeight
+                    );
+                }
+            }
+
+            sharedBatch.end();
+        }
 
         // Draw boundaries
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -291,11 +332,7 @@ public class GamePlayTestScreen implements Screen {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Remove the blue circle - player sprite is already rendered by RenderingSystem
-        // shapeRenderer.setColor(0, 0.5f, 1, 1);
-        // shapeRenderer.circle(transform.position.x, transform.position.y, 20);
-
-        // Keep only the direction indicator (small triangle pointing up)
+        
         shapeRenderer.setColor(1, 1, 1, 1);
         float px = transform.position.x;
         float py = transform.position.y + 25;
@@ -313,8 +350,7 @@ public class GamePlayTestScreen implements Screen {
 
         if (playerComp == null || transform == null) return;
 
-        // UI info akan di-print ke console untuk sekarang
-        // Nanti bisa diganti dengan proper UI rendering
+
     }
 
     private void renderAllDoors() {
@@ -428,3 +464,4 @@ public class GamePlayTestScreen implements Screen {
         }
     }
 }
+
