@@ -24,6 +24,7 @@ import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.components.technicals.WeaponComponent;
 import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
+import studio.jawa.bullettrain.helpers.AudioHelper;
 
 public class EnemyStrafeSystem extends EntitySystem {
     private final ComponentMapper<EnemyStateComponent> sm = ComponentMapper.getFor(EnemyStateComponent.class);
@@ -59,6 +60,7 @@ public class EnemyStrafeSystem extends EntitySystem {
         ).exclude(DeathComponent.class).get());
 
         weaponEntities = engine.getEntitiesFor(Family.all(WeaponComponent.class, ParentComponent.class).get());
+        AudioHelper.loadSound("gun","testing/sounds/gun.mp3");
     }
 
     @Override
@@ -121,6 +123,7 @@ public class EnemyStrafeSystem extends EntitySystem {
                Vector2 aim = new Vector2(playerTransform.position).sub(transform.position);
                ProjectileEntity bullet = new ProjectileEntity(transform.position.x, transform.position.y, aim, bulletTex, 3f, 0.5f, ProjectileComponent.Team.ENEMY);
                engine.addEntity(bullet);
+               AudioHelper.playSound("gun");
                strafe.attack = false;
            }
 

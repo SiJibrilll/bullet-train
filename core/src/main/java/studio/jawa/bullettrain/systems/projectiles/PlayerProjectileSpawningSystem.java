@@ -16,6 +16,7 @@ import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.data.characters.BaseCharacter;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
+import studio.jawa.bullettrain.helpers.AudioHelper;
 
 public class PlayerProjectileSpawningSystem extends EntitySystem {
     private final Camera camera;
@@ -30,6 +31,7 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
     public void addedToEngine(Engine engine) {
         // Query player entities using a tag component or unique component
         players = engine.getEntitiesFor(Family.all(TransformComponent.class, PlayerControlledComponent.class).get());
+        AudioHelper.loadSound("sword", "testing/sounds/sword.mp3");
     }
 
     public PlayerProjectileSpawningSystem(Camera camera, Engine engine, AssetManager manager) {
@@ -60,6 +62,7 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
         BaseCharacter character = pcm.get(player).character;
 
         ProjectileEntity projectile = character.attack(start.x, start.y, direction, manager);
+        AudioHelper.playSound("sword");
         engine.addEntity(projectile);
     }
 }

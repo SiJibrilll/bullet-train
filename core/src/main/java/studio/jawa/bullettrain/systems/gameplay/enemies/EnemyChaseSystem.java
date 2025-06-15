@@ -26,6 +26,7 @@ import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 import studio.jawa.bullettrain.components.technicals.WeaponComponent;
 import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
+import studio.jawa.bullettrain.helpers.AudioHelper;
 
 public class EnemyChaseSystem extends EntitySystem {
     private final ComponentMapper<EnemyStateComponent> sm = ComponentMapper.getFor(EnemyStateComponent.class);
@@ -58,6 +59,7 @@ public class EnemyChaseSystem extends EntitySystem {
         ).exclude(DeathComponent.class).get());
 
         weaponEntities = engine.getEntitiesFor(Family.all(WeaponComponent.class, ParentComponent.class).get());
+        AudioHelper.loadSound("sword", "testing/sounds/sword.mp3");
     }
 
     @Override
@@ -148,7 +150,7 @@ public class EnemyChaseSystem extends EntitySystem {
                 Texture bulletTex = manager.get("testing/slash.png", Texture.class);
                 ProjectileEntity slash = new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 0.5f, true, 0.2f, Team.PLAYER);
                 getEngine().addEntity(slash);
-                System.out.println("ATTACK");
+                AudioHelper.playSound("sword");
                 
                 chase.windup = true;
 
