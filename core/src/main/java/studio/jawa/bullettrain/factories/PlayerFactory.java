@@ -1,5 +1,6 @@
 package studio.jawa.bullettrain.factories;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,7 +14,7 @@ import studio.jawa.bullettrain.entities.players.PlayerEntity;
 
 public class PlayerFactory {
 
-    public static Entity createPlayerAtCarriageEntry(int carriageNumber, AssetManager assetManager) {
+    public static Entity createPlayerAtCarriageEntry(int carriageNumber, AssetManager assetManager, Engine engine) {
         // Calculate spawn position at carriage entry
         float spawnX = GameConstants.CARRIAGE_WIDTH / 2f;
         float carriageY = (carriageNumber - 1) * GameConstants.CARRIAGE_HEIGHT;
@@ -21,7 +22,7 @@ public class PlayerFactory {
 
         
         // PlayerEntity player = new PlayerEntity(spawnX, spawnY, playerTexture, stats);
-        PlayerEntity player = CharacterFactory.createJing(spawnX, spawnY, assetManager);
+        PlayerEntity player = CharacterFactory.createJing(spawnX, spawnY, assetManager, engine);
         // player.add(new PlayerComponent());
         // TODO i removed the player component addition here because i afraid itll cause duplication errors
         // revisit if this results in a bug

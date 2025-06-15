@@ -18,10 +18,12 @@ import studio.jawa.bullettrain.components.gameplay.enemies.EnemyStateComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent.Team;
 import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
+import studio.jawa.bullettrain.components.technicals.ParentComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
+import studio.jawa.bullettrain.components.technicals.WeaponComponent;
 import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
 
@@ -34,10 +36,16 @@ public class EnemyChaseSystem extends EntitySystem {
     private final ComponentMapper<GeneralStatsComponent> gsm = ComponentMapper.getFor(GeneralStatsComponent.class);
     private final ComponentMapper<EnemyComponent> em = ComponentMapper.getFor(EnemyComponent.class);
 
+    // for weapons
+    private final ComponentMapper<ParentComponent> pm = ComponentMapper.getFor(ParentComponent.class);
+    private final ComponentMapper<WeaponComponent> wm = ComponentMapper.getFor(WeaponComponent.class);
+
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
 
     private final AssetManager manager;
     private ImmutableArray<Entity> entities;
+    private ImmutableArray<Entity> weaponEntities;
+
    public EnemyChaseSystem(AssetManager manager) {
     this.manager = manager;
    }
@@ -48,6 +56,8 @@ public class EnemyChaseSystem extends EntitySystem {
             EnemyStateComponent.class,
             EnemyBehaviourComponent.class
         ).exclude(DeathComponent.class).get());
+
+        weaponEntities = engine.getEntitiesFor(Family.all(WeaponComponent.class, ParentComponent.class).get());
     }
 
     @Override
@@ -95,6 +105,15 @@ public class EnemyChaseSystem extends EntitySystem {
             boolean shouldFaceLeft = direction.x < 0;
             if (sprite.isFlipX() != shouldFaceLeft) {
                 sprite.flip(true, false);
+            }
+
+            for (Entity weapon : weaponEntities) {
+                ParentComponent parent = pm.get(weapon);
+                if (parent.parent == entity) {
+                    WeaponComponent wc = wm.get(weapon);
+                    wc.target.set(playerTransform.position.cpy());
+                    break; // if only 1 weapon per enemy
+                }
             }
 
 

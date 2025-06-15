@@ -1,5 +1,6 @@
 package studio.jawa.bullettrain.factories;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 
@@ -8,7 +9,8 @@ import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.data.characters.GraceCharacter;
 import studio.jawa.bullettrain.data.characters.JingCharacter;
-import studio.jawa.bullettrain.data.characters.BaseCharacter.Animation;;
+import studio.jawa.bullettrain.data.characters.BaseCharacter.Animation;
+import studio.jawa.bullettrain.entities.objects.WeaponEntity;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 
 public class CharacterFactory {
@@ -24,10 +26,14 @@ public class CharacterFactory {
         anim.animations.put("death", AnimationComponent.loadAnimation(assetManager, "testing/animation/death.png", 6, 0.15f));
         anim.currentAnimation = "idle";
 
-        return new PlayerEntity(x, y, idle, stats, grace, anim);
+        PlayerEntity player = new PlayerEntity(x, y, idle, stats, grace, anim);
+
+        new WeaponEntity(x, y, idle, true, player, 2f);
+
+        return player;
     }
 
-    static PlayerEntity createJing(float x, float y, AssetManager assetManager) {
+    static PlayerEntity createJing(float x, float y, AssetManager assetManager, Engine engine) {
         JingCharacter jing = new JingCharacter();
         GeneralStatsComponent stats = jing.getStat();
         Texture idle = assetManager.get(jing.getAnim(Animation.IDLE), Texture.class);
@@ -38,6 +44,10 @@ public class CharacterFactory {
         anim.animations.put("death", AnimationComponent.loadAnimation(assetManager, "testing/animation/death.png", 6, 0.15f));
         anim.currentAnimation = "idle";
 
-        return new PlayerEntity(x, y, idle, stats, jing, anim);
+        PlayerEntity player = new PlayerEntity(x, y, idle, stats, jing, anim);
+        Texture weapon = assetManager.get("testing/sword.png", Texture.class);
+        engine.addEntity(new WeaponEntity(x, y, weapon, true, player, 2f));
+
+        return player;
     }
 }

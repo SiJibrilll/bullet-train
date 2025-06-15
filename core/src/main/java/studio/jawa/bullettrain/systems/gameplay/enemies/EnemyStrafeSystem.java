@@ -16,10 +16,12 @@ import studio.jawa.bullettrain.components.gameplay.enemies.*;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
+import studio.jawa.bullettrain.components.technicals.ParentComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
+import studio.jawa.bullettrain.components.technicals.WeaponComponent;
 import studio.jawa.bullettrain.data.GameConstants;
 import studio.jawa.bullettrain.entities.Projectiles.ProjectileEntity;
 
@@ -34,7 +36,12 @@ public class EnemyStrafeSystem extends EntitySystem {
 
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
 
+    // for weapons
+    private final ComponentMapper<ParentComponent> pm = ComponentMapper.getFor(ParentComponent.class);
+    private final ComponentMapper<WeaponComponent> wm = ComponentMapper.getFor(WeaponComponent.class);
+
     private ImmutableArray<Entity> entities;
+    private ImmutableArray<Entity> weaponEntities;
     private AssetManager assetmanager;
     private  Engine engine;
 
@@ -50,6 +57,8 @@ public class EnemyStrafeSystem extends EntitySystem {
             EnemyStateComponent.class,
             EnemyBehaviourComponent.class
         ).exclude(DeathComponent.class).get());
+
+        weaponEntities = engine.getEntitiesFor(Family.all(WeaponComponent.class, ParentComponent.class).get());
     }
 
     @Override
@@ -95,6 +104,15 @@ public class EnemyStrafeSystem extends EntitySystem {
             boolean shouldFaceLeft = facing.x < 0;
             if (sprite.isFlipX() != shouldFaceLeft) {
                 sprite.flip(true, false);
+            }
+
+            for (Entity weapon : weaponEntities) {
+                ParentComponent parent = pm.get(weapon);
+                if (parent.parent == entity) {
+                    WeaponComponent wc = wm.get(weapon);
+                    wc.target.set(playerTransform.position.cpy());
+                    break; // if only 1 weapon per enemy
+                }
             }
 
 

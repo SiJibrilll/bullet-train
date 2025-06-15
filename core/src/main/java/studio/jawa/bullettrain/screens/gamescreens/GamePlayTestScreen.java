@@ -26,6 +26,7 @@ import studio.jawa.bullettrain.systems.technicals.HitFlashRenderSystem;
 import studio.jawa.bullettrain.systems.technicals.PlayerMovementSystem;
 import studio.jawa.bullettrain.systems.technicals.ProjectileCollisionSystem;
 import studio.jawa.bullettrain.systems.technicals.RenderingSystem;
+import studio.jawa.bullettrain.systems.technicals.WeaponOrbitSystem;
 import studio.jawa.bullettrain.components.level.DoorComponent;
 import studio.jawa.bullettrain.components.gameplay.InteractionComponent;
 import studio.jawa.bullettrain.systems.technicals.CollisionSystem;
@@ -116,6 +117,7 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new EnemyStrafeSystem(assetManager, engine));
         engine.addSystem(new MovementSystem(engine));
         engine.addSystem(new DeathDragSystem());
+        engine.addSystem(new WeaponOrbitSystem(camera));
 
         engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, assetManager));
         engine.addSystem(new ProjectileCollisionSystem(engine));
@@ -153,12 +155,15 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("testing/animation/idle.png", Texture.class);
         assetManager.load("testing/animation/run.png", Texture.class);
         
+        assetManager.load("testing/sword.png", Texture.class);
+        assetManager.load("testing/gun.png", Texture.class);
+
         assetManager.finishLoading();
     }
 
     private void createPlayer() {
         Texture playerTexture = assetManager.get("testing/dummy.png", Texture.class);
-        player = PlayerFactory.createPlayerAtCarriageEntry(1, assetManager);
+        player = PlayerFactory.createPlayerAtCarriageEntry(1, assetManager, engine);
         engine.addEntity(player);
     }
 
