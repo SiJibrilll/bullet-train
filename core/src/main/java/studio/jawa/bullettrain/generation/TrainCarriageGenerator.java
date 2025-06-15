@@ -22,7 +22,7 @@ public class TrainCarriageGenerator {
     }
 
     private static void generateRandomLayout(OpenLayoutComponent layout, int carriageNumber) {
-        int objectCount = MathUtils.random(4, 15);
+        int objectCount = MathUtils.random(4, 10); 
         
         // NEW: Generate enemy spawn points 
         int enemySpawnPointCount = 15;
