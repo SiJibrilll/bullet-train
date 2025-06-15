@@ -68,6 +68,8 @@ public class GamePlayTestScreen implements Screen {
 
     private Entity player;
     private AssetManager assetManager;
+    private Texture roofTexture; 
+    private SpriteBatch sharedBatch; 
 
     @Override
     public void show() {
@@ -95,7 +97,7 @@ public class GamePlayTestScreen implements Screen {
 
         // Setup AssetManager untuk enemy textures
         setupAssetManager();
-        SpriteBatch sharedBatch = new SpriteBatch();
+        sharedBatch = new SpriteBatch();
 
         // Add systems
         engine.addSystem(new PlayerMovementSystem());
@@ -110,7 +112,7 @@ public class GamePlayTestScreen implements Screen {
 
 
 
-        
+
         // Add missing enemy movement systems
         engine.addSystem(new EnemyIdleSystem(engine));
         engine.addSystem(new EnemyChaseSystem(assetManager));
@@ -126,7 +128,7 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch));
         engine.addSystem(new RenderingSystem(camera, sharedBatch));
         engine.addSystem(new DebugRenderSystem(camera, engine));
-        
+
         cameraSystem = new CameraSystem(camera);
         engine.addSystem(cameraSystem);
         renderingSystem = new RenderingSystem(camera, sharedBatch);
@@ -154,11 +156,13 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("testing/animation/death.png", Texture.class);
         assetManager.load("testing/animation/idle.png", Texture.class);
         assetManager.load("testing/animation/run.png", Texture.class);
-        
+
         assetManager.load("testing/sword.png", Texture.class);
         assetManager.load("testing/gun.png", Texture.class);
+        assetManager.load("textures/world/roof.png", Texture.class); // Tambahkan roof
 
         assetManager.finishLoading();
+        roofTexture = assetManager.get("textures/world/roof.png", Texture.class); // Ambil roof setelah loading
     }
 
     private void createPlayer() {
@@ -206,10 +210,24 @@ public class GamePlayTestScreen implements Screen {
         Entity manager = managers.get(0);
         CarriageManagerComponent managerComp = managerMapper.get(manager);
 
+        // Ambil currentCarriageNumber player
+        int playerCarriageNumber = 1;
+        if (player != null) {
+            PlayerComponent playerComp = playerMapper.get(player);
+            if (playerComp != null) {
+                playerCarriageNumber = playerComp.currentCarriageNumber;
+            }
+        }
+
         // Render all loaded carriages
         for (int carriageNum : managerComp.loadedCarriages.keys().toArray().toArray()) {
             Entity carriage = managerComp.getCarriage(carriageNum);
             renderCarriage(carriage);
+
+            // Render roof hanya jika player TIDAK berada di carriage ini
+            if (carriageNum != playerCarriageNumber) {
+                renderCarriageRoof(carriage);
+            }
         }
     }
 
@@ -246,6 +264,24 @@ public class GamePlayTestScreen implements Screen {
         shapeRenderer.end();
     }
 
+    private void renderCarriageRoof(Entity carriage) {
+        if (carriage == null || roofTexture == null) return;
+
+        CarriageBoundaryComponent boundary = boundaryMapper.get(carriage);
+        if (boundary == null) return;
+
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+
+        float x = boundary.carriageBounds.x;
+        float y = boundary.carriageBounds.y;
+        float width = boundary.carriageBounds.width;
+        float height = boundary.carriageBounds.height;
+
+        sharedBatch.draw(roofTexture, x, y, width, height);
+
+        sharedBatch.end();
+    }
 
     private void renderPlayer() {
         if (player == null) return;
