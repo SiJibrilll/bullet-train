@@ -1,6 +1,7 @@
 package studio.jawa.bullettrain;
 
 import com.badlogic.gdx.Game;
+import studio.jawa.bullettrain.screens.gamescreens.EndScreen;
 import studio.jawa.bullettrain.screens.gamescreens.FirstScreen;
 import studio.jawa.bullettrain.screens.gamescreens.GamePlayTestScreen;
 

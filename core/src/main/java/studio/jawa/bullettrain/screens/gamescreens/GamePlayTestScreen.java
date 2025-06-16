@@ -51,6 +51,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Array;
+import studio.jawa.bullettrain.screens.gamescreens.EndScreen;
 
 public class GamePlayTestScreen implements Screen {
     private Engine engine;
@@ -83,6 +84,16 @@ public class GamePlayTestScreen implements Screen {
     private Array<TreeEntity> trees = new Array<>();
     private float treeSpawnTimer = 0f;
     private float treeSpawnInterval = 0.7f;
+    private boolean victory = false;
+    private boolean victoryTransitioning = false;
+    private float victoryOverlayAlpha = 0f;
+    private float victoryFadeSpeed = 1.5f; 
+    private float victoryFadeOutAlpha = 0f;
+    private boolean startFadeOut = false;
+
+    private boolean victoryPending = false;
+    private float victoryDelayTimer = 0f;
+    private final float victoryDelayDuration = 1.0f; 
 
     @Override
     public void show() {
@@ -193,29 +204,128 @@ public class GamePlayTestScreen implements Screen {
     public void render(float delta) {
         handleInput();
 
-        // Update grass offset
-        if (grassTexture != null) {
-            float grassHeight = grassTexture.getHeight();
-            grassOffsetY += grassSpeed * delta;
-            grassOffsetY = grassOffsetY % grassHeight;
-            if (grassOffsetY < 0) grassOffsetY += grassHeight;
+        // Cek victory 
+        checkVictoryCondition();
+
+        if (victoryPending && !victory) {
+            victoryDelayTimer -= delta;
+            if (victoryDelayTimer <= 0f) {
+                victory = true;
+                victoryPending = false;
+            }
         }
 
-        // TREE SPAWN & UPDATE
-        updateAndSpawnTrees(delta);
+        if (!victory) {
+            // Update grass offset
+            if (grassTexture != null) {
+                float grassHeight = grassTexture.getHeight();
+                grassOffsetY += grassSpeed * delta;
+                grassOffsetY = grassOffsetY % grassHeight;
+                if (grassOffsetY < 0) grassOffsetY += grassHeight;
+            }
 
-        Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            // TREE SPAWN & UPDATE
+            updateAndSpawnTrees(delta);
 
-        engine.update(delta);
+            Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        shapeRenderer.setProjectionMatrix(camera.combined);
+            engine.update(delta);
 
-        renderAllCarriages();
-        renderGrassTrees(); 
-        renderAllDoors();
-        renderPlayer();
-        renderUI();
+            shapeRenderer.setProjectionMatrix(camera.combined);
+
+            renderAllCarriages();
+            renderGrassTrees(); 
+            renderAllDoors();
+            renderPlayer();
+            renderUI();
+        } else {
+            if (!victoryTransitioning && victoryOverlayAlpha < 0.85f) {
+                victoryOverlayAlpha += delta * victoryFadeSpeed;
+                if (victoryOverlayAlpha > 0.85f) victoryOverlayAlpha = 0.85f;
+            }
+            renderAllCarriages();
+            renderGrassTrees(); 
+            renderAllDoors();
+            renderPlayer();
+            renderUI();
+            renderVictoryOverlay(delta);
+            handleVictoryInput(delta);
+        }
+    }
+
+    private void checkVictoryCondition() {
+        if (victory || victoryPending) return;
+        if (player == null) return;
+        PlayerComponent playerComp = playerMapper.get(player);
+        if (playerComp == null) return;
+        ImmutableArray<Entity> managers = engine.getEntitiesFor(
+            Family.all(CarriageManagerComponent.class).get()
+        );
+        if (managers.size() == 0) return;
+        Entity manager = managers.get(0);
+        CarriageManagerComponent managerComp = managerMapper.get(manager);
+        int lastCarriage = managerComp.maxCarriages;
+        if (playerComp.currentCarriageNumber == lastCarriage) {
+            // Cek enemy
+            ImmutableArray<Entity> enemies = engine.getEntitiesFor(
+                Family.all(EnemyComponent.class).exclude(studio.jawa.bullettrain.components.gameplay.DeathComponent.class).get()
+            );
+            boolean enemyAlive = false;
+            for (Entity enemy : enemies) {
+                EnemyComponent ec = enemyMapper.get(enemy);
+                if (ec != null && ec.carriageNumber == lastCarriage && ec.isActive) {
+                    enemyAlive = true;
+                    break;
+                }
+            }
+            if (!enemyAlive) {
+                victoryPending = true;
+                victoryDelayTimer = victoryDelayDuration;
+            }
+        }
+    }
+
+    private void renderVictoryOverlay(float delta) {
+        float overlayAlpha = victoryOverlayAlpha;
+        if (victoryTransitioning) {
+            victoryFadeOutAlpha += delta * victoryFadeSpeed;
+            overlayAlpha = Math.max(0f, victoryOverlayAlpha - victoryFadeOutAlpha);
+        }
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+
+        sharedBatch.setColor(0, 0, 0, overlayAlpha);
+        sharedBatch.draw(grassTexture, camera.position.x - camera.viewportWidth/2, camera.position.y - camera.viewportHeight/2, camera.viewportWidth, camera.viewportHeight);
+
+        // Tulisan Victory
+        font.getData().setScale(2f);
+        font.setColor(1f, 1f, 0.2f, Math.min(1f, overlayAlpha + 0.15f));
+        font.draw(sharedBatch, "VICTORY!", camera.position.x - 100, camera.position.y + 40);
+
+        font.getData().setScale(1f);
+        font.setColor(1f, 1f, 1f, Math.min(1f, overlayAlpha + 0.15f));
+        font.draw(sharedBatch, "Press ENTER to continue...", camera.position.x - 120, camera.position.y - 20);
+
+        sharedBatch.setColor(1, 1, 1, 1); 
+        sharedBatch.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        if (victoryTransitioning && overlayAlpha <= 0.01f) {
+            if (Gdx.app.getApplicationListener() instanceof com.badlogic.gdx.Game) {
+                com.badlogic.gdx.Game game = (com.badlogic.gdx.Game) Gdx.app.getApplicationListener();
+                game.setScreen(new EndScreen(game));
+            }
+        }
+    }
+
+    private void handleVictoryInput(float delta) {
+        if (!victoryTransitioning && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            victoryTransitioning = true;
+            victoryFadeOutAlpha = 0f;
+        }
     }
 
     private void updateAndSpawnTrees(float delta) {
