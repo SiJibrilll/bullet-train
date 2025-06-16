@@ -50,6 +50,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.utils.Array;
 
 public class GamePlayTestScreen implements Screen {
     private Engine engine;
@@ -72,12 +73,16 @@ public class GamePlayTestScreen implements Screen {
     private AssetManager assetManager;
     private Texture roofTexture;
     private Texture grassTexture;
+    private Texture treeTexture;
     private SpriteBatch sharedBatch;
     private BitmapFont font;
 
     private float grassOffsetY = 0f;
     private float grassSpeed = 100f;
     private DoorInteractionSystem doorInteractionSystem;
+    private Array<TreeEntity> trees = new Array<>();
+    private float treeSpawnTimer = 0f;
+    private float treeSpawnInterval = 0.7f;
 
     @Override
     public void show() {
@@ -106,7 +111,7 @@ public class GamePlayTestScreen implements Screen {
         // Setup AssetManager untuk enemy textures
         setupAssetManager();
         sharedBatch = new SpriteBatch();
-        font = new BitmapFont(); 
+        font = new BitmapFont();
 
         // Add systems
         engine.addSystem(new PlayerMovementSystem());
@@ -169,11 +174,13 @@ public class GamePlayTestScreen implements Screen {
 
         assetManager.load("testing/sword.png", Texture.class);
         assetManager.load("testing/gun.png", Texture.class);
-        assetManager.load("textures/world/roof.png", Texture.class); 
-        assetManager.load("textures/world/grass.png", Texture.class); 
+        assetManager.load("textures/world/roof.png", Texture.class);
+        assetManager.load("textures/world/grass.png", Texture.class);
+        assetManager.load("textures/world/tree.png", Texture.class); 
         assetManager.finishLoading();
-        roofTexture = assetManager.get("textures/world/roof.png", Texture.class); 
-        grassTexture = assetManager.get("textures/world/grass.png", Texture.class); 
+        roofTexture = assetManager.get("textures/world/roof.png", Texture.class);
+        grassTexture = assetManager.get("textures/world/grass.png", Texture.class);
+        treeTexture = assetManager.get("textures/world/tree.png", Texture.class); 
     }
 
     private void createPlayer() {
@@ -194,6 +201,9 @@ public class GamePlayTestScreen implements Screen {
             if (grassOffsetY < 0) grassOffsetY += grassHeight;
         }
 
+        // TREE SPAWN & UPDATE
+        updateAndSpawnTrees(delta);
+
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -202,11 +212,65 @@ public class GamePlayTestScreen implements Screen {
         shapeRenderer.setProjectionMatrix(camera.combined);
 
         renderAllCarriages();
+        renderGrassTrees(); 
         renderAllDoors();
         renderPlayer();
         renderUI();
-
     }
+
+    private void updateAndSpawnTrees(float delta) {
+        float grassHeight = (grassTexture != null) ? grassTexture.getHeight() : 128f;
+        float grassWidth = (grassTexture != null) ? grassTexture.getWidth() : 128f;
+        float screenBottom = camera.position.y - camera.viewportHeight / 2f;
+        float screenTop = camera.position.y + camera.viewportHeight / 2f;
+
+        for (int i = trees.size - 1; i >= 0; i--) {
+            TreeEntity tree = trees.get(i);
+            tree.y -= grassSpeed * delta * 1; 
+            if (tree.y + tree.height < screenBottom) {
+                trees.removeIndex(i);
+            }
+        }
+
+        treeSpawnTimer += delta;
+        if (treeSpawnTimer >= treeSpawnInterval) {
+            treeSpawnTimer = 0f;
+            for (int side = 0; side < 2; side++) {
+                float x = (side == 0)
+                    ? (camera.position.x - camera.viewportWidth / 3f) - grassWidth 
+                    : (camera.position.x + camera.viewportWidth / 3f); 
+
+                int numTrees = 1; 
+                for (int t = 0; t < numTrees; t++) {
+                    float tx = x + (float)Math.random() * grassWidth * 0.7f;
+                    float ty = screenTop + 30f + (float)Math.random() * 40f;
+                    float scale = 0.18f + (float)Math.random() * 0.08f; 
+                    float tw = grassWidth * scale;
+                    float th = grassHeight * scale;
+                    trees.add(new TreeEntity(tx, ty, tw, th));
+                }
+            }
+        }
+    }
+
+    private void renderGrassTrees() {
+        if (treeTexture == null) return;
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+        for (TreeEntity tree : trees) {
+            sharedBatch.draw(treeTexture, tree.x, tree.y, tree.width, tree.height);
+        }
+        sharedBatch.end();
+    }
+
+    private static class TreeEntity {
+        float x, y, width, height;
+        TreeEntity(float x, float y, float width, float height) {
+            this.x = x; this.y = y; this.width = width; this.height = height;
+        }
+    }
+
+
 
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
