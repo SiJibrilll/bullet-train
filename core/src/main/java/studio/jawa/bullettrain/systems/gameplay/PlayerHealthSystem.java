@@ -21,7 +21,7 @@ public class PlayerHealthSystem extends IteratingSystem {
     private ComponentMapper<GeneralStatsComponent> statsMapper = ComponentMapper.getFor(GeneralStatsComponent.class);
     private HudStage hud;
     private BaseCharacter selected;
-    
+
     public PlayerHealthSystem(HudStage hud, CharacterInfo selection) {
         super(Family.all(PlayerControlledComponent.class, GeneralStatsComponent.class).get());
         this.hud = hud;
@@ -41,8 +41,9 @@ public class PlayerHealthSystem extends IteratingSystem {
     protected void processEntity(Entity entity, float deltaTime) {
         GeneralStatsComponent stats = statsMapper.get(entity);
         GeneralStatsComponent baseStat = selected.getStat();
+        float healthPercentage = (stats.health / baseStat.health) * 100f;
 
-        hud.healthBar.setValue((stats.health / baseStat.health) * 100);
+        hud.setHealth(healthPercentage);
 
         if (stats.health <= 0) {
             stats.health = 0;
