@@ -13,6 +13,7 @@ public class ProjectileComponent implements Component {
     public Entity owner;   // Who fired the bullet
     public Team team;
     public Set<Entity> hitEntities = new HashSet<>();
+    public float damage;
 
     public enum Team {
         PLAYER,

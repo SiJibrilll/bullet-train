@@ -26,7 +26,7 @@ public class GraceCharacter extends BaseCharacter {
     @Override
     public ProjectileEntity attack(float x, float y, Vector2 direction, AssetManager manager) {
         Texture bulletTex = manager.get(attackpath, Texture.class);
-        return new ProjectileEntity(x, y, direction, bulletTex, bulletSpeed, 2.5f, Team.PLAYER);
+        return new ProjectileEntity(x, y, direction, bulletTex, bulletSpeed, 2.5f, Team.PLAYER, 10);
     }
 
 }

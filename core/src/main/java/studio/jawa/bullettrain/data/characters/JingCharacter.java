@@ -24,6 +24,6 @@ public class JingCharacter extends BaseCharacter{
         float spawnX = x + direction.x * spawnDistance;
         float spawnY = y + direction.y * spawnDistance;
         Texture bulletTex = manager.get(attackpath, Texture.class);
-        return new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 5f, true, 0.2f, Team.PLAYER, manager);
+        return new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 5f, true, 0.2f, Team.PLAYER, manager, 5);
     }
 }

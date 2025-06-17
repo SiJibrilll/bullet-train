@@ -37,8 +37,7 @@ public class DeathSystem extends EntitySystem {
     @Override
     public void addedToEngine(Engine engine) {
         entities = engine.getEntitiesFor(Family.all(
-             GeneralStatsComponent.class,
-             DamageComponent.class
+             GeneralStatsComponent.class
         ).exclude(DeathComponent.class).get());
     }
 
@@ -47,6 +46,7 @@ public class DeathSystem extends EntitySystem {
         for (Entity entity : entities) {
             GeneralStatsComponent stats = gm.get(entity);
 
+            System.out.println(entity + "Health: " + stats.health);
             if (stats.health <= 0) {
                 entity.add(new DeathComponent());
                 VelocityComponent velocity = vm.get(entity);

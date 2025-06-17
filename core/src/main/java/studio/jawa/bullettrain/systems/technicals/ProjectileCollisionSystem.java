@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import studio.jawa.bullettrain.components.effects.HitFlashComponent;
 import studio.jawa.bullettrain.components.gameplay.DamageComponent;
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.TeamComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.technicals.AnimationComponent;
@@ -36,7 +37,7 @@ public class ProjectileCollisionSystem extends EntitySystem {
         targets = engine.getEntitiesFor(
             Family.all(TransformComponent.class)
                 .one(CircleColliderComponent.class, BoxColliderComponent.class)
-                // .exclude(ProjectileComponent.class) // exclude bullets if needed
+                .exclude(DeathComponent.class) // exclude bullets if needed
                 .get()
         );
     }
@@ -198,7 +199,7 @@ public class ProjectileCollisionSystem extends EntitySystem {
         Vector2 direction = new Vector2(MathUtils.cos(radians), MathUtils.sin(radians)).nor();
         // System.out.println("Bullet hit enemy!");
         target.add(new HitFlashComponent(.15f));
-        target.add(new DamageComponent(5, direction));
+        target.add(new DamageComponent(pc.damage, direction));
         // Remove bullet from engine
         if (pc.isMeele) return;
         getEngine().removeEntity(bullet);

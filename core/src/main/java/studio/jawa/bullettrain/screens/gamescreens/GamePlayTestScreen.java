@@ -205,7 +205,7 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(cameraSystem);
         renderingSystem = new RenderingSystem(camera, sharedBatch);
         engine.addSystem(renderingSystem);
-        engine.addSystem(new DeathSystem(assetManager));
+        // engine.addSystem(new DeathSystem(assetManager));
         engine.addSystem(new DamageSystem());
 
         // Create player
