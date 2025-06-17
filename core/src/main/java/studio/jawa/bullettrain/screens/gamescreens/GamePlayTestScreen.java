@@ -184,7 +184,7 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new DamageSystem());
 
         // Create player
-        createPlayer();
+        createPlayer(selectedCharacter);
 
         // Ui set up
         pauseMenuOverlay = new PauseMenuOverlay(game, uiAssetManager);
@@ -193,7 +193,7 @@ public class GamePlayTestScreen implements Screen {
         Gdx.input.setInputProcessor(hudStage);
 
         batch = new SpriteBatch();
-        cursorManager = new CursorManager(uiAssetManager, 10, 10);
+        cursorManager = new CursorManager(uiAssetManager, 10, 10, selectedCharacter);
 
         cursorManager.resetToCrosshair();
     }
@@ -226,9 +226,9 @@ public class GamePlayTestScreen implements Screen {
         treeTexture = assetManager.get("textures/world/tree.png", Texture.class); 
     }
 
-    private void createPlayer() {
+    private void createPlayer(CharacterInfo selectedCharacter) {
         Texture playerTexture = assetManager.get("testing/dummy.png", Texture.class);
-        player = PlayerFactory.createPlayerAtCarriageEntry(1, assetManager, engine);
+        player = PlayerFactory.createPlayerAtCarriageEntry(1, assetManager, engine, selectedCharacter);
         engine.addEntity(player);
     }
 
@@ -442,9 +442,9 @@ public class GamePlayTestScreen implements Screen {
 
 
     private void handleInput() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
-        }
+        // if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        //     Gdx.app.exit();
+        // }
     }
 
     private void renderAllCarriages() {

@@ -51,7 +51,6 @@ public class ProjectileCollisionSystem extends EntitySystem {
             // check if this is a melee attack
             ProjectileComponent bcm = bulletCm.get(bullet);
             if (bcm.isMeele) {
-                
                 if (bcm.meleeDuration <= 0) {   
                     getEngine().removeEntity(bullet);
                     continue;
@@ -173,6 +172,12 @@ public class ProjectileCollisionSystem extends EntitySystem {
         // 2. Don't hit same team (friendly fire off)
         TeamComponent targetTeam = target.getComponent(TeamComponent.class);
         if (targetTeam != null && pc.team == targetTeam.team) return;
+
+        // 3. Prevent bullet projectiles from hitting other bullet projectiles
+        ProjectileComponent targetPc = target.getComponent(ProjectileComponent.class);
+        if (!pc.isMeele && targetPc != null && !targetPc.isMeele) {
+            return;
+        }
 
         // ✅ Passed team checks — apply hit
         if (pc.hitEntities.contains(target)) return;

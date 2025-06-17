@@ -20,6 +20,7 @@ public class GraceCharacter extends BaseCharacter {
         this.runPath = "some/path/to/run.png";
         this.deathPath = "some/path/to/death.png";
         this.attackpath = "testing/bullet.png";
+        this.attackSound = "gun";
     }
 
     @Override
