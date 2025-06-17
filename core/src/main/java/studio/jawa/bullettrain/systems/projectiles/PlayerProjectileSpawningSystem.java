@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent.Team;
@@ -30,7 +31,7 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
     @Override
     public void addedToEngine(Engine engine) {
         // Query player entities using a tag component or unique component
-        players = engine.getEntitiesFor(Family.all(TransformComponent.class, PlayerControlledComponent.class).get());
+        players = engine.getEntitiesFor(Family.all(TransformComponent.class, PlayerControlledComponent.class).exclude(DeathComponent.class).get());
         AudioHelper.loadSound("sword", "testing/sounds/sword.mp3");
         AudioHelper.loadSound("gun", "testing/sounds/gun.mp3");
     }
@@ -43,6 +44,7 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
 
     @Override
     public void update(float deltaTime) {
+        if (players.size() < 1) return;
         Entity player = players.first();
         PlayerComponent playerData = pcm.get(players.first());
         playerData.delay -= deltaTime;

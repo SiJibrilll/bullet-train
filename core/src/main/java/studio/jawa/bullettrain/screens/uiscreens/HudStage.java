@@ -2,13 +2,14 @@ package studio.jawa.bullettrain.screens.uiscreens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class HudStage extends Stage {
     private AssetManager assetManager;
-    private ProgressBar healthBar, xpBar;
+    public ProgressBar healthBar, xpBar;
     private Label healthLabel, xpLabel,  ammoLabel, speedLabel;
 
     public HudStage(Viewport viewport) {
@@ -28,6 +29,7 @@ public class HudStage extends Stage {
 
         healthLabel = new Label("HP", skin);
         healthLabel.setFontScale(2);
+
         healthBar = new ProgressBar(0, 100, 1, false, skin);
 
         leftContainer.add(healthLabel).padRight(10);

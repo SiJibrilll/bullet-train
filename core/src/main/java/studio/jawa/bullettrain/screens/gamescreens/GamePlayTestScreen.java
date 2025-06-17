@@ -39,6 +39,7 @@ import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
 import studio.jawa.bullettrain.systems.effects.HitFlashSystem;
 import studio.jawa.bullettrain.systems.gameplay.DamageSystem;
 import studio.jawa.bullettrain.systems.gameplay.DeathSystem;
+import studio.jawa.bullettrain.systems.gameplay.PlayerHealthSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
@@ -176,6 +177,9 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, assetManager));
         engine.addSystem(new ProjectileCollisionSystem(engine));
 
+        hudStage = new HudStage(new ScreenViewport());
+        engine.addSystem(new PlayerHealthSystem(hudStage, selectedCharacter));
+
         engine.addSystem(new HitFlashSystem());
         engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch));
         engine.addSystem(new RenderingSystem(camera, sharedBatch));
@@ -193,7 +197,7 @@ public class GamePlayTestScreen implements Screen {
 
         // Ui set up
         pauseMenuOverlay = new PauseMenuOverlay(game, uiAssetManager);
-        hudStage = new HudStage(new ScreenViewport());
+        
 
         Gdx.input.setInputProcessor(hudStage);
 
