@@ -86,8 +86,11 @@ public class EnemySpawnSystem extends EntitySystem {
 
             if (carriage == null || layout == null) continue;
 
-            // Hanya spawn di carriage dalam window
             if (carriage.carriageNumber >= startCarriage && carriage.carriageNumber <= endCarriage) {
+                if (carriage.carriageNumber == 1) {
+                    generateSpawnPointsForCarriage(layout, carriage.carriageNumber);
+                    continue;
+                }
                 spawnEnemiesFromLayout(layout, carriage);
             }
         }
