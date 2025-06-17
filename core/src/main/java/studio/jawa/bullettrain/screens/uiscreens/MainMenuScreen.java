@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.Input;
 
 public class MainMenuScreen implements Screen {
     private final Game game;
@@ -112,6 +114,8 @@ public class MainMenuScreen implements Screen {
 
         trainX = Gdx.graphics.getWidth() - train.getWidth();
         train.setPosition(trainX, 0);
+
+        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
     }
 
     @Override

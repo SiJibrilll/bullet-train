@@ -4,7 +4,9 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -52,10 +54,6 @@ public class SplashScreen implements Screen {
             Actions.delay(2f),
             Actions.run(() -> studioLabel.setVisible(true)),
             Actions.delay(3f),
-//            Actions.parallel(
-//                Actions.fadeOut(3f),
-//                Actions.run(() -> mainMenuStage.getRoot().addAction(Actions.fadeIn(3f)))
-//            ),
             Actions.fadeOut(3f),
             Actions.delay(1f),
             Actions.run(() -> mainMenuStage.getRoot().addAction(Actions.fadeIn(3f))),

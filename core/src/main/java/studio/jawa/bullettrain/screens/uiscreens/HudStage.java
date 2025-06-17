@@ -10,17 +10,10 @@ public class HudStage extends Stage {
     private AssetManager assetManager;
     private ProgressBar healthBar, xpBar;
     private Label healthLabel, xpLabel,  ammoLabel, speedLabel;
-    private Image hudBackgorund;
-//    private Image bodyEye, bodyHand, BodyLeg;
 
     public HudStage(Viewport viewport) {
         super(viewport);
         Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-
-        hudBackgorund = new Image(skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 1f));
-        hudBackgorund.setSize(Gdx.graphics.getWidth(), 100);
-        hudBackgorund.setPosition(0, 0);
-        this.addActor(hudBackgorund);
 
         Table root = new Table();
         root.setFillParent(true);
@@ -36,16 +29,11 @@ public class HudStage extends Stage {
         healthLabel = new Label("HP", skin);
         healthLabel.setFontScale(2);
         healthBar = new ProgressBar(0, 100, 1, false, skin);
-        xpLabel = new Label("XP", skin);
-        xpLabel.setFontScale(2);
-        xpBar = new ProgressBar(0, 100, 1, false, skin);
 
         leftContainer.add(healthLabel).padRight(10);
         leftContainer.add(healthBar).width(200).height(20).padRight(30);
-        leftContainer.add(xpLabel).padRight(10);
-        leftContainer.add(xpBar).width(200).height(20);
 
-        bottomContainer.add(leftContainer).bottom().left().padBottom(100);
+        bottomContainer.add(leftContainer).bottom().left();
 
         root.add(bottomContainer).expand().fillX().bottom().row();
     }
