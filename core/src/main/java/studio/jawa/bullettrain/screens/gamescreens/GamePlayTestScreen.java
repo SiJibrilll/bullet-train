@@ -284,16 +284,14 @@ public class GamePlayTestScreen implements Screen {
         if (pauseMenuOverlay.isVisible()) {
             pauseMenuOverlay.render(delta);
         } else {
-            hudStage.act(delta);
-            hudStage.draw();
-            cursorManager.render(hudStage.getBatch());
+            // hudStage.act(delta);
+            // hudStage.draw();
+            // cursorManager.render(hudStage.getBatch());
         }
 
         isPaused = pauseMenuOverlay.isVisible();
 
-        cursorManager.updateInput();
-
-        cursorManager.update(delta);
+       
 
         if (isPaused) return;
 
@@ -374,8 +372,13 @@ public class GamePlayTestScreen implements Screen {
             handleVictoryInput(delta);
         }
 
-        // Gdx.gl.glClearColor(0, 0, 0, 1);
-        // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        cursorManager.updateInput();
+
+        cursorManager.update(delta);
+
+        hudStage.act(delta);
+        hudStage.draw();
+        cursorManager.render(hudStage.getBatch());
 
         
     }
