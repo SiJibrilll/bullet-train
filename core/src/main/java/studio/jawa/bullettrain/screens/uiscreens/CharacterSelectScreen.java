@@ -28,6 +28,7 @@ public class CharacterSelectScreen implements Screen {
     private Stage uiStage;
     private Stage worldStage;
     private OrthographicCamera worldCamera;
+    private Image bgBar;
 
     private Skin skin;
 
@@ -97,7 +98,7 @@ public class CharacterSelectScreen implements Screen {
     private void setupUI() {
         skin = assetManager.get("ui/uiskin.json", Skin.class);
 
-        Image bgBar = new Image(skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 1f));
+        bgBar = new Image(skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 1f));
         bgBar.setSize(Gdx.graphics.getWidth(), 220);
         bgBar.setPosition(0, 0);
         uiStage.addActor(bgBar);
@@ -239,7 +240,16 @@ public class CharacterSelectScreen implements Screen {
         uiStage.draw();
     }
 
-    @Override public void resize(int width, int height) { uiStage.getViewport().update(width, height, true); worldStage.getViewport().update(width, height, true); }
+    @Override public void resize(int width, int height) {
+        uiStage.getViewport().update(width, height, true);
+        worldStage.getViewport().update(width, height, true);
+
+        if (bgBar != null) {
+            bgBar.setSize(width, 220);
+            bgBar.setPosition(0, 0);
+        }
+    }
+
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
