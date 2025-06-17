@@ -17,6 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import studio.jawa.bullettrain.screens.gamescreens.GamePlayTestScreen;
 import studio.jawa.bullettrain.screens.gamescreens.TestGameScreen;
 
 public class CharacterSelectScreen implements Screen {
@@ -179,7 +181,7 @@ public class CharacterSelectScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (selectedCharacter != null) {
-                    game.setScreen(new TestGameScreen(game, selectedCharacter, assetManager));
+                    game.setScreen(new GamePlayTestScreen(game, selectedCharacter, assetManager));
                 }
             }
         });

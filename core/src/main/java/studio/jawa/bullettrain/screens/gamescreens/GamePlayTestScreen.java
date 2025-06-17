@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -51,7 +52,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
 import studio.jawa.bullettrain.screens.gamescreens.EndScreen;
+import studio.jawa.bullettrain.screens.uiscreens.CharacterInfo;
+import studio.jawa.bullettrain.screens.uiscreens.CursorManager;
+import studio.jawa.bullettrain.screens.uiscreens.HudStage;
+import studio.jawa.bullettrain.screens.uiscreens.PauseMenuOverlay;
 
 public class GamePlayTestScreen implements Screen {
     private Engine engine;
@@ -94,6 +101,20 @@ public class GamePlayTestScreen implements Screen {
     private boolean victoryPending = false;
     private float victoryDelayTimer = 0f;
     private final float victoryDelayDuration = 1.0f; 
+
+    private final Game game;
+    private final CharacterInfo selectedCharacter;
+    private final AssetManager uiAssetManager;
+    private PauseMenuOverlay pauseMenuOverlay;
+    private HudStage hudStage;
+    private SpriteBatch batch;
+    private CursorManager cursorManager;
+
+    public GamePlayTestScreen(Game game, CharacterInfo selectedCharacter, AssetManager assetManager) {
+        this.game = game;
+        this.selectedCharacter = selectedCharacter;
+        this.uiAssetManager = assetManager;
+    }
 
     @Override
     public void show() {
@@ -164,6 +185,17 @@ public class GamePlayTestScreen implements Screen {
 
         // Create player
         createPlayer();
+
+        // Ui set up
+        pauseMenuOverlay = new PauseMenuOverlay(game, uiAssetManager);
+        hudStage = new HudStage(new ScreenViewport());
+
+        Gdx.input.setInputProcessor(hudStage);
+
+        batch = new SpriteBatch();
+        cursorManager = new CursorManager(uiAssetManager, 10, 10);
+
+        cursorManager.resetToCrosshair();
     }
 
     private void setupAssetManager() {
@@ -251,6 +283,33 @@ public class GamePlayTestScreen implements Screen {
             renderUI();
             renderVictoryOverlay(delta);
             handleVictoryInput(delta);
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            if (pauseMenuOverlay.isVisible()) {
+                pauseMenuOverlay.hide();
+                Gdx.input.setInputProcessor(hudStage);
+
+                cursorManager.resetToCrosshair();
+            } else {
+                pauseMenuOverlay.show();
+                Gdx.input.setInputProcessor(pauseMenuOverlay.getStage());
+            }
+        }
+
+        cursorManager.updateInput();
+
+        cursorManager.update(delta);
+
+        // Gdx.gl.glClearColor(0, 0, 0, 1);
+        // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (pauseMenuOverlay.isVisible()) {
+            pauseMenuOverlay.render(delta);
+        } else {
+            hudStage.act(delta);
+            hudStage.draw();
+            cursorManager.render(hudStage.getBatch());
         }
     }
 
@@ -661,6 +720,9 @@ public class GamePlayTestScreen implements Screen {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
         camera.update();
+
+        if (pauseMenuOverlay != null) pauseMenuOverlay.resize(width, height);
+        if (hudStage != null) hudStage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -680,6 +742,11 @@ public class GamePlayTestScreen implements Screen {
         if (font != null) {
             font.dispose();
         }
+
+        if (pauseMenuOverlay != null) pauseMenuOverlay.dispose();
+        if (hudStage != null) hudStage.dispose();
+        if (cursorManager != null) cursorManager.dispose();
+        if (batch != null) batch.dispose();
     }
 }
 
