@@ -72,7 +72,12 @@ public class CollisionSystem extends EntitySystem {
             if (objectComp.carriageNumber != playerComp.currentCarriageNumber) continue;
 
             // Object collision bounds
-            objectBounds.set(objectComp.bounds);
+            objectBounds.set(
+                objectTransform.position.x - objectComp.bounds.width / 2f,
+                objectTransform.position.y - objectComp.bounds.height / 2f,
+                objectComp.bounds.width,
+                objectComp.bounds.height
+            );
 
             // Check collision
             if (playerBounds.overlaps(objectBounds)) {

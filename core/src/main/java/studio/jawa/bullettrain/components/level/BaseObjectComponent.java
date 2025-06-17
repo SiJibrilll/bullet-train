@@ -20,7 +20,7 @@ public class BaseObjectComponent implements Component {
     }
     
     public void setBounds(float x, float y) {
-        bounds.set(x - objectType.width/2f, y - objectType.height/2f, 
-                  objectType.width, objectType.height);
+        // Set bounds 
+        bounds.set(x - objectType.width/2f, y - objectType.height/2f, objectType.width, objectType.height);
     }
 }
