@@ -5,6 +5,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 
 import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.enemies.*;
+import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
@@ -14,7 +15,9 @@ public class EnemyIdleSystem extends EntitySystem {
     private final ComponentMapper<TransformComponent> tm = ComponentMapper.getFor(TransformComponent.class);
     private final ComponentMapper<EnemyBehaviourComponent> bm = ComponentMapper.getFor(EnemyBehaviourComponent.class);
     private final ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
-
+    private final ComponentMapper<PlayerComponent> pm = ComponentMapper.getFor(PlayerComponent.class);
+    private final ComponentMapper<EnemyComponent> em = ComponentMapper.getFor(EnemyComponent.class);
+    
     private Family playerFamily = Family.all(TransformComponent.class, PlayerControlledComponent.class).get();
     private ImmutableArray<Entity> entities;
 
@@ -24,6 +27,7 @@ public class EnemyIdleSystem extends EntitySystem {
 
     @Override
     public void update(float deltaTime) {
+        outerLoop:
         for (Entity entity : entities) {
             EnemyStateComponent state = sm.get(entity);
 
@@ -43,6 +47,10 @@ public class EnemyIdleSystem extends EntitySystem {
             float threshold = behaviour.aggroRange;
 
             for (Entity player : players) {
+                PlayerComponent pc = pm.get(player);
+                EnemyComponent ec = em.get(entity);
+
+                if (pc.currentCarriageNumber != ec.carriageNumber) continue outerLoop;
                 // player data
                 TransformComponent playerTransform = player.getComponent(TransformComponent.class);
                 float distance = transform.position.dst(playerTransform.position);
