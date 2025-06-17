@@ -38,6 +38,7 @@ public class AnimationSystem extends IteratingSystem {
         TextureRegion frame = animation.getKeyFrame(anim.stateTime, anim.looping);
         anim.currentFrame = frame;
         spriteComp.sprite.setRegion(frame);
+        spriteComp.sprite.setSize(frame.getRegionWidth(), frame.getRegionHeight());
     }
 }
 

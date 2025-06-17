@@ -23,7 +23,7 @@ public class EnemyFactory {
         anim.animations.put("death", AnimationComponent.loadAnimation(assetManager, "testing/animation/death.png", 6, 0.15f));
         anim.currentAnimation = "idle";
 
-        Entity enemy = new EnemyEntity(x, y, carriageNumber, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat, anim);
+        Entity enemy = new EnemyEntity(x, y, carriageNumber, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat, anim, 4f);
         Texture weapon = assetManager.get("testing/sword.png", Texture.class);
         engine.addEntity(new WeaponEntity(x, y, weapon, false, enemy, 2f));
    
@@ -40,7 +40,7 @@ public class EnemyFactory {
         anim.animations.put("death", AnimationComponent.loadAnimation(assetManager, "testing/animation/death.png", 6, 0.15f));
         anim.currentAnimation = "idle";
 
-        Entity enemy = new EnemyEntity(x, y, carriageNumber, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat, anim);
+        Entity enemy = new EnemyEntity(x, y, carriageNumber, tex, EnemyStateComponent.STATES.IDLE, behaviour, enemystat, anim, 4f);
         Texture weapon = assetManager.get("testing/gun.png", Texture.class);
         engine.addEntity(new WeaponEntity(x, y, weapon, false, enemy, 1f, 50f));
    

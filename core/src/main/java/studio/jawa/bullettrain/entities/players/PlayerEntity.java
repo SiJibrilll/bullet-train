@@ -14,7 +14,7 @@ import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 public class PlayerEntity extends Entity {
     public PlayerEntity(float x, float y, Texture tex, GeneralStatsComponent stats, BaseCharacter character, AnimationComponent animation) {
         TransformComponent transform = new TransformComponent(x, y);
-        transform.scale = 2f; //TODO sementara untuk nyesuain size
+        transform.scale = 3f; //TODO sementara untuk nyesuain size
         add(transform);
         add(new SpriteComponent(new Sprite(tex)));
         add(new VelocityComponent());
@@ -25,7 +25,7 @@ public class PlayerEntity extends Entity {
         add(pc);
         add(stats);
         add(animation);
-        add(new BoxColliderComponent(new Rectangle(-50, -65, 100, 100)));
+        add(new BoxColliderComponent(new Rectangle(-46, -46, 96, 96)));
         add(new TeamComponent(ProjectileComponent.Team.PLAYER));
     }
 }

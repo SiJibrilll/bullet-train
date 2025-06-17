@@ -18,8 +18,10 @@ import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
 
 public class EnemyEntity extends Entity {
-    public EnemyEntity(float x, float y, int carriageNumber, Texture tex, EnemyStateComponent.STATES state, EnemyBehaviourComponent behaviour, GeneralStatsComponent stats, AnimationComponent animation) {
-        add(new TransformComponent(x, y));
+    public EnemyEntity(float x, float y, int carriageNumber, Texture tex, EnemyStateComponent.STATES state, EnemyBehaviourComponent behaviour, GeneralStatsComponent stats, AnimationComponent animation, float scale) {
+        TransformComponent transform = new TransformComponent(x, y);
+        transform.scale = scale;
+        add(transform);
         add(new VelocityComponent());
         
         // Create EnemyComponent with carriage number

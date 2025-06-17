@@ -13,7 +13,7 @@ public class ProjectileEntity extends Entity {
         TransformComponent transform = new TransformComponent(x, y);
         transform.rotation = direction.angleDeg();
         transform.origin.set(0.5f, 0.5f);
-        transform.scale = 0.5f; // Adjust size
+        transform.scale = scale; // Adjust size
         add(transform);
 
         VelocityComponent vel = new VelocityComponent();
@@ -30,7 +30,7 @@ public class ProjectileEntity extends Entity {
         TransformComponent transform = new TransformComponent(x, y);
         transform.rotation = direction.angleDeg();
         transform.origin.set(0.5f, 0.5f);
-        transform.scale = 0.5f; // Adjust size
+        transform.scale = scale; // Adjust size
         add(transform);
 
 
