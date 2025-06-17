@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.level.CarriageBoundaryComponent;
 import studio.jawa.bullettrain.components.level.CarriageManagerComponent;
@@ -385,11 +386,11 @@ public class GamePlayTestScreen implements Screen {
                 camera.position.y - camera.viewportHeight / 2,
                 camera.viewportWidth, camera.viewportHeight);
 
-            font.getData().setScale(2f);
+            font.getData().setScale(5f);
             font.setColor(1f, 1f, 0.2f, overlayAlpha + 0.2f);
             font.draw(sharedBatch, "VICTORY!", camera.position.x - 100, camera.position.y + 40);
 
-            font.getData().setScale(1f);
+            font.getData().setScale(3f);
             font.setColor(1f, 1f, 1f, overlayAlpha + 0.2f);
             font.draw(sharedBatch, "Press ENTER to continue...", camera.position.x - 120, camera.position.y - 20);
 

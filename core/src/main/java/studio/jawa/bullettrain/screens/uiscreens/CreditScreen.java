@@ -39,7 +39,6 @@ public class CreditScreen implements Screen {
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        // Credit content
         creditTable = new Table();
         addCreditLine("CREDIT", 2.5f, Color.GOLD);
         addSpacer();
@@ -57,14 +56,12 @@ public class CreditScreen implements Screen {
         addSpacer();
         addCreditLine("© 2025 Studio Jawa", 1.2f, Color.GRAY);
 
-        // Container untuk bisa digeser seluruhnya
         container = new Table();
         container.add(creditTable).center();
-        container.pack(); // Hitung ukuran sesuai isi
+        container.pack();
 
         stage.addActor(container);
 
-        // Skip button
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = skin.getFont("default");
 
@@ -84,10 +81,8 @@ public class CreditScreen implements Screen {
         });
         stage.addActor(skipButton);
 
-        // Layout dulu untuk mendapatkan ukuran container
-        stage.act(); // agar pack() bekerja
+        stage.act();
 
-        // Tempatkan container di bawah layar
         container.setPosition(
                 (stage.getWidth() - container.getWidth()) / 2f,
                 -container.getHeight()
