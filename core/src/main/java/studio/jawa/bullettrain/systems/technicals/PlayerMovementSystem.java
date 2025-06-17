@@ -20,14 +20,16 @@ public class PlayerMovementSystem extends IteratingSystem {
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<PlayerComponent> playerMapper;
     private ComponentMapper<GeneralStatsComponent> statsMapper;
+    private ComponentMapper<DeathComponent> dm;
 
     public PlayerMovementSystem() {
-        super(Family.all(PlayerComponent.class, TransformComponent.class, VelocityComponent.class, GeneralStatsComponent.class).exclude(DeathComponent.class).get());
+        super(Family.all(PlayerComponent.class, TransformComponent.class, VelocityComponent.class, GeneralStatsComponent.class).get());
 
         transformMapper = ComponentMapper.getFor(TransformComponent.class);
         velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
         playerMapper = ComponentMapper.getFor(PlayerComponent.class);
         statsMapper = ComponentMapper.getFor(GeneralStatsComponent.class);
+        dm = ComponentMapper.getFor(DeathComponent.class);
     }
 
     @Override
@@ -36,9 +38,12 @@ public class PlayerMovementSystem extends IteratingSystem {
         VelocityComponent velocity = velocityMapper.get(entity);
         PlayerComponent player = playerMapper.get(entity);
         GeneralStatsComponent stats = statsMapper.get(entity);
+        DeathComponent death = dm.get(entity);
 
         // Handle input
-        handleInput(velocity, stats);
+        if (death == null) {
+            handleInput(velocity, stats);
+        }
 
         // Apply movement
         applyMovement(transform, velocity, deltaTime);

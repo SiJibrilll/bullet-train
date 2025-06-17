@@ -5,6 +5,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.gameplay.AliveComponent;
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.technicals.InputComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
@@ -21,8 +22,16 @@ public class MovementSystem extends EntitySystem {
 
     private ImmutableArray<Entity> entities;
 
+    @Override
+    public void addedToEngine(Engine engine) {
+        this.entities = engine.getEntitiesFor(
+            Family.all(TransformComponent.class, VelocityComponent.class).get()
+        );
+    }
+
+
     public MovementSystem(Engine engine) {
-        this.entities = engine.getEntitiesFor(Family.all(TransformComponent.class, VelocityComponent.class).get());
+        // this.entities = engine.getEntitiesFor(Family.all(TransformComponent.class, VelocityComponent.class).get());
     }
 
     @Override
@@ -32,9 +41,10 @@ public class MovementSystem extends EntitySystem {
             VelocityComponent vel = vm.get(entity);
             GeneralStatsComponent stat = sm.get(entity);
 
-
+            
 
             if (im.has(entity)) {
+                if (entity.getComponent(DeathComponent.class) != null) continue;
                 InputComponent input = im.get(entity);
                 vel.velocity.set(input.direction).scl(stat.speed); 
             }

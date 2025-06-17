@@ -48,7 +48,7 @@ public class PlayerHealthSystem extends IteratingSystem {
         if (stats.health <= 0) {
             stats.health = 0;
             // Handle death logic
-            System.out.println("Player has died!");
+            // System.out.println("Player has died!");
             // You could dispatch events or remove the entity here
         }
     }

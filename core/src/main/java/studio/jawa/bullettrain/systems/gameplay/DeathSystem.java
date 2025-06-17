@@ -53,12 +53,14 @@ public class DeathSystem extends EntitySystem {
                 DamageComponent damage = dm.get(entity);
                 AnimationComponent anim = entity.getComponent(AnimationComponent.class);
 
-               
+                System.out.println("Player death direction: " + damage.direction);
+
+
                 anim.currentAnimation = "death";
                 anim.looping = false;
                 anim.stateTime = 0f;
                 anim.isPlaying = true;
-                velocity.velocity = new Vector2(damage.direction).scl(1000f);
+                velocity.velocity.set(damage.direction).scl(1000f);
             }
         }   
     }

@@ -29,9 +29,7 @@ public class DamageSystem extends EntitySystem {
         for (Entity entity : entities) {
                 GeneralStatsComponent stats = gm.get(entity);
                 DamageComponent damage = dm.get(entity);
-                System.out.println(entity);
                 stats.health -= damage.damage;
-                System.out.println(stats.health);
                 entity.remove(DamageComponent.class);
         }   
             
