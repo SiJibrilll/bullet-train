@@ -284,8 +284,6 @@ public class GamePlayTestScreen implements Screen {
 
         if (pauseMenuOverlay.isVisible()) {
             pauseMenuOverlay.render(delta);
-            // System.out.println(pauseMenuOverlay.isVisible());
-            // isPaused = pauseMenuOverlay.isVisible();
         } else {
             hudStage.act(delta);
             hudStage.draw();
