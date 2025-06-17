@@ -29,6 +29,8 @@ public class DeathDragSystem extends EntitySystem{
         for (Entity entity : entities) {
             VelocityComponent velocity = vm.get(entity);
 
+            // System.out.println(velocity.velocity);
+
             velocity.velocity.scl(0.95f); // Damping
             if (velocity.velocity.len2() < 0.01f) {
                 velocity.velocity.setZero();
