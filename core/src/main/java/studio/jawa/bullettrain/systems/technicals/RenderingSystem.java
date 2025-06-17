@@ -19,6 +19,7 @@ public class RenderingSystem extends EntitySystem {
     private ComponentMapper<TransformComponent> tm = ComponentMapper.getFor(TransformComponent.class);
     private ComponentMapper<SpriteComponent> sm = ComponentMapper.getFor(SpriteComponent.class);
     private ComponentMapper<BaseObjectComponent> om = ComponentMapper.getFor(BaseObjectComponent.class);
+    public boolean isPaused = false;
 
     public RenderingSystem(OrthographicCamera camera, SpriteBatch batch) {
         this.camera = camera;
@@ -54,10 +55,23 @@ public class RenderingSystem extends EntitySystem {
             float originY = height * transform.origin.y;
 
             sprite.setOrigin(originX, originY);
-            sprite.setPosition(
-                transform.position.x - originX,
-                transform.position.y - originY
-            );
+            // sprite.setPosition(
+            //     transform.position.x - originX,
+            //     transform.position.y - originY
+            // );
+
+            if (isPaused) {
+                sprite.setPosition(
+                    Math.round(transform.position.x - originX),
+                    Math.round(transform.position.y - originY)
+                );
+            } else {
+                sprite.setPosition(
+                    transform.position.x - originX,
+                    transform.position.y - originY
+                );
+            }
+
             sprite.setRotation(transform.rotation);
             sprite.setScale(transform.scale);
 

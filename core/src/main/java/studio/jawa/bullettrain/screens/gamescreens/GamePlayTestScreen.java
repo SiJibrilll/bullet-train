@@ -115,6 +115,9 @@ public class GamePlayTestScreen implements Screen {
     private CursorManager cursorManager;
 
     private boolean isPaused = false;
+    private AnimationSystem animation;
+    private MovementSystem movementSystem;
+    private RenderingSystem renderer;
 
     public GamePlayTestScreen(Game game, CharacterInfo selectedCharacter, AssetManager assetManager) {
         this.game = game;
@@ -169,7 +172,8 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new CollisionSystem());
         engine.addSystem(new EnemySpawnSystem(assetManager));
 
-        engine.addSystem(new AnimationSystem());
+        animation = new AnimationSystem();
+        engine.addSystem(animation);
         engine.addSystem(new PlayerFacingSystem(camera));
         engine.addSystem(new PlayerMovementAnimationSystem());
 
@@ -180,7 +184,8 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new EnemyIdleSystem(engine));
         engine.addSystem(new EnemyChaseSystem(assetManager));
         engine.addSystem(new EnemyStrafeSystem(assetManager, engine));
-        engine.addSystem(new MovementSystem(engine));
+        movementSystem = new MovementSystem(engine);
+        engine.addSystem(movementSystem);
         engine.addSystem(new DeathDragSystem());
         engine.addSystem(new WeaponOrbitSystem(camera));
 
@@ -192,7 +197,8 @@ public class GamePlayTestScreen implements Screen {
 
         engine.addSystem(new HitFlashSystem());
         engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch));
-        engine.addSystem(new RenderingSystem(camera, sharedBatch));
+        renderer = new RenderingSystem(camera, sharedBatch);
+        engine.addSystem(renderer);
         engine.addSystem(new DebugRenderSystem(camera, engine));
 
         cameraSystem = new CameraSystem(camera);
@@ -283,13 +289,17 @@ public class GamePlayTestScreen implements Screen {
 
         if (pauseMenuOverlay.isVisible()) {
             pauseMenuOverlay.render(delta);
-        } else {
-            // hudStage.act(delta);
-            // hudStage.draw();
-            // cursorManager.render(hudStage.getBatch());
         }
 
+        animation.setPaused(isPaused);
+        movementSystem.setPaused(isPaused);
+        renderer.isPaused = isPaused;
         isPaused = pauseMenuOverlay.isVisible();
+
+        if (isPaused) {
+            camera.position.x = Math.round(camera.position.x);
+            camera.position.y = Math.round(camera.position.y);
+        }
 
        
 

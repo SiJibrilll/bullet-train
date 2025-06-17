@@ -22,6 +22,11 @@ public class MovementSystem extends EntitySystem {
 
     private ImmutableArray<Entity> entities;
 
+    private boolean isPaused = false;
+    public void setPaused(boolean paused) {
+        this.isPaused = paused;
+    }
+
     @Override
     public void addedToEngine(Engine engine) {
         this.entities = engine.getEntitiesFor(
@@ -36,6 +41,9 @@ public class MovementSystem extends EntitySystem {
 
     @Override
     public void update(float deltaTime) {
+        if (isPaused) deltaTime = 0f;
+        if (isPaused) return; // 🚫 Skip all updates when paused
+
         for (Entity entity : entities) {
             TransformComponent pos = pm.get(entity);
             VelocityComponent vel = vm.get(entity);

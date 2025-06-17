@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector3;
 
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
@@ -20,7 +21,7 @@ public class PlayerFacingSystem extends IteratingSystem {
     private final ComponentMapper<SpriteComponent> sm = ComponentMapper.getFor(SpriteComponent.class);
 
     public PlayerFacingSystem(Camera camera) {
-        super(Family.all(PlayerControlledComponent.class, TransformComponent.class, SpriteComponent.class).get());
+        super(Family.all(PlayerControlledComponent.class, TransformComponent.class, SpriteComponent.class).exclude(DeathComponent.class).get());
         this.camera = camera;
     }
 
