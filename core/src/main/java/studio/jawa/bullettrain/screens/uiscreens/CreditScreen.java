@@ -40,21 +40,21 @@ public class CreditScreen implements Screen {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
         creditTable = new Table();
-        addCreditLine("CREDIT", 2.5f, Color.GOLD);
+        addCreditLine("CREDIT", 3.5f, Color.GOLD);
         addSpacer();
-        addCreditLine("Game Programmer", 2f, Color.WHITE);
-        addCreditLine("Azril", 1.8f, Color.WHITE);
-        addCreditLine("Jibril", 1.8f, Color.WHITE);
+        addCreditLine("Game Programmer", 2.5f, Color.WHITE);
+        addCreditLine("Azril", 2f, Color.WHITE);
+        addCreditLine("Jibril", 2f, Color.WHITE);
         addSpacer();
-        addCreditLine("Game Asset Manager", 2f, Color.WHITE);
-        addCreditLine("Zhafir", 1.8f, Color.WHITE);
+        addCreditLine("Game Asset Manager", 2.5f, Color.WHITE);
+        addCreditLine("Zhafir", 2f, Color.WHITE);
         addSpacer();
-        addCreditLine("UI Designer", 2f, Color.WHITE);
-        addCreditLine("Fahmi", 1.8f, Color.WHITE);
+        addCreditLine("UI Designer", 2.5f, Color.WHITE);
+        addCreditLine("Fahmi", 2f, Color.WHITE);
         addSpacer();
-        addCreditLine("Thank you for playing!", 2f, Color.CYAN);
+        addCreditLine("Thank you for playing!", 2.5f, Color.CYAN);
         addSpacer();
-        addCreditLine("© 2025 Studio Jawa", 1.2f, Color.GRAY);
+        addCreditLine("© 2025 Studio Jawa", 1.8f, Color.GRAY);
 
         container = new Table();
         container.add(creditTable).center();
@@ -71,8 +71,8 @@ public class CreditScreen implements Screen {
         style.over = transparent;
 
         TextButton skipButton = new TextButton("Skip", style);
-        skipButton.getLabel().setFontScale(1.5f);
-        skipButton.setPosition(20, 20);
+        skipButton.getLabel().setFontScale(2f);
+        skipButton.setPosition(40, 40);
         skipButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

@@ -11,6 +11,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -356,7 +357,7 @@ public class GamePlayTestScreen implements Screen {
             if (transitionTimer >= transitionDuration && transitionToNextScreen) {
                 if (Gdx.app.getApplicationListener() instanceof Game) {
                     Game game = (Game) Gdx.app.getApplicationListener();
-                    game.setScreen(new CreditScreen(game, assetManager));
+                    game.setScreen(new CreditScreen(game, uiAssetManager));
                     transitionToNextScreen = false;
                 }
             }
@@ -375,24 +376,36 @@ public class GamePlayTestScreen implements Screen {
             sharedBatch.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
         } else {
+            GlyphLayout layout = new GlyphLayout();
+
             float overlayAlpha = 0.8f;
+
             Gdx.gl.glEnable(GL20.GL_BLEND);
+
             sharedBatch.begin();
             sharedBatch.setProjectionMatrix(camera.combined);
 
             sharedBatch.setColor(0, 0, 0, overlayAlpha);
-            sharedBatch.draw(grassTexture,
+            sharedBatch.draw(
+                grassTexture,
                 camera.position.x - camera.viewportWidth / 2,
                 camera.position.y - camera.viewportHeight / 2,
-                camera.viewportWidth, camera.viewportHeight);
+                camera.viewportWidth,
+                camera.viewportHeight
+            );
+
+            float centerX = camera.position.x;
+            float centerY = camera.position.y;
 
             font.getData().setScale(5f);
             font.setColor(1f, 1f, 0.2f, overlayAlpha + 0.2f);
-            font.draw(sharedBatch, "VICTORY!", camera.position.x - 100, camera.position.y + 40);
+            layout.setText(font, "VICTORY!");
+            font.draw(sharedBatch, layout, centerX - layout.width / 2, centerY + layout.height + 20);
 
             font.getData().setScale(3f);
             font.setColor(1f, 1f, 1f, overlayAlpha + 0.2f);
-            font.draw(sharedBatch, "Press ENTER to continue...", camera.position.x - 120, camera.position.y - 20);
+            layout.setText(font, "Press ENTER to continue...");
+            font.draw(sharedBatch, layout, centerX - layout.width / 2, centerY - layout.height - 20);
 
             sharedBatch.setColor(1, 1, 1, 1);
             sharedBatch.end();
