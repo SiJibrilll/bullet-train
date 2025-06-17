@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
@@ -21,7 +22,7 @@ public class PlayerMovementSystem extends IteratingSystem {
     private ComponentMapper<GeneralStatsComponent> statsMapper;
 
     public PlayerMovementSystem() {
-        super(Family.all(PlayerComponent.class, TransformComponent.class, VelocityComponent.class, GeneralStatsComponent.class).get());
+        super(Family.all(PlayerComponent.class, TransformComponent.class, VelocityComponent.class, GeneralStatsComponent.class).exclude(DeathComponent.class).get());
 
         transformMapper = ComponentMapper.getFor(TransformComponent.class);
         velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
