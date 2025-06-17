@@ -113,6 +113,8 @@ public class GamePlayTestScreen implements Screen {
     private SpriteBatch batch;
     private CursorManager cursorManager;
 
+    private boolean isPaused = false;
+
     public GamePlayTestScreen(Game game, CharacterInfo selectedCharacter, AssetManager assetManager) {
         this.game = game;
         this.selectedCharacter = selectedCharacter;
@@ -262,6 +264,38 @@ public class GamePlayTestScreen implements Screen {
     public void render(float delta) {
         handleInput();
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            isPaused = !isPaused;
+            
+            if (pauseMenuOverlay.isVisible()) {
+                pauseMenuOverlay.hide();
+                Gdx.input.setInputProcessor(hudStage);
+
+                cursorManager.resetToCrosshair();
+            } else {
+                pauseMenuOverlay.show();
+                Gdx.input.setInputProcessor(pauseMenuOverlay.getStage());
+            }
+        }
+
+        if (pauseMenuOverlay.isVisible()) {
+            pauseMenuOverlay.render(delta);
+            // System.out.println(pauseMenuOverlay.isVisible());
+            // isPaused = pauseMenuOverlay.isVisible();
+        } else {
+            hudStage.act(delta);
+            hudStage.draw();
+            cursorManager.render(hudStage.getBatch());
+        }
+
+        isPaused = pauseMenuOverlay.isVisible();
+
+        cursorManager.updateInput();
+
+        cursorManager.update(delta);
+
+        if (isPaused) return;
+
         // Cek victory 
         checkVictoryCondition();
 
@@ -314,7 +348,9 @@ public class GamePlayTestScreen implements Screen {
             // TREE SPAWN & UPDATE
             updateAndSpawnTrees(delta);
 
+           
             engine.update(delta);
+            
 
             shapeRenderer.setProjectionMatrix(camera.combined);
 
@@ -337,32 +373,10 @@ public class GamePlayTestScreen implements Screen {
             handleVictoryInput(delta);
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            if (pauseMenuOverlay.isVisible()) {
-                pauseMenuOverlay.hide();
-                Gdx.input.setInputProcessor(hudStage);
-
-                cursorManager.resetToCrosshair();
-            } else {
-                pauseMenuOverlay.show();
-                Gdx.input.setInputProcessor(pauseMenuOverlay.getStage());
-            }
-        }
-
-        cursorManager.updateInput();
-
-        cursorManager.update(delta);
-
         // Gdx.gl.glClearColor(0, 0, 0, 1);
         // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (pauseMenuOverlay.isVisible()) {
-            pauseMenuOverlay.render(delta);
-        } else {
-            hudStage.act(delta);
-            hudStage.draw();
-            cursorManager.render(hudStage.getBatch());
-        }
+        
     }
 
     private void checkVictoryCondition() {
