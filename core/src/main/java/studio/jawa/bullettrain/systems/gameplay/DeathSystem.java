@@ -46,15 +46,12 @@ public class DeathSystem extends EntitySystem {
     public void update(float deltaTime) {
         for (Entity entity : entities) {
             GeneralStatsComponent stats = gm.get(entity);
-            
+
             if (stats.health <= 0) {
                 entity.add(new DeathComponent());
                 VelocityComponent velocity = vm.get(entity);
                 DamageComponent damage = dm.get(entity);
                 AnimationComponent anim = entity.getComponent(AnimationComponent.class);
-
-                System.out.println("Player death direction: " + damage.direction);
-
 
                 anim.currentAnimation = "death";
                 anim.looping = false;
