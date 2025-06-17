@@ -8,6 +8,7 @@ public class PlayerComponent implements Component {
     public int currentCarriageNumber = 1;
     public boolean isTransitioning = false;
     public BaseCharacter character;
+    public float delay = 0;
 
 
     public PlayerComponent() {}

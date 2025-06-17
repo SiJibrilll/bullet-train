@@ -32,6 +32,7 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
         // Query player entities using a tag component or unique component
         players = engine.getEntitiesFor(Family.all(TransformComponent.class, PlayerControlledComponent.class).get());
         AudioHelper.loadSound("sword", "testing/sounds/sword.mp3");
+        AudioHelper.loadSound("gun", "testing/sounds/gun.mp3");
     }
 
     public PlayerProjectileSpawningSystem(Camera camera, Engine engine, AssetManager manager) {
@@ -42,12 +43,22 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
 
     @Override
     public void update(float deltaTime) {
+        Entity player = players.first();
+        PlayerComponent playerData = pcm.get(players.first());
+        playerData.delay -= deltaTime;
+        BaseCharacter character = pcm.get(player).character;
+        
+        if (playerData.delay > 0) {
+            return;
+        }
+
         if (Gdx.input.justTouched()) {
-            spawnProjectile(players.first());
+            spawnProjectile(player, deltaTime, character);
+            playerData.delay = character.getAttackSpeed();
         }
     }
 
-    private void spawnProjectile(Entity player) {
+    private void spawnProjectile(Entity player, float deltaTime, BaseCharacter character) {
         // 1. Get mouse position in world coordinates
         Vector3 mouseWorld = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mouseWorld);
@@ -59,10 +70,8 @@ public class PlayerProjectileSpawningSystem extends EntitySystem {
         // 3. Calculate normalized direction
         Vector2 direction = new Vector2(mouseWorld.x, mouseWorld.y).sub(start).nor();
 
-        BaseCharacter character = pcm.get(player).character;
-
         ProjectileEntity projectile = character.attack(start.x, start.y, direction, manager);
-        AudioHelper.playSound("sword");
+        AudioHelper.playSound(character.getAttackSound());
         engine.addEntity(projectile);
     }
 }

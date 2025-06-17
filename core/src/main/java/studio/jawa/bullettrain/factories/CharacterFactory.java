@@ -14,7 +14,7 @@ import studio.jawa.bullettrain.entities.objects.WeaponEntity;
 import studio.jawa.bullettrain.entities.players.PlayerEntity;
 
 public class CharacterFactory {
-    static PlayerEntity createGrace(float x, float y, AssetManager assetManager) {
+    static PlayerEntity createGrace(float x, float y, AssetManager assetManager, Engine engine) {
         GraceCharacter grace = new GraceCharacter();
         GeneralStatsComponent stats = grace.getStat();
         Texture idle = assetManager.get(grace.getAnim(Animation.IDLE), Texture.class);
@@ -28,7 +28,8 @@ public class CharacterFactory {
 
         PlayerEntity player = new PlayerEntity(x, y, idle, stats, grace, anim);
 
-        new WeaponEntity(x, y, idle, true, player, 2f);
+        Texture weapon = assetManager.get("testing/gun.png", Texture.class);
+        engine.addEntity(new WeaponEntity(x, y, weapon, true, player, 1f, 50f));
 
         return player;
     }
