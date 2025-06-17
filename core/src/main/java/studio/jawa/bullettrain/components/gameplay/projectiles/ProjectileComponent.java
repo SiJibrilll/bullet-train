@@ -22,6 +22,7 @@ public class ProjectileComponent implements Component {
     public ProjectileComponent(float speed,Team team) {
         this.speed = speed;
         this.team = team;
+        this.isMeele = false;
     }
 
     public ProjectileComponent(Team team, boolean isMeele, float meleeDuration) {
