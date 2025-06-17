@@ -31,7 +31,7 @@ public class CursorManager {
     private ReloadListener reloadListener;
 
     public CursorManager(AssetManager assetManager, int initialAmmo, int maxAmmo) {
-        Pixmap crosshairPixmap = new Pixmap(Gdx.files.internal("cursor/crosshair.png"));
+        Pixmap crosshairPixmap = new Pixmap(Gdx.files.internal("cursor/crosshair2.png"));
         crosshairCursor = Gdx.graphics.newCursor(
             crosshairPixmap,
             crosshairPixmap.getWidth() / 2,
@@ -141,6 +141,12 @@ public class CursorManager {
 
     public int getAmmo() {
         return ammo;
+    }
+
+    public void resetToCrosshair() {
+        if (!isReloading) {
+            Gdx.graphics.setCursor(crosshairCursor);
+        }
     }
 
     public void dispose() {

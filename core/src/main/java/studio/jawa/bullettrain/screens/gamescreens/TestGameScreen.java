@@ -44,6 +44,8 @@ public class TestGameScreen implements Screen {
 
         batch = new SpriteBatch();
         cursorManager = new CursorManager(assetManager, 10, 10);
+
+        cursorManager.resetToCrosshair();
     }
 
     @Override
@@ -57,8 +59,11 @@ public class TestGameScreen implements Screen {
             if (pauseMenuOverlay.isVisible()) {
                 pauseMenuOverlay.hide();
                 Gdx.input.setInputProcessor(hudStage);
+
+                cursorManager.resetToCrosshair();
             } else {
                 pauseMenuOverlay.show();
+                Gdx.input.setInputProcessor(pauseMenuOverlay.getStage());
             }
         }
 
@@ -69,7 +74,9 @@ public class TestGameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (!pauseMenuOverlay.isVisible()) {
+        if (pauseMenuOverlay.isVisible()) {
+            pauseMenuOverlay.render(delta);
+        } else {
             hudStage.act(delta);
             hudStage.draw();
             cursorManager.render(hudStage.getBatch());
