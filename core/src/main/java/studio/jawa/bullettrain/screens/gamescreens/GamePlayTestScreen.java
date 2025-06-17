@@ -80,13 +80,16 @@ public class GamePlayTestScreen implements Screen {
     private Entity player;
     private AssetManager assetManager;
     private Texture roofTexture;
+    private Texture floorTexture; 
     private Texture grassTexture;
     private Texture treeTexture;
+    private Texture railTexture; 
     private SpriteBatch sharedBatch;
     private BitmapFont font;
 
     private float grassOffsetY = 0f;
     private float grassSpeed = 100f;
+    private float railOffsetY = 0f; 
     private DoorInteractionSystem doorInteractionSystem;
     private Array<TreeEntity> trees = new Array<>();
     private float treeSpawnTimer = 0f;
@@ -196,6 +199,13 @@ public class GamePlayTestScreen implements Screen {
         cursorManager = new CursorManager(uiAssetManager, 10, 10, selectedCharacter);
 
         cursorManager.resetToCrosshair();
+
+        if (grassTexture != null) {
+            float grassHeight = grassTexture.getHeight();
+            float screenHeight = Gdx.graphics.getHeight();
+            grassOffsetY = grassHeight - (screenHeight % grassHeight);
+            if (grassOffsetY == grassHeight) grassOffsetY = 0f;
+        }
     }
 
     private void setupAssetManager() {
@@ -220,10 +230,14 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("textures/world/roof.png", Texture.class);
         assetManager.load("textures/world/grass.png", Texture.class);
         assetManager.load("textures/world/tree.png", Texture.class); 
+        assetManager.load("textures/world/rel.png", Texture.class); 
+        assetManager.load("textures/world/lantai.png", Texture.class); 
         assetManager.finishLoading();
         roofTexture = assetManager.get("textures/world/roof.png", Texture.class);
         grassTexture = assetManager.get("textures/world/grass.png", Texture.class);
         treeTexture = assetManager.get("textures/world/tree.png", Texture.class); 
+        railTexture = assetManager.get("textures/world/rel.png", Texture.class); 
+        floorTexture = assetManager.get("textures/world/lantai.png", Texture.class);
     }
 
     private void createPlayer(CharacterInfo selectedCharacter) {
@@ -247,7 +261,29 @@ public class GamePlayTestScreen implements Screen {
             }
         }
 
+        Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        renderRails(); 
+
         if (!victory) {
+            int playerCarriageNumber = 1;
+            if (player != null) {
+                PlayerComponent playerComp = playerMapper.get(player);
+                if (playerComp != null) {
+                    playerCarriageNumber = playerComp.currentCarriageNumber;
+                }
+            }
+            // Ambil carriage manager
+            ImmutableArray<Entity> managers = engine.getEntitiesFor(
+                Family.all(CarriageManagerComponent.class).get()
+            );
+            if (managers.size() > 0) {
+                Entity manager = managers.get(0);
+                CarriageManagerComponent managerComp = managerMapper.get(manager);
+                Entity playerCarriage = managerComp.getCarriage(playerCarriageNumber);
+                renderCarriageFloor(playerCarriage);
+            }
+
             // Update grass offset
             if (grassTexture != null) {
                 float grassHeight = grassTexture.getHeight();
@@ -255,12 +291,16 @@ public class GamePlayTestScreen implements Screen {
                 grassOffsetY = grassOffsetY % grassHeight;
                 if (grassOffsetY < 0) grassOffsetY += grassHeight;
             }
+            // Update rail offset mirip grass
+            if (railTexture != null) {
+                float railHeight = railTexture.getHeight();
+                railOffsetY += grassSpeed * delta;
+                railOffsetY = railOffsetY % railHeight;
+                if (railOffsetY < 0) railOffsetY += railHeight;
+            }
 
             // TREE SPAWN & UPDATE
             updateAndSpawnTrees(delta);
-
-            Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
             engine.update(delta);
 
@@ -432,6 +472,57 @@ public class GamePlayTestScreen implements Screen {
         sharedBatch.end();
     }
 
+    private void renderRails() {
+        if (railTexture == null) return;
+
+        // Dapatkan semua carriage yang sedang dimuat
+        ImmutableArray<Entity> managers = engine.getEntitiesFor(
+            Family.all(CarriageManagerComponent.class).get()
+        );
+        if (managers.size() == 0) return;
+        Entity manager = managers.get(0);
+        CarriageManagerComponent managerComp = managerMapper.get(manager);
+
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+
+        // Ambil area layar kamera
+        float screenLeft = camera.position.x - camera.viewportWidth / 2f;
+        float screenBottom = camera.position.y - camera.viewportHeight / 2f;
+        float screenWidth = camera.viewportWidth;
+        float screenHeight = camera.viewportHeight;
+
+        for (int carriageNum : managerComp.loadedCarriages.keys().toArray().toArray()) {
+            Entity carriage = managerComp.getCarriage(carriageNum);
+            CarriageBoundaryComponent boundary = boundaryMapper.get(carriage);
+            if (boundary == null) continue;
+
+            float carriageX = boundary.carriageBounds.x;
+            float carriageWidth = boundary.carriageBounds.width;
+
+            float railWidth = carriageWidth;
+            float railHeight = railTexture.getHeight();
+
+            float offsetY = -(railOffsetY % railHeight);
+            if (offsetY > 0) offsetY -= railHeight;
+
+            int numTiles = (int)Math.ceil((screenHeight + railHeight * 2) / railHeight);
+
+            for (int i = 0; i < numTiles; i++) {
+                float y = screenBottom + offsetY + i * railHeight;
+                sharedBatch.draw(
+                    railTexture,
+                    carriageX,
+                    y,
+                    railWidth,
+                    railHeight
+                );
+            }
+        }
+
+        sharedBatch.end();
+    }
+
     private static class TreeEntity {
         float x, y, width, height;
         TreeEntity(float x, float y, float width, float height) {
@@ -471,7 +562,7 @@ public class GamePlayTestScreen implements Screen {
             renderCarriage(carriage);
 
             if (carriageNum != playerCarriageNumber) {
-                renderCarriageRoof(carriage);
+                renderCarriageRoof(carriage); 
             }
         }
     }
@@ -497,16 +588,20 @@ public class GamePlayTestScreen implements Screen {
             float carriageWidth = boundary.carriageBounds.width;
             float carriageHeight = boundary.carriageBounds.height;
 
+            float screenBottom = camera.position.y - camera.viewportHeight / 2f;
+            float screenTop = camera.position.y + camera.viewportHeight / 2f;
+            int numTiles = (int)Math.ceil((screenTop - screenBottom) / grassHeight) + 2;
+
             for (int side = 0; side < 2; side++) {
                 float x = (side == 0)
                     ? carriageX - grassWidth // kiri
                     : carriageX + carriageWidth; // kanan
 
-                float startY = carriageY - grassOffsetY;
-                int numTiles = (int)Math.ceil((carriageHeight + grassHeight) / grassHeight);
+                float offsetY = -(grassOffsetY % grassHeight);
+                if (offsetY > 0) offsetY -= grassHeight;
 
                 for (int i = 0; i < numTiles; i++) {
-                    float y = startY + i * grassHeight;
+                    float y = screenBottom + offsetY + i * grassHeight;
                     sharedBatch.draw(
                         grassTexture,
                         x,
@@ -559,6 +654,26 @@ public class GamePlayTestScreen implements Screen {
         float height = boundary.carriageBounds.height;
 
         sharedBatch.draw(roofTexture, x, y, width, height);
+
+        sharedBatch.end();
+    }
+
+    // render lantai
+    private void renderCarriageFloor(Entity carriage) {
+        if (carriage == null || floorTexture == null) return;
+
+        CarriageBoundaryComponent boundary = boundaryMapper.get(carriage);
+        if (boundary == null) return;
+
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+
+        float x = boundary.carriageBounds.x;
+        float y = boundary.carriageBounds.y;
+        float width = boundary.carriageBounds.width;
+        float height = boundary.carriageBounds.height;
+
+        sharedBatch.draw(floorTexture, x, y, width, height);
 
         sharedBatch.end();
     }
