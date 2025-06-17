@@ -95,13 +95,13 @@ public class GamePlayTestScreen implements Screen {
     private boolean victory = false;
     private boolean victoryTransitioning = false;
     private float victoryOverlayAlpha = 0f;
-    private float victoryFadeSpeed = 1.5f; 
+    private float victoryFadeSpeed = 1.5f;
     private float victoryFadeOutAlpha = 0f;
     private boolean startFadeOut = false;
 
     private boolean victoryPending = false;
     private float victoryDelayTimer = 0f;
-    private final float victoryDelayDuration = 1.0f; 
+    private final float victoryDelayDuration = 1.0f;
 
     private final Game game;
     private final CharacterInfo selectedCharacter;
@@ -124,6 +124,16 @@ public class GamePlayTestScreen implements Screen {
         camera.viewportWidth = 800f;
         camera.viewportHeight = 600f;
         camera.update();
+
+        // Ui set up
+        pauseMenuOverlay = new PauseMenuOverlay(game, uiAssetManager);
+
+        Gdx.input.setInputProcessor(hudStage);
+
+        batch = new SpriteBatch();
+        cursorManager = new CursorManager(uiAssetManager, 10, 10, selectedCharacter);
+
+        cursorManager.resetToCrosshair();
 
         shapeRenderer = new ShapeRenderer();
 
@@ -189,17 +199,6 @@ public class GamePlayTestScreen implements Screen {
 
         // Create player
         createPlayer(selectedCharacter);
-
-        // Ui set up
-        pauseMenuOverlay = new PauseMenuOverlay(game, uiAssetManager);
-        
-
-        Gdx.input.setInputProcessor(hudStage);
-
-        batch = new SpriteBatch();
-        cursorManager = new CursorManager(uiAssetManager, 10, 10, selectedCharacter);
-
-        cursorManager.resetToCrosshair();
     }
 
     private void setupAssetManager() {
@@ -223,11 +222,11 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("testing/gun.png", Texture.class);
         assetManager.load("textures/world/roof.png", Texture.class);
         assetManager.load("textures/world/grass.png", Texture.class);
-        assetManager.load("textures/world/tree.png", Texture.class); 
+        assetManager.load("textures/world/tree.png", Texture.class);
         assetManager.finishLoading();
         roofTexture = assetManager.get("textures/world/roof.png", Texture.class);
         grassTexture = assetManager.get("textures/world/grass.png", Texture.class);
-        treeTexture = assetManager.get("textures/world/tree.png", Texture.class); 
+        treeTexture = assetManager.get("textures/world/tree.png", Texture.class);
     }
 
     private void createPlayer(CharacterInfo selectedCharacter) {
@@ -240,7 +239,7 @@ public class GamePlayTestScreen implements Screen {
     public void render(float delta) {
         handleInput();
 
-        // Cek victory 
+        // Cek victory
         checkVictoryCondition();
 
         if (victoryPending && !victory) {
@@ -271,7 +270,7 @@ public class GamePlayTestScreen implements Screen {
             shapeRenderer.setProjectionMatrix(camera.combined);
 
             renderAllCarriages();
-            renderGrassTrees(); 
+            renderGrassTrees();
             renderAllDoors();
             renderPlayer();
             renderUI();
@@ -281,7 +280,7 @@ public class GamePlayTestScreen implements Screen {
                 if (victoryOverlayAlpha > 0.85f) victoryOverlayAlpha = 0.85f;
             }
             renderAllCarriages();
-            renderGrassTrees(); 
+            renderGrassTrees();
             renderAllDoors();
             renderPlayer();
             renderUI();
@@ -372,7 +371,7 @@ public class GamePlayTestScreen implements Screen {
         font.setColor(1f, 1f, 1f, Math.min(1f, overlayAlpha + 0.15f));
         font.draw(sharedBatch, "Press ENTER to continue...", camera.position.x - 120, camera.position.y - 20);
 
-        sharedBatch.setColor(1, 1, 1, 1); 
+        sharedBatch.setColor(1, 1, 1, 1);
         sharedBatch.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
 
@@ -399,7 +398,7 @@ public class GamePlayTestScreen implements Screen {
 
         for (int i = trees.size - 1; i >= 0; i--) {
             TreeEntity tree = trees.get(i);
-            tree.y -= grassSpeed * delta * 1; 
+            tree.y -= grassSpeed * delta * 1;
             if (tree.y + tree.height < screenBottom) {
                 trees.removeIndex(i);
             }
@@ -410,14 +409,14 @@ public class GamePlayTestScreen implements Screen {
             treeSpawnTimer = 0f;
             for (int side = 0; side < 2; side++) {
                 float x = (side == 0)
-                    ? (camera.position.x - camera.viewportWidth / 3f) - grassWidth 
-                    : (camera.position.x + camera.viewportWidth / 3f); 
+                    ? (camera.position.x - camera.viewportWidth / 3f) - grassWidth
+                    : (camera.position.x + camera.viewportWidth / 3f);
 
-                int numTrees = 1; 
+                int numTrees = 1;
                 for (int t = 0; t < numTrees; t++) {
                     float tx = x + (float)Math.random() * grassWidth * 0.7f;
                     float ty = screenTop + 30f + (float)Math.random() * 40f;
-                    float scale = 0.18f + (float)Math.random() * 0.08f; 
+                    float scale = 0.18f + (float)Math.random() * 0.08f;
                     float tw = grassWidth * scale;
                     float th = grassHeight * scale;
                     trees.add(new TreeEntity(tx, ty, tw, th));
