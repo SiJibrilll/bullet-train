@@ -21,7 +21,10 @@ public class CreditScreen implements Screen {
     private final AssetManager assetManager;
     private Stage stage;
     private Skin skin;
+
     private Table creditTable;
+    private Table container;
+
     private float scrollSpeed = 40f;
 
     public CreditScreen(Game game, AssetManager assetManager) {
@@ -36,10 +39,8 @@ public class CreditScreen implements Screen {
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
-        // Table isi credit
+        // Credit content
         creditTable = new Table();
-        creditTable.padTop(Gdx.graphics.getHeight() + 600);
-
         addCreditLine("CREDIT", 2.5f, Color.GOLD);
         addSpacer();
         addCreditLine("Game Programmer", 2f, Color.WHITE);
@@ -56,13 +57,14 @@ public class CreditScreen implements Screen {
         addSpacer();
         addCreditLine("© 2025 Studio Jawa", 1.2f, Color.GRAY);
 
-        Table container = new Table();
-        container.setFillParent(true);
+        // Container untuk bisa digeser seluruhnya
+        container = new Table();
         container.add(creditTable).center();
-        container.pack();
+        container.pack(); // Hitung ukuran sesuai isi
 
         stage.addActor(container);
 
+        // Skip button
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = skin.getFont("default");
 
@@ -82,8 +84,14 @@ public class CreditScreen implements Screen {
         });
         stage.addActor(skipButton);
 
-        stage.act();
+        // Layout dulu untuk mendapatkan ukuran container
+        stage.act(); // agar pack() bekerja
 
+        // Tempatkan container di bawah layar
+        container.setPosition(
+                (stage.getWidth() - container.getWidth()) / 2f,
+                -container.getHeight()
+        );
     }
 
     private void addSpacer() {
@@ -102,20 +110,24 @@ public class CreditScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        creditTable.moveBy(0, delta * scrollSpeed);
+        container.moveBy(0, delta * scrollSpeed);
 
         stage.act(delta);
         stage.draw();
 
-        float topY = creditTable.getY() + creditTable.getHeight();
-        if (topY < 0) {
+        if (container.getY() > stage.getHeight()) {
             game.setScreen(new MainMenuScreen(game, assetManager));
         }
     }
 
-    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
+    @Override public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
+
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-    @Override public void dispose() { stage.dispose(); }
+    @Override public void dispose() {
+        stage.dispose();
+    }
 }
