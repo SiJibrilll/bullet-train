@@ -119,9 +119,9 @@ public class EnemyStrafeSystem extends EntitySystem {
 
 
            if (strafe.attack) {
-               Texture bulletTex = assetmanager.get("testing/bullet.png", Texture.class);
+               Texture bulletTex = assetmanager.get("particles/Bullet_Enemy.png", Texture.class);
                Vector2 aim = new Vector2(playerTransform.position).sub(transform.position);
-               ProjectileEntity bullet = new ProjectileEntity(transform.position.x, transform.position.y, aim, bulletTex, 3f, 0.5f, ProjectileComponent.Team.ENEMY);
+               ProjectileEntity bullet = new ProjectileEntity(transform.position.x, transform.position.y, aim, bulletTex, 1f, 2.5f, ProjectileComponent.Team.ENEMY);
                engine.addEntity(bullet);
                AudioHelper.playSound("gun");
                strafe.attack = false;

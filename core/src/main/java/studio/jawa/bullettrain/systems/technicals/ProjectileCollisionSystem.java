@@ -12,6 +12,7 @@ import studio.jawa.bullettrain.components.effects.HitFlashComponent;
 import studio.jawa.bullettrain.components.gameplay.DamageComponent;
 import studio.jawa.bullettrain.components.gameplay.TeamComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
+import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.BoxColliderComponent;
 import studio.jawa.bullettrain.components.technicals.CircleColliderComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
@@ -57,6 +58,15 @@ public class ProjectileCollisionSystem extends EntitySystem {
 
                 }
                 bcm.meleeDuration -= deltaTime;
+
+                AnimationComponent anim = bullet.getComponent(AnimationComponent.class);
+                AnimationComponent.playAnimation(anim, "slash", false);
+
+                // anim.currentAnimation = "slash";
+                // anim.looping = false;
+                // anim.stateTime = 0f;
+                // anim.isPlaying = true;
+
 
                 meleeLogic(bc, bt, bullet);
                 continue;

@@ -1,8 +1,10 @@
 package studio.jawa.bullettrain.entities.Projectiles;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
@@ -26,16 +28,19 @@ public class ProjectileEntity extends Entity {
         add(new CircleColliderComponent(0f, 0f, 40f));
     }
 
-    public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float scale, boolean isMelee, float meleeDuration, ProjectileComponent.Team team) {
+    public  ProjectileEntity(float x, float y, Vector2 direction, Texture tex, float scale, boolean isMelee, float meleeDuration, ProjectileComponent.Team team, AssetManager assetManager) {
         TransformComponent transform = new TransformComponent(x, y);
-        transform.rotation = direction.angleDeg();
+        transform.rotation = direction.angleDeg() - 90f;
         transform.origin.set(0.5f, 0.5f);
         transform.scale = scale; // Adjust size
         add(transform);
 
+        AnimationComponent anim = new AnimationComponent();
+        anim.animations.put("slash", AnimationComponent.loadAnimation(assetManager, "particles/Melee_Slash.png", 7, 0.01f, false));
+        add(anim);
 
         add(new SpriteComponent(new Sprite(tex)));
         add(new ProjectileComponent(team, isMelee, meleeDuration));
-        add(new CircleColliderComponent(0f, 0f, 40f));
+        add(new CircleColliderComponent(0f, 0f, 80f));
     }
 }

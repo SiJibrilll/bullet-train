@@ -238,8 +238,11 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("characters/grace/Grace_Death.png", Texture.class);
         
         assetManager.load("particles/Bullet_Ally.png", Texture.class);
+        assetManager.load("particles/Melee_Slash.png", Texture.class);
+        assetManager.load("particles/slash.png", Texture.class);
         assetManager.load("weapons/Grace_Gun.png", Texture.class);
         
+        assetManager.load("particles/Bullet_Enemy.png", Texture.class);
 
         assetManager.finishLoading();
         roofTexture = assetManager.get("textures/world/roof.png", Texture.class);

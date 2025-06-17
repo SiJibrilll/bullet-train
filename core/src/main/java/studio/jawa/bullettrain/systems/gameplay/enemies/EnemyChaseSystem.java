@@ -147,8 +147,8 @@ public class EnemyChaseSystem extends EntitySystem {
                 float spawnDistance = 100f;
                 float spawnX = transform.position.x + direction.x * spawnDistance;
                 float spawnY = transform.position.y + direction.y * spawnDistance;
-                Texture bulletTex = manager.get("testing/slash.png", Texture.class);
-                ProjectileEntity slash = new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 0.5f, true, 0.2f, Team.ENEMY);
+                Texture bulletTex = manager.get("particles/slash.png", Texture.class);
+                ProjectileEntity slash = new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 5f, true, 0.2f, Team.ENEMY, manager);
                 getEngine().addEntity(slash);
                 AudioHelper.playSound("sword");
                 

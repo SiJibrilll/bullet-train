@@ -15,7 +15,7 @@ public class JingCharacter extends BaseCharacter{
         this.idlePath = "testing/dummy2.png";
         this.runPath = "some/path/to/run.png";
         this.deathPath = "some/path/to/death.png";
-        this.attackpath = "testing/slash.png";
+        this.attackpath = "particles/slash.png";
     }
 
     @Override
@@ -24,6 +24,6 @@ public class JingCharacter extends BaseCharacter{
         float spawnX = x + direction.x * spawnDistance;
         float spawnY = y + direction.y * spawnDistance;
         Texture bulletTex = manager.get(attackpath, Texture.class);
-        return new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 0.5f, true, 0.2f, Team.PLAYER);
+        return new ProjectileEntity(spawnX, spawnY, direction, bulletTex, 5f, true, 0.2f, Team.PLAYER, manager);
     }
 }
