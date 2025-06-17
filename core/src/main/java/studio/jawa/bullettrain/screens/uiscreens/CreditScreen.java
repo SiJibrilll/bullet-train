@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class CreditScreen implements Screen {
@@ -33,12 +34,11 @@ public class CreditScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        skin = assetManager.get("ui/uiskin.json", Skin.class);
+        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
+        // Table isi credit
         creditTable = new Table();
-        creditTable.top();
-        creditTable.setFillParent(true);
-        creditTable.padTop(Gdx.graphics.getHeight());
+        creditTable.padTop(Gdx.graphics.getHeight() + 600);
 
         addCreditLine("CREDIT", 2.5f, Color.GOLD);
         addSpacer();
@@ -58,11 +58,21 @@ public class CreditScreen implements Screen {
 
         Table container = new Table();
         container.setFillParent(true);
-        container.add(creditTable).expand().center();
+        container.add(creditTable).center();
+        container.pack();
 
         stage.addActor(container);
 
-        TextButton skipButton = new TextButton("Skip", skin);
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
+        style.font = skin.getFont("default");
+
+        Drawable transparent = skin.newDrawable("white", 1, 1, 1, 0f);
+        style.up = transparent;
+        style.down = transparent;
+        style.over = transparent;
+
+        TextButton skipButton = new TextButton("Skip", style);
+        skipButton.getLabel().setFontScale(1.5f);
         skipButton.setPosition(20, 20);
         skipButton.addListener(new ClickListener() {
             @Override
@@ -72,17 +82,19 @@ public class CreditScreen implements Screen {
         });
         stage.addActor(skipButton);
 
+        stage.act();
+
     }
 
     private void addSpacer() {
-        creditTable.add().height(30).row();
+        creditTable.add().height(30).colspan(1).row();
     }
 
-        private void addCreditLine(String text, float scale, Color color) {
-        Label.LabelStyle style = new Label.LabelStyle(skin.getFont("default-font"), color);
+    private void addCreditLine(String text, float scale, Color color) {
+        Label.LabelStyle style = new Label.LabelStyle(skin.getFont("default"), color);
         Label label = new Label(text, style);
         label.setFontScale(scale);
-        creditTable.add(label).padBottom(20).row();
+        creditTable.add(label).expandX().center().padBottom(20).row();
     }
 
     @Override
@@ -95,7 +107,8 @@ public class CreditScreen implements Screen {
         stage.act(delta);
         stage.draw();
 
-        if (creditTable.getY() > Gdx.graphics.getHeight() * 2) {
+        float topY = creditTable.getY() + creditTable.getHeight();
+        if (topY < 0) {
             game.setScreen(new MainMenuScreen(game, assetManager));
         }
     }
@@ -105,5 +118,4 @@ public class CreditScreen implements Screen {
     @Override public void resume() {}
     @Override public void hide() {}
     @Override public void dispose() { stage.dispose(); }
-
 }

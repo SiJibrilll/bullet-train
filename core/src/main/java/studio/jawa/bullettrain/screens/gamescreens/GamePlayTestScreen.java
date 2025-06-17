@@ -20,6 +20,7 @@ import studio.jawa.bullettrain.components.level.OpenLayoutComponent;
 import studio.jawa.bullettrain.components.level.TrainCarriageComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.factories.PlayerFactory;
+import studio.jawa.bullettrain.screens.uiscreens.*;
 import studio.jawa.bullettrain.systems.technicals.AnimationSystem;
 import studio.jawa.bullettrain.systems.technicals.CameraSystem;
 import studio.jawa.bullettrain.systems.technicals.CarriageTransitionSystem;
@@ -55,10 +56,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import studio.jawa.bullettrain.screens.gamescreens.EndScreen;
-import studio.jawa.bullettrain.screens.uiscreens.CharacterInfo;
-import studio.jawa.bullettrain.screens.uiscreens.CursorManager;
-import studio.jawa.bullettrain.screens.uiscreens.HudStage;
-import studio.jawa.bullettrain.screens.uiscreens.PauseMenuOverlay;
 
 public class GamePlayTestScreen implements Screen {
     private Engine engine;
@@ -109,6 +106,11 @@ public class GamePlayTestScreen implements Screen {
     private HudStage hudStage;
     private SpriteBatch batch;
     private CursorManager cursorManager;
+
+    private float transitionAlpha = 0f;
+    private float transitionTimer = 0f;
+    private float transitionDuration = 1f;
+    private boolean transitionToNextScreen = false;
 
     public GamePlayTestScreen(Game game, CharacterInfo selectedCharacter, AssetManager assetManager) {
         this.game = game;
@@ -281,8 +283,8 @@ public class GamePlayTestScreen implements Screen {
             renderAllDoors();
             renderPlayer();
             renderUI();
-            renderVictoryOverlay(delta);
             handleVictoryInput(delta);
+            renderVictoryOverlay(delta);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -346,46 +348,67 @@ public class GamePlayTestScreen implements Screen {
     }
 
     private void renderVictoryOverlay(float delta) {
-        float overlayAlpha = victoryOverlayAlpha;
         if (victoryTransitioning) {
-            victoryFadeOutAlpha += delta * victoryFadeSpeed;
-            overlayAlpha = Math.max(0f, victoryOverlayAlpha - victoryFadeOutAlpha);
-        }
+            transitionTimer += delta;
+            transitionAlpha = Math.min(1f, transitionTimer / transitionDuration);
 
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        sharedBatch.begin();
-        sharedBatch.setProjectionMatrix(camera.combined);
-
-        sharedBatch.setColor(0, 0, 0, overlayAlpha);
-        sharedBatch.draw(grassTexture, camera.position.x - camera.viewportWidth/2, camera.position.y - camera.viewportHeight/2, camera.viewportWidth, camera.viewportHeight);
-
-        // Tulisan Victory
-        font.getData().setScale(2f);
-        font.setColor(1f, 1f, 0.2f, Math.min(1f, overlayAlpha + 0.15f));
-        font.draw(sharedBatch, "VICTORY!", camera.position.x - 100, camera.position.y + 40);
-
-        font.getData().setScale(1f);
-        font.setColor(1f, 1f, 1f, Math.min(1f, overlayAlpha + 0.15f));
-        font.draw(sharedBatch, "Press ENTER to continue...", camera.position.x - 120, camera.position.y - 20);
-
-        sharedBatch.setColor(1, 1, 1, 1);
-        sharedBatch.end();
-        Gdx.gl.glDisable(GL20.GL_BLEND);
-
-        if (victoryTransitioning && overlayAlpha <= 0.01f) {
-            if (Gdx.app.getApplicationListener() instanceof com.badlogic.gdx.Game) {
-                com.badlogic.gdx.Game game = (com.badlogic.gdx.Game) Gdx.app.getApplicationListener();
-                game.setScreen(new EndScreen(game));
+            if (transitionTimer >= transitionDuration && transitionToNextScreen) {
+                if (Gdx.app.getApplicationListener() instanceof Game) {
+                    Game game = (Game) Gdx.app.getApplicationListener();
+                    game.setScreen(new CreditScreen(game, assetManager));
+                    transitionToNextScreen = false;
+                }
             }
+
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            sharedBatch.begin();
+            sharedBatch.setProjectionMatrix(camera.combined);
+
+            sharedBatch.setColor(0, 0, 0, transitionAlpha);
+            sharedBatch.draw(grassTexture,
+                camera.position.x - camera.viewportWidth / 2,
+                camera.position.y - camera.viewportHeight / 2,
+                camera.viewportWidth, camera.viewportHeight);
+
+            sharedBatch.setColor(1, 1, 1, 1);
+            sharedBatch.end();
+            Gdx.gl.glDisable(GL20.GL_BLEND);
+        } else {
+            float overlayAlpha = 0.8f;
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            sharedBatch.begin();
+            sharedBatch.setProjectionMatrix(camera.combined);
+
+            sharedBatch.setColor(0, 0, 0, overlayAlpha);
+            sharedBatch.draw(grassTexture,
+                camera.position.x - camera.viewportWidth / 2,
+                camera.position.y - camera.viewportHeight / 2,
+                camera.viewportWidth, camera.viewportHeight);
+
+            font.getData().setScale(2f);
+            font.setColor(1f, 1f, 0.2f, overlayAlpha + 0.2f);
+            font.draw(sharedBatch, "VICTORY!", camera.position.x - 100, camera.position.y + 40);
+
+            font.getData().setScale(1f);
+            font.setColor(1f, 1f, 1f, overlayAlpha + 0.2f);
+            font.draw(sharedBatch, "Press ENTER to continue...", camera.position.x - 120, camera.position.y - 20);
+
+            sharedBatch.setColor(1, 1, 1, 1);
+            sharedBatch.end();
+            Gdx.gl.glDisable(GL20.GL_BLEND);
         }
     }
+
 
     private void handleVictoryInput(float delta) {
         if (!victoryTransitioning && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             victoryTransitioning = true;
-            victoryFadeOutAlpha = 0f;
+            transitionAlpha = 0f;
+            transitionTimer = 0f;
+            transitionToNextScreen = true;
         }
     }
+
 
     private void updateAndSpawnTrees(float delta) {
         float grassHeight = (grassTexture != null) ? grassTexture.getHeight() : 128f;
