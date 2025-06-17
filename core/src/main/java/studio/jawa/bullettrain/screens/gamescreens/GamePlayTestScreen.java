@@ -11,6 +11,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
 import studio.jawa.bullettrain.components.level.CarriageBoundaryComponent;
 import studio.jawa.bullettrain.components.level.CarriageManagerComponent;
@@ -48,6 +49,9 @@ import studio.jawa.bullettrain.systems.technicals.PlayerMovementAnimationSystem;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.utils.Array;
+import studio.jawa.bullettrain.screens.gamescreens.EndScreen;
 
 public class GamePlayTestScreen implements Screen {
     private Engine engine;
@@ -68,6 +72,28 @@ public class GamePlayTestScreen implements Screen {
 
     private Entity player;
     private AssetManager assetManager;
+    private Texture roofTexture;
+    private Texture grassTexture;
+    private Texture treeTexture;
+    private SpriteBatch sharedBatch;
+    private BitmapFont font;
+
+    private float grassOffsetY = 0f;
+    private float grassSpeed = 100f;
+    private DoorInteractionSystem doorInteractionSystem;
+    private Array<TreeEntity> trees = new Array<>();
+    private float treeSpawnTimer = 0f;
+    private float treeSpawnInterval = 0.7f;
+    private boolean victory = false;
+    private boolean victoryTransitioning = false;
+    private float victoryOverlayAlpha = 0f;
+    private float victoryFadeSpeed = 1.5f; 
+    private float victoryFadeOutAlpha = 0f;
+    private boolean startFadeOut = false;
+
+    private boolean victoryPending = false;
+    private float victoryDelayTimer = 0f;
+    private final float victoryDelayDuration = 1.0f; 
 
     @Override
     public void show() {
@@ -95,12 +121,14 @@ public class GamePlayTestScreen implements Screen {
 
         // Setup AssetManager untuk enemy textures
         setupAssetManager();
-        SpriteBatch sharedBatch = new SpriteBatch();
+        sharedBatch = new SpriteBatch();
+        font = new BitmapFont();
 
         // Add systems
         engine.addSystem(new PlayerMovementSystem());
         engine.addSystem(new CarriageTransitionSystem());
-        engine.addSystem(new DoorInteractionSystem());
+        doorInteractionSystem = new DoorInteractionSystem();
+        engine.addSystem(doorInteractionSystem);
         engine.addSystem(new CollisionSystem());
         engine.addSystem(new EnemySpawnSystem(assetManager));
 
@@ -110,7 +138,7 @@ public class GamePlayTestScreen implements Screen {
 
 
 
-        
+
         // Add missing enemy movement systems
         engine.addSystem(new EnemyIdleSystem(engine));
         engine.addSystem(new EnemyChaseSystem(assetManager));
@@ -126,7 +154,7 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch));
         engine.addSystem(new RenderingSystem(camera, sharedBatch));
         engine.addSystem(new DebugRenderSystem(camera, engine));
-        
+
         cameraSystem = new CameraSystem(camera);
         engine.addSystem(cameraSystem);
         renderingSystem = new RenderingSystem(camera, sharedBatch);
@@ -154,11 +182,16 @@ public class GamePlayTestScreen implements Screen {
         assetManager.load("testing/animation/death.png", Texture.class);
         assetManager.load("testing/animation/idle.png", Texture.class);
         assetManager.load("testing/animation/run.png", Texture.class);
-        
+
         assetManager.load("testing/sword.png", Texture.class);
         assetManager.load("testing/gun.png", Texture.class);
-
+        assetManager.load("textures/world/roof.png", Texture.class);
+        assetManager.load("textures/world/grass.png", Texture.class);
+        assetManager.load("textures/world/tree.png", Texture.class); 
         assetManager.finishLoading();
+        roofTexture = assetManager.get("textures/world/roof.png", Texture.class);
+        grassTexture = assetManager.get("textures/world/grass.png", Texture.class);
+        treeTexture = assetManager.get("textures/world/tree.png", Texture.class); 
     }
 
     private void createPlayer() {
@@ -171,24 +204,183 @@ public class GamePlayTestScreen implements Screen {
     public void render(float delta) {
         handleInput();
 
-        // Clear screen
-        Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        // Cek victory 
+        checkVictoryCondition();
 
-        // Update ECS (this will update camera position and render sprites)
-        engine.update(delta);
+        if (victoryPending && !victory) {
+            victoryDelayTimer -= delta;
+            if (victoryDelayTimer <= 0f) {
+                victory = true;
+                victoryPending = false;
+            }
+        }
 
-        // Set camera matrix for shape rendering
-        shapeRenderer.setProjectionMatrix(camera.combined);
+        if (!victory) {
+            // Update grass offset
+            if (grassTexture != null) {
+                float grassHeight = grassTexture.getHeight();
+                grassOffsetY += grassSpeed * delta;
+                grassOffsetY = grassOffsetY % grassHeight;
+                if (grassOffsetY < 0) grassOffsetY += grassHeight;
+            }
 
-        // Render shapes AFTER sprite rendering (carriages, doors, player)
-        renderAllCarriages();
-        renderAllDoors();
-        renderPlayer();
-        renderUI();
+            // TREE SPAWN & UPDATE
+            updateAndSpawnTrees(delta);
 
-        // Note: Objects with sprites are rendered by RenderingSystem during engine.update()
+            Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+            engine.update(delta);
+
+            shapeRenderer.setProjectionMatrix(camera.combined);
+
+            renderAllCarriages();
+            renderGrassTrees(); 
+            renderAllDoors();
+            renderPlayer();
+            renderUI();
+        } else {
+            if (!victoryTransitioning && victoryOverlayAlpha < 0.85f) {
+                victoryOverlayAlpha += delta * victoryFadeSpeed;
+                if (victoryOverlayAlpha > 0.85f) victoryOverlayAlpha = 0.85f;
+            }
+            renderAllCarriages();
+            renderGrassTrees(); 
+            renderAllDoors();
+            renderPlayer();
+            renderUI();
+            renderVictoryOverlay(delta);
+            handleVictoryInput(delta);
+        }
     }
+
+    private void checkVictoryCondition() {
+        if (victory || victoryPending) return;
+        if (player == null) return;
+        PlayerComponent playerComp = playerMapper.get(player);
+        if (playerComp == null) return;
+        ImmutableArray<Entity> managers = engine.getEntitiesFor(
+            Family.all(CarriageManagerComponent.class).get()
+        );
+        if (managers.size() == 0) return;
+        Entity manager = managers.get(0);
+        CarriageManagerComponent managerComp = managerMapper.get(manager);
+        int lastCarriage = managerComp.maxCarriages;
+        if (playerComp.currentCarriageNumber == lastCarriage) {
+            // Cek enemy
+            ImmutableArray<Entity> enemies = engine.getEntitiesFor(
+                Family.all(EnemyComponent.class).exclude(studio.jawa.bullettrain.components.gameplay.DeathComponent.class).get()
+            );
+            boolean enemyAlive = false;
+            for (Entity enemy : enemies) {
+                EnemyComponent ec = enemyMapper.get(enemy);
+                if (ec != null && ec.carriageNumber == lastCarriage && ec.isActive) {
+                    enemyAlive = true;
+                    break;
+                }
+            }
+            if (!enemyAlive) {
+                victoryPending = true;
+                victoryDelayTimer = victoryDelayDuration;
+            }
+        }
+    }
+
+    private void renderVictoryOverlay(float delta) {
+        float overlayAlpha = victoryOverlayAlpha;
+        if (victoryTransitioning) {
+            victoryFadeOutAlpha += delta * victoryFadeSpeed;
+            overlayAlpha = Math.max(0f, victoryOverlayAlpha - victoryFadeOutAlpha);
+        }
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+
+        sharedBatch.setColor(0, 0, 0, overlayAlpha);
+        sharedBatch.draw(grassTexture, camera.position.x - camera.viewportWidth/2, camera.position.y - camera.viewportHeight/2, camera.viewportWidth, camera.viewportHeight);
+
+        // Tulisan Victory
+        font.getData().setScale(2f);
+        font.setColor(1f, 1f, 0.2f, Math.min(1f, overlayAlpha + 0.15f));
+        font.draw(sharedBatch, "VICTORY!", camera.position.x - 100, camera.position.y + 40);
+
+        font.getData().setScale(1f);
+        font.setColor(1f, 1f, 1f, Math.min(1f, overlayAlpha + 0.15f));
+        font.draw(sharedBatch, "Press ENTER to continue...", camera.position.x - 120, camera.position.y - 20);
+
+        sharedBatch.setColor(1, 1, 1, 1); 
+        sharedBatch.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        if (victoryTransitioning && overlayAlpha <= 0.01f) {
+            if (Gdx.app.getApplicationListener() instanceof com.badlogic.gdx.Game) {
+                com.badlogic.gdx.Game game = (com.badlogic.gdx.Game) Gdx.app.getApplicationListener();
+                game.setScreen(new EndScreen(game));
+            }
+        }
+    }
+
+    private void handleVictoryInput(float delta) {
+        if (!victoryTransitioning && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            victoryTransitioning = true;
+            victoryFadeOutAlpha = 0f;
+        }
+    }
+
+    private void updateAndSpawnTrees(float delta) {
+        float grassHeight = (grassTexture != null) ? grassTexture.getHeight() : 128f;
+        float grassWidth = (grassTexture != null) ? grassTexture.getWidth() : 128f;
+        float screenBottom = camera.position.y - camera.viewportHeight / 2f;
+        float screenTop = camera.position.y + camera.viewportHeight / 2f;
+
+        for (int i = trees.size - 1; i >= 0; i--) {
+            TreeEntity tree = trees.get(i);
+            tree.y -= grassSpeed * delta * 1; 
+            if (tree.y + tree.height < screenBottom) {
+                trees.removeIndex(i);
+            }
+        }
+
+        treeSpawnTimer += delta;
+        if (treeSpawnTimer >= treeSpawnInterval) {
+            treeSpawnTimer = 0f;
+            for (int side = 0; side < 2; side++) {
+                float x = (side == 0)
+                    ? (camera.position.x - camera.viewportWidth / 3f) - grassWidth 
+                    : (camera.position.x + camera.viewportWidth / 3f); 
+
+                int numTrees = 1; 
+                for (int t = 0; t < numTrees; t++) {
+                    float tx = x + (float)Math.random() * grassWidth * 0.7f;
+                    float ty = screenTop + 30f + (float)Math.random() * 40f;
+                    float scale = 0.18f + (float)Math.random() * 0.08f; 
+                    float tw = grassWidth * scale;
+                    float th = grassHeight * scale;
+                    trees.add(new TreeEntity(tx, ty, tw, th));
+                }
+            }
+        }
+    }
+
+    private void renderGrassTrees() {
+        if (treeTexture == null) return;
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+        for (TreeEntity tree : trees) {
+            sharedBatch.draw(treeTexture, tree.x, tree.y, tree.width, tree.height);
+        }
+        sharedBatch.end();
+    }
+
+    private static class TreeEntity {
+        float x, y, width, height;
+        TreeEntity(float x, float y, float width, float height) {
+            this.x = x; this.y = y; this.width = width; this.height = height;
+        }
+    }
+
+
 
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -206,10 +398,22 @@ public class GamePlayTestScreen implements Screen {
         Entity manager = managers.get(0);
         CarriageManagerComponent managerComp = managerMapper.get(manager);
 
-        // Render all loaded carriages
+        // Ambil currentCarriageNumber player
+        int playerCarriageNumber = 1;
+        if (player != null) {
+            PlayerComponent playerComp = playerMapper.get(player);
+            if (playerComp != null) {
+                playerCarriageNumber = playerComp.currentCarriageNumber;
+            }
+        }
+
         for (int carriageNum : managerComp.loadedCarriages.keys().toArray().toArray()) {
             Entity carriage = managerComp.getCarriage(carriageNum);
             renderCarriage(carriage);
+
+            if (carriageNum != playerCarriageNumber) {
+                renderCarriageRoof(carriage);
+            }
         }
     }
 
@@ -221,6 +425,41 @@ public class GamePlayTestScreen implements Screen {
         OpenLayoutComponent layout = layoutMapper.get(carriage);
 
         if (boundary == null || layout == null) return;
+
+        // Draw grass
+        if (grassTexture != null) {
+            sharedBatch.begin();
+            sharedBatch.setProjectionMatrix(camera.combined);
+
+            float grassWidth = grassTexture.getWidth();
+            float grassHeight = grassTexture.getHeight();
+            float carriageX = boundary.carriageBounds.x;
+            float carriageY = boundary.carriageBounds.y;
+            float carriageWidth = boundary.carriageBounds.width;
+            float carriageHeight = boundary.carriageBounds.height;
+
+            for (int side = 0; side < 2; side++) {
+                float x = (side == 0)
+                    ? carriageX - grassWidth // kiri
+                    : carriageX + carriageWidth; // kanan
+
+                float startY = carriageY - grassOffsetY;
+                int numTiles = (int)Math.ceil((carriageHeight + grassHeight) / grassHeight);
+
+                for (int i = 0; i < numTiles; i++) {
+                    float y = startY + i * grassHeight;
+                    sharedBatch.draw(
+                        grassTexture,
+                        x,
+                        y,
+                        grassWidth,
+                        grassHeight
+                    );
+                }
+            }
+
+            sharedBatch.end();
+        }
 
         // Draw boundaries
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -246,6 +485,24 @@ public class GamePlayTestScreen implements Screen {
         shapeRenderer.end();
     }
 
+    private void renderCarriageRoof(Entity carriage) {
+        if (carriage == null || roofTexture == null) return;
+
+        CarriageBoundaryComponent boundary = boundaryMapper.get(carriage);
+        if (boundary == null) return;
+
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+
+        float x = boundary.carriageBounds.x;
+        float y = boundary.carriageBounds.y;
+        float width = boundary.carriageBounds.width;
+        float height = boundary.carriageBounds.height;
+
+        sharedBatch.draw(roofTexture, x, y, width, height);
+
+        sharedBatch.end();
+    }
 
     private void renderPlayer() {
         if (player == null) return;
@@ -255,11 +512,7 @@ public class GamePlayTestScreen implements Screen {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Remove the blue circle - player sprite is already rendered by RenderingSystem
-        // shapeRenderer.setColor(0, 0.5f, 1, 1);
-        // shapeRenderer.circle(transform.position.x, transform.position.y, 20);
 
-        // Keep only the direction indicator (small triangle pointing up)
         shapeRenderer.setColor(1, 1, 1, 1);
         float px = transform.position.x;
         float py = transform.position.y + 25;
@@ -269,7 +522,6 @@ public class GamePlayTestScreen implements Screen {
     }
 
     private void renderUI() {
-        // Get player info for UI
         if (player == null) return;
 
         PlayerComponent playerComp = playerMapper.get(player);
@@ -277,8 +529,43 @@ public class GamePlayTestScreen implements Screen {
 
         if (playerComp == null || transform == null) return;
 
-        // UI info akan di-print ke console untuk sekarang
-        // Nanti bisa diganti dengan proper UI rendering
+        int playerCarriage = playerComp.currentCarriageNumber;
+        int enemyCount = 0;
+        ImmutableArray<Entity> enemies = engine.getEntitiesFor(
+            Family.all(EnemyComponent.class).exclude(studio.jawa.bullettrain.components.gameplay.DeathComponent.class).get()
+        );
+        for (Entity enemy : enemies) {
+            EnemyComponent ec = enemyMapper.get(enemy);
+            if (ec != null && ec.carriageNumber == playerCarriage && ec.isActive) {
+                enemyCount++;
+            }
+        }
+
+        // Render jumlah enemy
+        sharedBatch.begin();
+        font.draw(sharedBatch, "Enemies in Carriage: " + enemyCount, camera.position.x - camera.viewportWidth/2 + 20, camera.position.y + camera.viewportHeight/2 - 20);
+
+        // Render door prompt (di atas pintu)
+        if (doorInteractionSystem != null) {
+            String prompt = doorInteractionSystem.getCurrentDoorPrompt();
+            Vector2 pos = doorInteractionSystem.getCurrentDoorPromptPos();
+            if (prompt != null && pos != null) {
+                font.setColor(1f, 1f, 0.7f, 1f); // kuning
+                font.draw(sharedBatch, prompt, pos.x - 60, pos.y + 40);
+                font.setColor(1f, 1f, 1f, 1f); // reset
+            }
+            // Render error prompt jika ada
+            if (doorInteractionSystem.isShowDoorErrorPrompt()) {
+                String errorMsg = doorInteractionSystem.getDoorErrorPromptMessage();
+                if (errorMsg != null && pos != null) {
+                    font.setColor(1f, 0.2f, 0.2f, 1f); // merah
+                    font.draw(sharedBatch, errorMsg, pos.x - 80, pos.y + 70);
+                    font.setColor(1f, 1f, 1f, 1f); // reset
+                }
+            }
+        }
+
+        sharedBatch.end();
     }
 
     private void renderAllDoors() {
@@ -390,5 +677,9 @@ public class GamePlayTestScreen implements Screen {
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
         }
+        if (font != null) {
+            font.dispose();
+        }
     }
 }
+
