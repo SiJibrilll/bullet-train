@@ -50,19 +50,19 @@ public class GameOverScreen implements Screen {
         Label title = new Label("Game over", skin);
         title.setFontScale(4);
 
-        TextButton retryButton = new TextButton("Retry", style);
-        retryButton.getLabel().setFontScale(2);
+        // TextButton retryButton = new TextButton("Retry", style);
+        // retryButton.getLabel().setFontScale(2);
         TextButton selectCharacterButton = new TextButton("Select character", style);
         selectCharacterButton.getLabel().setFontScale(2);
         TextButton mainMenuButton = new TextButton("Main menu", style);
         mainMenuButton.getLabel().setFontScale(2);
 
-        retryButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new TestGameScreen(game, selectedCharacter, assetManager));
-            }
-        });
+        // retryButton.addListener(new ClickListener() {
+        //     @Override
+        //     public void clicked(InputEvent event, float x, float y) {
+        //         game.setScreen(new TestGameScreen(game, selectedCharacter, assetManager));
+        //     }
+        // });
 
         selectCharacterButton.addListener(new ClickListener() {
             @Override
@@ -79,7 +79,7 @@ public class GameOverScreen implements Screen {
         });
 
         container.add(title).padBottom(60).row();
-        container.add(retryButton).width(300).height(60).padBottom(30).row();
+        // container.add(retryButton).width(300).height(60).padBottom(30).row();
         container.add(selectCharacterButton).width(300).height(60).padBottom(30).row();
         container.add(mainMenuButton).width(300).height(60);
 

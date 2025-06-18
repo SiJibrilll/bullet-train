@@ -193,7 +193,7 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new ProjectileCollisionSystem(engine));
 
         hudStage = new HudStage(new ScreenViewport());
-        engine.addSystem(new PlayerHealthSystem(hudStage, selectedCharacter));
+        engine.addSystem(new PlayerHealthSystem(hudStage, selectedCharacter, game, uiAssetManager));
 
         engine.addSystem(new HitFlashSystem());
         engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch));
