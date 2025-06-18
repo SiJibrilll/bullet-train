@@ -19,7 +19,7 @@ public class DoorFactory {
         // Door component
         DoorComponent doorComp = new DoorComponent(DoorComponent.DoorType.EXIT_TO_NEXT, fromCarriageNumber + 1);
         // Door bounds (rectangle around door)
-        doorComp.doorBounds.set(doorX - 40f, doorY - 30f, 80f, 60f);
+        doorComp.doorBounds.set(doorX - 40f, doorY - 30f, 100f, 120f);
         door.add(doorComp);
 
         // Interaction component
@@ -42,7 +42,7 @@ public class DoorFactory {
         // Door component
         DoorComponent doorComp = new DoorComponent(DoorComponent.DoorType.ENTRY_FROM_PREV, toCarriageNumber - 1);
         // Door bounds (rectangle around door)
-        doorComp.doorBounds.set(doorX - 40f, doorY - 30f, 80f, 60f);
+        doorComp.doorBounds.set(doorX - 40f, doorY - 30f, 100f, 120f);
         door.add(doorComp);
 
         // Interaction component

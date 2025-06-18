@@ -1,10 +1,10 @@
 package studio.jawa.bullettrain.data;
 
 public enum ObjectType {
-    BARREL("textures/objects/barrel.png", 50f, 50f),
-    BOX("textures/objects/box.png", 45f, 45f),
-    CHAIR("textures/objects/chair.png", 40f, 40f),
-    TNT("textures/objects/tnt.png", 35f, 35f);
+    BARREL("textures/objects/barrel.png", 96f, 96f),
+    BOX("textures/objects/box.png", 96f, 96f),
+    CHAIR("textures/objects/chair.png", 96f, 96f);
+    // TNT("textures/objects/tnt.png", 96f, 96f);
     
     public final String texturePath;
     public final float width;

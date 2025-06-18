@@ -8,19 +8,19 @@ public class BaseObjectComponent implements Component {
     public ObjectType objectType;
     public Rectangle bounds = new Rectangle();
     public int carriageNumber;
-    public boolean isDestructible = false; 
-    
+    public boolean isDestructible = false;
+
     public BaseObjectComponent() {}
-    
+
     public BaseObjectComponent(ObjectType objectType, int carriageNumber) {
         this.objectType = objectType;
         this.carriageNumber = carriageNumber;
-        
-        this.isDestructible = (objectType == ObjectType.TNT);
+
+//        this.isDestructible = (objectType == ObjectType.TNT);
     }
-    
+
     public void setBounds(float x, float y) {
-        // Set bounds 
+        // Set bounds
         bounds.set(x - objectType.width/2f, y - objectType.height/2f, objectType.width, objectType.height);
     }
 }
