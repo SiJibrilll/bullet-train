@@ -20,6 +20,7 @@ import studio.jawa.bullettrain.components.level.OpenLayoutComponent;
 import studio.jawa.bullettrain.components.level.TrainCarriageComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.factories.PlayerFactory;
+import studio.jawa.bullettrain.helpers.AudioHelper;
 import studio.jawa.bullettrain.systems.technicals.AnimationSystem;
 import studio.jawa.bullettrain.systems.technicals.CameraSystem;
 import studio.jawa.bullettrain.systems.technicals.CarriageTransitionSystem;
@@ -127,6 +128,7 @@ public class GamePlayTestScreen implements Screen {
 
     @Override
     public void show() {
+        AudioHelper.playMusic("game");
         // Setup camera
         camera = new OrthographicCamera();
         camera.viewportWidth = 800f;

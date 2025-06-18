@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import studio.jawa.bullettrain.helpers.AudioHelper;
+
 public class LoadingScreen implements Screen {
     private final Game game;
     private final AssetManager assetManager;
@@ -28,6 +30,7 @@ public class LoadingScreen implements Screen {
 
     @Override
     public void show() {
+        AudioHelper.playMusic("main");
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));

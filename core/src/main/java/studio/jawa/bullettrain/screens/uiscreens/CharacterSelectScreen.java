@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import studio.jawa.bullettrain.helpers.AudioHelper;
 import studio.jawa.bullettrain.screens.gamescreens.GamePlayTestScreen;
 import studio.jawa.bullettrain.screens.gamescreens.TestGameScreen;
 
@@ -47,6 +48,10 @@ public class CharacterSelectScreen implements Screen {
 
     @Override
     public void show() {
+        AudioHelper.stopMusic("game");
+        if (!AudioHelper.isMusicPlaying("main")) {
+            AudioHelper.playMusic("main");
+        }
         worldCamera = new OrthographicCamera();
         worldCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         worldStage = new Stage(new ScreenViewport(worldCamera));
@@ -181,6 +186,7 @@ public class CharacterSelectScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (selectedCharacter != null) {
+                    AudioHelper.stopMusic("main");
                     game.setScreen(new GamePlayTestScreen(game, selectedCharacter, assetManager));
                 }
             }

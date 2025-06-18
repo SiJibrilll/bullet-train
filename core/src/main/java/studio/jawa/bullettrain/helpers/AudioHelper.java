@@ -43,6 +43,12 @@ public class AudioHelper {
         }
     }
 
+    public static boolean isMusicPlaying(String id) {
+        Music music = musics.get(id);
+        return music != null && music.isPlaying();
+    }
+
+
     public static void dispose() {
         for (Sound s : sounds.values()) s.dispose();
         for (Music m : musics.values()) m.dispose();
