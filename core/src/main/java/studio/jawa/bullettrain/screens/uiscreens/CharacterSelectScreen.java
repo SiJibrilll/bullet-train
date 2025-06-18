@@ -71,24 +71,20 @@ public class CharacterSelectScreen implements Screen {
         TextureRegion desertRegion = new TextureRegion(desertTexture);
         Image desertBackground = new Image(new TextureRegionDrawable(desertRegion));
         float newDesertWidth = 2500f;
-        float newDesertheight = (newDesertWidth * 320) / 320;
+        float newDesertheight = (newDesertWidth * 3100) / 4800;
         desertBackground.setSize(newDesertWidth, newDesertheight);
         desertBackground.setPosition(0, 0);
         worldStage.addActor(desertBackground);
 
-        Image campfire = new Image(skin.newDrawable("white", 1f, 0.2f, 0.2f, 1f));
-        campfire.setSize(80, 80);
-        campfire.setPosition(1250, 1250);
-        worldStage.addActor(campfire);
-
-        graceActor = new Image(skin.newDrawable("white", 0.6f, 0.6f, 1f, 1f));
-        graceActor.setSize(100, 150);
-        graceActor.setPosition(1100, 1250);
+        graceActor = new Image(assetManager.get("testing/char/grace_main.png", Texture.class));
+        float size = 32 * 5;
+        graceActor.setSize(size, size);
+        graceActor.setPosition(900, 800);
         worldStage.addActor(graceActor);
 
         jingWeiActor = new Image(skin.newDrawable("white", 1f, 1f, 0.6f, 1f));
         jingWeiActor.setSize(100, 150);
-        jingWeiActor.setPosition(1350, 1250);
+        jingWeiActor.setPosition(1500, 800);
         worldStage.addActor(jingWeiActor);
 
         characters[0].actor = graceActor;
@@ -150,7 +146,7 @@ public class CharacterSelectScreen implements Screen {
         portrait = new Image(new TextureRegionDrawable(characters[0].portrait));
         portrait.setScaling(Scaling.fit);
         portrait.setAlign(Align.left);
-        bottomContainer.add(portrait).width(500).left().padLeft(30).bottom();
+        bottomContainer.add(portrait).width(500).left().padLeft(30).padTop(50).bottom();
 //        bottomContainer.add(portrait).width(500).height(500).left().padLeft(30).bottom().padBottom(30);
 
         Table rightContainer = new Table();
