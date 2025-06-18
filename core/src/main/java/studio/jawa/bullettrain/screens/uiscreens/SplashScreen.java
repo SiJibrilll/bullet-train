@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
@@ -39,11 +40,11 @@ public class SplashScreen implements Screen {
         studioLabel.setAlignment(Align.center);
         studioLabel.setVisible(false);
 
-        studioLabel.setPosition(
-            Gdx.graphics.getWidth() / 2f - studioLabel.getWidth() / 2f,
-            Gdx.graphics.getHeight() / 2f
-        );
-        stage.addActor(studioLabel);
+        Table table = new Table();
+        table.setFillParent(true);
+        table.center();
+        table.add(studioLabel).expand().center();
+        stage.addActor(table);
 
         mainMenuScreen = new MainMenuScreen(game, assetManager);
         mainMenuScreen.show();

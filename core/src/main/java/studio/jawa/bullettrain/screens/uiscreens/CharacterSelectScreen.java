@@ -6,6 +6,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -15,7 +18,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import studio.jawa.bullettrain.screens.gamescreens.GamePlayTestScreen;
@@ -28,6 +33,7 @@ public class CharacterSelectScreen implements Screen {
     private Stage uiStage;
     private Stage worldStage;
     private OrthographicCamera worldCamera;
+    private Image bgBar;
 
     private Skin skin;
 
@@ -52,33 +58,33 @@ public class CharacterSelectScreen implements Screen {
         worldStage = new Stage(new ScreenViewport(worldCamera));
 
         characters = new CharacterInfo[] {
-//            new CharacterInfo("Grace", assetManager.get("grace.png", Texture.class), "Daughter of a Raider warlord", "Glass canon"),
-//            new CharacterInfo("Jing Wei", assetManager.get("jing_wei.png", Texture.class), "Guardian Automata", "Quick dashes")
-            new CharacterInfo("Grace", "Daughter of a Raider warlord", "Glass canon"),
-            new CharacterInfo("Jing Wei", "Guardian Automata", "Quick dashes")
+            new CharacterInfo("Grace", assetManager.get("testing/char/grace.png", Texture.class), "Daughter of a Raider warlord", "Glass canon"),
+            new CharacterInfo("Jing Wei", createPlaceholderTexture() , "Guardian Automata", "Quick dashes")
+//            new CharacterInfo("Grace", "Daughter of a Raider warlord", "Glass canon"),
+//            new CharacterInfo("Jing Wei", "Guardian Automata", "Quick dashes")
         };
         selectedCharacter = characters[0];
 
         skin = assetManager.get("ui/uiskin.json", Skin.class);
 
-        Image desertBackground = new Image(skin.newDrawable("white", 0.8f, 0.6f, 0.4f, 1f));
-        desertBackground.setSize(1920, 1080);
+        Texture desertTexture = assetManager.get("testing/background/desert.png", Texture.class);
+        TextureRegion desertRegion = new TextureRegion(desertTexture);
+        Image desertBackground = new Image(new TextureRegionDrawable(desertRegion));
+        float newDesertWidth = 2500f;
+        float newDesertheight = (newDesertWidth * 3100) / 4800;
+        desertBackground.setSize(newDesertWidth, newDesertheight);
         desertBackground.setPosition(0, 0);
         worldStage.addActor(desertBackground);
 
-        Image campfire = new Image(skin.newDrawable("white", 1f, 0.2f, 0.2f, 1f));
-        campfire.setSize(80, 80);
-        campfire.setPosition(920, 150);
-        worldStage.addActor(campfire);
-
-        graceActor = new Image(skin.newDrawable("white", 0.6f, 0.6f, 1f, 1f));
-        graceActor.setSize(100, 150);
-        graceActor.setPosition(770, 150);
+        graceActor = new Image(assetManager.get("testing/char/grace_main.png", Texture.class));
+        float size = 32 * 5;
+        graceActor.setSize(size, size);
+        graceActor.setPosition(900, 800);
         worldStage.addActor(graceActor);
 
         jingWeiActor = new Image(skin.newDrawable("white", 1f, 1f, 0.6f, 1f));
         jingWeiActor.setSize(100, 150);
-        jingWeiActor.setPosition(1070, 150);
+        jingWeiActor.setPosition(1500, 800);
         worldStage.addActor(jingWeiActor);
 
         characters[0].actor = graceActor;
@@ -97,7 +103,7 @@ public class CharacterSelectScreen implements Screen {
     private void setupUI() {
         skin = assetManager.get("ui/uiskin.json", Skin.class);
 
-        Image bgBar = new Image(skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 1f));
+        bgBar = new Image(skin.newDrawable("white", 0.2f, 0.2f, 0.2f, 1f));
         bgBar.setSize(Gdx.graphics.getWidth(), 220);
         bgBar.setPosition(0, 0);
         uiStage.addActor(bgBar);
@@ -132,12 +138,15 @@ public class CharacterSelectScreen implements Screen {
         root.top().padTop(40);
         root.add(infoLabel).expandX().center().top().padBottom(20).row();
 
-        portrait = new Image(skin.newDrawable("white", 1, 1, 1, 1));
-        portrait.setSize(400, 400);
-        portrait.setPosition(-portrait.getWidth(), 100);
-        uiStage.addActor(portrait);
+//        portrait = new Image(skin.newDrawable("white", 1, 1, 1, 1));
+//        portrait.setSize(400, 400);
+//        portrait.setPosition(-portrait.getWidth(), 100);
+//        uiStage.addActor(portrait);
 
-//        portrait = new Image(new TextureRegionDrawable(characters[0].portrait));
+        portrait = new Image(new TextureRegionDrawable(characters[0].portrait));
+        portrait.setScaling(Scaling.fit);
+        portrait.setAlign(Align.left);
+        bottomContainer.add(portrait).width(500).left().padLeft(30).padTop(50).bottom();
 //        bottomContainer.add(portrait).width(500).height(500).left().padLeft(30).bottom().padBottom(30);
 
         Table rightContainer = new Table();
@@ -218,11 +227,27 @@ public class CharacterSelectScreen implements Screen {
     }
 
     public void updateCharacterInfo(CharacterInfo character) {
-//        portrait.setDrawable(new TextureRegionDrawable(new TextureRegion(character.portrait)));
+        portrait.setDrawable(new TextureRegionDrawable(new TextureRegion(character.portrait)));
+
         nameLabel.setText(character.name);
         info1Label.setText("• " + character.info1);
         info2Label.setText("• " + character.info2);
     }
+
+    private Texture createPlaceholderTexture() {
+        Pixmap pixmap = new Pixmap(500, 500, Pixmap.Format.RGBA8888);
+        pixmap.setColor(1, 1, 0, 1);
+        pixmap.fill();
+
+        pixmap.setColor(0, 0, 0, 1);
+        pixmap.drawLine(0, 0, 500, 500);
+        pixmap.drawLine(0, 500, 500, 0);
+
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
+    }
+
 
     @Override
     public void render(float delta) {
@@ -239,7 +264,16 @@ public class CharacterSelectScreen implements Screen {
         uiStage.draw();
     }
 
-    @Override public void resize(int width, int height) { uiStage.getViewport().update(width, height, true); worldStage.getViewport().update(width, height, true); }
+    @Override public void resize(int width, int height) {
+        uiStage.getViewport().update(width, height, true);
+        worldStage.getViewport().update(width, height, true);
+
+        if (bgBar != null) {
+            bgBar.setSize(width, 220);
+            bgBar.setPosition(0, 0);
+        }
+    }
+
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}

@@ -59,6 +59,19 @@ public class LoadingScreen implements Screen {
             assetManager.load("cursor/reload" + i + ".png", Texture.class);
         }
 
+        assetManager.load("testing/menu/Sky_Main.png", Texture.class);
+        assetManager.load("testing/menu/Clouds_Main.png", Texture.class);
+        assetManager.load("testing/menu/Mountains_Main.png", Texture.class);
+        for (int i = 1; i < 6; i ++) {
+            assetManager.load("testing/menu/Desert_0" + i + "_Main.png", Texture.class);
+        }
+        assetManager.load("testing/menu/Train_Full_Main.png", Texture.class);
+
+        assetManager.load("testing/char/grace.png", Texture.class);
+        assetManager.load("testing/char/grace_main.png", Texture.class);
+
+        assetManager.load("testing/background/desert.png", Texture.class);
+
         assetManager.finishLoading();
     }
 
