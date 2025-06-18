@@ -41,6 +41,21 @@ public class AnimationComponent implements Component {
         return new Animation<>(frameDuration, frames);
     }
 
+    public static Animation<TextureRegion> loadAnimation(AssetManager assetManager, String path, int frameCount, float frameDuration, Boolean debug) {
+        Texture sheet = assetManager.get(path, Texture.class);
+        int frameWidth = sheet.getWidth() / frameCount;
+        int frameHeight = sheet.getHeight();
+
+        TextureRegion[][] split = TextureRegion.split(sheet, frameWidth, frameHeight);
+        TextureRegion[] frames = new TextureRegion[frameCount];
+
+        for (int i = 0; i < frameCount; i++) {
+            frames[i] = split[0][i]; // assume one row
+        }
+
+        return new Animation<>(frameDuration, frames);
+    }
+
     public static void playAnimation(AnimationComponent anim, String name, boolean looping) {
         if (!anim.currentAnimation.equals(name)) {
             anim.currentAnimation = name;

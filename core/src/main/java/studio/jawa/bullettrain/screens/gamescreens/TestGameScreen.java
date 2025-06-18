@@ -43,7 +43,7 @@ public class TestGameScreen implements Screen {
         Gdx.input.setInputProcessor(hudStage);
 
         batch = new SpriteBatch();
-        cursorManager = new CursorManager(assetManager, 10, 10);
+        cursorManager = new CursorManager(assetManager, 10, 10, selectedCharacter);
 
         cursorManager.resetToCrosshair();
     }

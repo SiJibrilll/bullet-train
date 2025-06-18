@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.technicals.ParentComponent;
 import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
@@ -37,6 +38,11 @@ public class WeaponOrbitSystem extends IteratingSystem {
         TransformComponent weaponTransform = tm.get(weapon);
         ParentComponent parentComp = pm.get(weapon);
         WeaponComponent weaponComp = wm.get(weapon);
+
+        if (parentComp.parent.getComponent(DeathComponent.class) != null) {
+            getEngine().removeEntity(weapon);
+            return;
+        };
         
 
         if (parentComp.parent == null || !tm.has(parentComp.parent)) return;

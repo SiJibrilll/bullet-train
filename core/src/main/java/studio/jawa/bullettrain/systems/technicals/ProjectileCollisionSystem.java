@@ -10,8 +10,10 @@ import com.badlogic.gdx.math.Vector2;
 
 import studio.jawa.bullettrain.components.effects.HitFlashComponent;
 import studio.jawa.bullettrain.components.gameplay.DamageComponent;
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.TeamComponent;
 import studio.jawa.bullettrain.components.gameplay.projectiles.ProjectileComponent;
+import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.BoxColliderComponent;
 import studio.jawa.bullettrain.components.technicals.CircleColliderComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
@@ -35,7 +37,7 @@ public class ProjectileCollisionSystem extends EntitySystem {
         targets = engine.getEntitiesFor(
             Family.all(TransformComponent.class)
                 .one(CircleColliderComponent.class, BoxColliderComponent.class)
-                // .exclude(ProjectileComponent.class) // exclude bullets if needed
+                .exclude(DeathComponent.class) // exclude bullets if needed
                 .get()
         );
     }
@@ -51,13 +53,21 @@ public class ProjectileCollisionSystem extends EntitySystem {
             // check if this is a melee attack
             ProjectileComponent bcm = bulletCm.get(bullet);
             if (bcm.isMeele) {
-                
                 if (bcm.meleeDuration <= 0) {   
                     getEngine().removeEntity(bullet);
                     continue;
 
                 }
                 bcm.meleeDuration -= deltaTime;
+
+                AnimationComponent anim = bullet.getComponent(AnimationComponent.class);
+                AnimationComponent.playAnimation(anim, "slash", false);
+
+                // anim.currentAnimation = "slash";
+                // anim.looping = false;
+                // anim.stateTime = 0f;
+                // anim.isPlaying = true;
+
 
                 meleeLogic(bc, bt, bullet);
                 continue;
@@ -174,6 +184,12 @@ public class ProjectileCollisionSystem extends EntitySystem {
         TeamComponent targetTeam = target.getComponent(TeamComponent.class);
         if (targetTeam != null && pc.team == targetTeam.team) return;
 
+        // 3. Prevent bullet projectiles from hitting other bullet projectiles
+        ProjectileComponent targetPc = target.getComponent(ProjectileComponent.class);
+        if (!pc.isMeele && targetPc != null && !targetPc.isMeele) {
+            return;
+        }
+
         // ✅ Passed team checks — apply hit
         if (pc.hitEntities.contains(target)) return;
          // Track this entity to avoid multiple hits
@@ -183,7 +199,7 @@ public class ProjectileCollisionSystem extends EntitySystem {
         Vector2 direction = new Vector2(MathUtils.cos(radians), MathUtils.sin(radians)).nor();
         // System.out.println("Bullet hit enemy!");
         target.add(new HitFlashComponent(.15f));
-        target.add(new DamageComponent(5, direction));
+        target.add(new DamageComponent(pc.damage, direction));
         // Remove bullet from engine
         if (pc.isMeele) return;
         getEngine().removeEntity(bullet);

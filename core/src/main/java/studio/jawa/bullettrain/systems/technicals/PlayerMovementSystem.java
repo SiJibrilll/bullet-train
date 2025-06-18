@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.gameplay.palyers.PlayerComponent;
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.gameplay.GeneralStatsComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
@@ -19,6 +20,7 @@ public class PlayerMovementSystem extends IteratingSystem {
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<PlayerComponent> playerMapper;
     private ComponentMapper<GeneralStatsComponent> statsMapper;
+    private ComponentMapper<DeathComponent> dm;
 
     public PlayerMovementSystem() {
         super(Family.all(PlayerComponent.class, TransformComponent.class, VelocityComponent.class, GeneralStatsComponent.class).get());
@@ -27,6 +29,7 @@ public class PlayerMovementSystem extends IteratingSystem {
         velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
         playerMapper = ComponentMapper.getFor(PlayerComponent.class);
         statsMapper = ComponentMapper.getFor(GeneralStatsComponent.class);
+        dm = ComponentMapper.getFor(DeathComponent.class);
     }
 
     @Override
@@ -35,9 +38,12 @@ public class PlayerMovementSystem extends IteratingSystem {
         VelocityComponent velocity = velocityMapper.get(entity);
         PlayerComponent player = playerMapper.get(entity);
         GeneralStatsComponent stats = statsMapper.get(entity);
+        DeathComponent death = dm.get(entity);
 
         // Handle input
-        handleInput(velocity, stats);
+        if (death == null) {
+            handleInput(velocity, stats);
+        }
 
         // Apply movement
         applyMovement(transform, velocity, deltaTime);

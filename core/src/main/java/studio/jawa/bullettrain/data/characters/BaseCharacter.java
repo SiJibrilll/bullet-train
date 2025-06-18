@@ -12,12 +12,14 @@ public abstract class BaseCharacter {
     
     protected Integer hp = 10;
     protected Integer speed = 10;
+    protected Float attackSpeed = .5f;
 
     protected String idlePath = "testing/dummy.png";
     protected String runPath;
     protected String deathPath;
     protected String bulletPath;
     protected String attackpath = "testing/bullet.png";
+    protected String attackSound = "sword";
 
     public enum Animation {
         IDLE,
@@ -43,4 +45,12 @@ public abstract class BaseCharacter {
     }
 
     public abstract ProjectileEntity attack(float x, float y, Vector2 direction, AssetManager manager);
+
+    public float getAttackSpeed() {
+        return attackSpeed;
+    }
+
+    public String getAttackSound() {
+        return attackSound;
+    }
 }

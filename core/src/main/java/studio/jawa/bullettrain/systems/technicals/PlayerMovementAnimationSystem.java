@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 
+import studio.jawa.bullettrain.components.gameplay.DeathComponent;
 import studio.jawa.bullettrain.components.technicals.AnimationComponent;
 import studio.jawa.bullettrain.components.technicals.PlayerControlledComponent;
 import studio.jawa.bullettrain.components.technicals.VelocityComponent;
@@ -14,7 +15,7 @@ public class PlayerMovementAnimationSystem extends IteratingSystem {
     private final ComponentMapper<AnimationComponent> am = ComponentMapper.getFor(AnimationComponent.class);
 
     public PlayerMovementAnimationSystem() {
-        super(Family.all(PlayerControlledComponent.class, VelocityComponent.class, AnimationComponent.class).get());
+        super(Family.all(PlayerControlledComponent.class, VelocityComponent.class, AnimationComponent.class).exclude(DeathComponent.class).get());
     }
 
     @Override

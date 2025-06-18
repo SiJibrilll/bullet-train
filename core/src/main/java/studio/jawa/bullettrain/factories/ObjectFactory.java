@@ -3,8 +3,10 @@ package studio.jawa.bullettrain.factories;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import studio.jawa.bullettrain.components.level.BaseObjectComponent;
+import studio.jawa.bullettrain.components.technicals.BoxColliderComponent;
 import studio.jawa.bullettrain.components.technicals.SpriteComponent;
 import studio.jawa.bullettrain.components.technicals.TransformComponent;
 import studio.jawa.bullettrain.data.ObjectType;
@@ -19,8 +21,12 @@ public class ObjectFactory {
 
         // Base object component
         BaseObjectComponent objectComp = new BaseObjectComponent(objectType, carriageNumber);
-        objectComp.setBounds(position.x, position.y);
+        // Set bounds 
+        objectComp.bounds.set(-objectType.width/2f, -objectType.height/2f, objectType.width, objectType.height);
         object.add(objectComp);
+
+        // BoxColliderComponent
+        object.add(new BoxColliderComponent(new Rectangle(objectComp.bounds)));
 
         // Sprite component
         if (texture != null) {

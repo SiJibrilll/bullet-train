@@ -42,6 +42,7 @@ import studio.jawa.bullettrain.components.gameplay.enemies.EnemyComponent;
 import studio.jawa.bullettrain.systems.effects.HitFlashSystem;
 import studio.jawa.bullettrain.systems.gameplay.DamageSystem;
 import studio.jawa.bullettrain.systems.gameplay.DeathSystem;
+import studio.jawa.bullettrain.systems.gameplay.PlayerHealthSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyChaseSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyIdleSystem;
 import studio.jawa.bullettrain.systems.gameplay.enemies.EnemyStrafeSystem;
@@ -79,15 +80,20 @@ public class GamePlayTestScreen implements Screen {
     private Entity player;
     private AssetManager assetManager;
     private Texture roofTexture;
+    private Texture floorTexture; 
     private Texture grassTexture;
     private Texture treeTexture;
+    private Texture railTexture; 
+    private Texture rockTexture; 
     private SpriteBatch sharedBatch;
     private BitmapFont font;
 
     private float grassOffsetY = 0f;
-    private float grassSpeed = 100f;
+    private float grassSpeed = 400f;
+    private float railOffsetY = 0f; 
     private DoorInteractionSystem doorInteractionSystem;
     private Array<TreeEntity> trees = new Array<>();
+    private Array<RockEntity> rocks = new Array<>(); 
     private float treeSpawnTimer = 0f;
     private float treeSpawnInterval = 0.7f;
     private boolean victory = false;
@@ -113,6 +119,10 @@ public class GamePlayTestScreen implements Screen {
     private float transitionTimer = 0f;
     private float transitionDuration = 1f;
     private boolean transitionToNextScreen = false;
+    private boolean isPaused = false;
+    private AnimationSystem animation;
+    private MovementSystem movementSystem;
+    private RenderingSystem renderer;
 
     public GamePlayTestScreen(Game game, CharacterInfo selectedCharacter, AssetManager assetManager) {
         this.game = game;
@@ -127,6 +137,16 @@ public class GamePlayTestScreen implements Screen {
         camera.viewportWidth = 800f;
         camera.viewportHeight = 600f;
         camera.update();
+
+        // Ui set up
+        pauseMenuOverlay = new PauseMenuOverlay(game, uiAssetManager);
+
+        Gdx.input.setInputProcessor(hudStage);
+
+        batch = new SpriteBatch();
+        cursorManager = new CursorManager(uiAssetManager, 10, 10, selectedCharacter);
+
+        cursorManager.resetToCrosshair();
 
         shapeRenderer = new ShapeRenderer();
 
@@ -157,7 +177,8 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new CollisionSystem());
         engine.addSystem(new EnemySpawnSystem(assetManager));
 
-        engine.addSystem(new AnimationSystem());
+        animation = new AnimationSystem();
+        engine.addSystem(animation);
         engine.addSystem(new PlayerFacingSystem(camera));
         engine.addSystem(new PlayerMovementAnimationSystem());
 
@@ -168,38 +189,39 @@ public class GamePlayTestScreen implements Screen {
         engine.addSystem(new EnemyIdleSystem(engine));
         engine.addSystem(new EnemyChaseSystem(assetManager));
         engine.addSystem(new EnemyStrafeSystem(assetManager, engine));
-        engine.addSystem(new MovementSystem(engine));
+        movementSystem = new MovementSystem(engine);
+        engine.addSystem(movementSystem);
         engine.addSystem(new DeathDragSystem());
         engine.addSystem(new WeaponOrbitSystem(camera));
 
         engine.addSystem(new PlayerProjectileSpawningSystem(camera, engine, assetManager));
         engine.addSystem(new ProjectileCollisionSystem(engine));
 
+        hudStage = new HudStage(new ScreenViewport());
+        engine.addSystem(new PlayerHealthSystem(hudStage, selectedCharacter, game, uiAssetManager));
+
         engine.addSystem(new HitFlashSystem());
         engine.addSystem(new HitFlashRenderSystem(camera, sharedBatch));
-        engine.addSystem(new RenderingSystem(camera, sharedBatch));
-        engine.addSystem(new DebugRenderSystem(camera, engine));
+        renderer = new RenderingSystem(camera, sharedBatch);
+        engine.addSystem(renderer);
+        // engine.addSystem(new DebugRenderSystem(camera, engine));
 
         cameraSystem = new CameraSystem(camera);
         engine.addSystem(cameraSystem);
         renderingSystem = new RenderingSystem(camera, sharedBatch);
         engine.addSystem(renderingSystem);
-        engine.addSystem(new DeathSystem(assetManager));
+        // engine.addSystem(new DeathSystem(assetManager));
         engine.addSystem(new DamageSystem());
 
         // Create player
-        createPlayer();
+        createPlayer(selectedCharacter);
 
-        // Ui set up
-        pauseMenuOverlay = new PauseMenuOverlay(game, uiAssetManager);
-        hudStage = new HudStage(new ScreenViewport());
-
-        Gdx.input.setInputProcessor(hudStage);
-
-        batch = new SpriteBatch();
-        cursorManager = new CursorManager(uiAssetManager, 10, 10);
-
-        cursorManager.resetToCrosshair();
+        if (grassTexture != null) {
+            float grassHeight = grassTexture.getHeight();
+            float screenHeight = Gdx.graphics.getHeight();
+            grassOffsetY = grassHeight - (screenHeight % grassHeight);
+            if (grassOffsetY == grassHeight) grassOffsetY = 0f;
+        }
     }
 
     private void setupAssetManager() {
@@ -221,24 +243,100 @@ public class GamePlayTestScreen implements Screen {
 
         assetManager.load("testing/sword.png", Texture.class);
         assetManager.load("testing/gun.png", Texture.class);
-        assetManager.load("textures/world/roof.png", Texture.class);
-        assetManager.load("textures/world/grass.png", Texture.class);
-        assetManager.load("textures/world/tree.png", Texture.class);
+        // assetManager.load("textures/world/roof.png", Texture.class);
+        // assetManager.load("textures/world/grass.png", Texture.class);
+        // assetManager.load("textures/world/tree.png", Texture.class);
         assetManager.finishLoading();
-        roofTexture = assetManager.get("textures/world/roof.png", Texture.class);
-        grassTexture = assetManager.get("textures/world/grass.png", Texture.class);
-        treeTexture = assetManager.get("textures/world/tree.png", Texture.class);
+        // roofTexture = assetManager.get("textures/world/roof.png", Texture.class);
+        // grassTexture = assetManager.get("textures/world/grass.png", Texture.class);
+        // treeTexture = assetManager.get("textures/world/tree.png", Texture.class);
+        assetManager.load("textures/world/Carriage_Exterior.png", Texture.class);
+        assetManager.load("textures/world/Desert_Gameplay02.png", Texture.class);
+        assetManager.load("textures/world/Cactus_01.png", Texture.class);
+        assetManager.load("textures/world/Cactus_02.png", Texture.class);
+        assetManager.load("textures/world/Cactus_03.png", Texture.class);
+        assetManager.load("textures/world/Cactus_04.png", Texture.class);
+        assetManager.load("textures/world/Cactus_05.png", Texture.class);
+        assetManager.load("textures/world/Cactus_06.png", Texture.class);
+        assetManager.load("textures/world/Cactus_06.png", Texture.class);
+        assetManager.load("textures/world/Leaves_01.png", Texture.class);
+        assetManager.load("textures/world/Leaves_02.png", Texture.class);
+        assetManager.load("textures/world/Leaves_03.png", Texture.class);
+        assetManager.load("textures/world/Leaves_04.png", Texture.class);
+        assetManager.load("textures/world/Pebble_01.png", Texture.class);
+        assetManager.load("textures/world/Pebble_02.png", Texture.class);
+        assetManager.load("textures/world/Pebble_03.png", Texture.class);
+        assetManager.load("textures/world/Pebble_04.png", Texture.class);
+        assetManager.load("textures/world/Pebble_05.png", Texture.class);
+        assetManager.load("textures/world/Pebble_06.png", Texture.class);
+        assetManager.load("textures/world/Rock_01.png", Texture.class); 
+        assetManager.load("textures/world/Rock_02.png", Texture.class);
+        assetManager.load("textures/world/Rock_03.png", Texture.class);
+        assetManager.load("textures/world/Rock_04.png", Texture.class);
+        assetManager.load("textures/world/Tracks02.png", Texture.class); 
+        assetManager.load("textures/world/Carriage_Interior.png", Texture.class);
+        
+        assetManager.load("characters/grace/Grace_Walk.png", Texture.class);
+        assetManager.load("characters/grace/Grace_Idle.png", Texture.class);
+        assetManager.load("characters/grace/Grace_Death.png", Texture.class);
+        
+        assetManager.load("particles/Bullet_Ally.png", Texture.class);
+        assetManager.load("particles/Melee_Slash.png", Texture.class);
+        assetManager.load("particles/slash.png", Texture.class);
+        assetManager.load("weapons/Grace_Gun.png", Texture.class);
+        
+        assetManager.load("particles/Bullet_Enemy.png", Texture.class);
+
+        assetManager.finishLoading();
+        roofTexture = assetManager.get("textures/world/Carriage_Exterior.png", Texture.class);
+        grassTexture = assetManager.get("textures/world/Desert_Gameplay02.png", Texture.class);
+        treeTexture = assetManager.get("textures/world/Cactus_01.png", Texture.class); 
+        rockTexture = assetManager.get("textures/world/Rock_01.png", Texture.class); 
+        railTexture = assetManager.get("textures/world/Tracks02.png", Texture.class); 
+        floorTexture = assetManager.get("textures/world/Carriage_Interior.png", Texture.class);
     }
 
-    private void createPlayer() {
+    private void createPlayer(CharacterInfo selectedCharacter) {
         Texture playerTexture = assetManager.get("testing/dummy.png", Texture.class);
-        player = PlayerFactory.createPlayerAtCarriageEntry(1, assetManager, engine);
+        player = PlayerFactory.createPlayerAtCarriageEntry(1, assetManager, engine, selectedCharacter);
         engine.addEntity(player);
     }
 
     @Override
     public void render(float delta) {
         handleInput();
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            isPaused = !isPaused;
+            
+            if (pauseMenuOverlay.isVisible()) {
+                pauseMenuOverlay.hide();
+                Gdx.input.setInputProcessor(hudStage);
+
+                cursorManager.resetToCrosshair();
+            } else {
+                pauseMenuOverlay.show();
+                Gdx.input.setInputProcessor(pauseMenuOverlay.getStage());
+            }
+        }
+
+        if (pauseMenuOverlay.isVisible()) {
+            pauseMenuOverlay.render(delta);
+        }
+
+        animation.setPaused(isPaused);
+        movementSystem.setPaused(isPaused);
+        renderer.isPaused = isPaused;
+        isPaused = pauseMenuOverlay.isVisible();
+
+        if (isPaused) {
+            camera.position.x = Math.round(camera.position.x);
+            camera.position.y = Math.round(camera.position.y);
+        }
+
+       
+
+        if (isPaused) return;
 
         // Cek victory
         checkVictoryCondition();
@@ -251,7 +349,29 @@ public class GamePlayTestScreen implements Screen {
             }
         }
 
+        Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        renderRails(); 
+
         if (!victory) {
+            int playerCarriageNumber = 1;
+            if (player != null) {
+                PlayerComponent playerComp = playerMapper.get(player);
+                if (playerComp != null) {
+                    playerCarriageNumber = playerComp.currentCarriageNumber;
+                }
+            }
+            // Ambil carriage manager
+            ImmutableArray<Entity> managers = engine.getEntitiesFor(
+                Family.all(CarriageManagerComponent.class).get()
+            );
+            if (managers.size() > 0) {
+                Entity manager = managers.get(0);
+                CarriageManagerComponent managerComp = managerMapper.get(manager);
+                Entity playerCarriage = managerComp.getCarriage(playerCarriageNumber);
+                renderCarriageFloor(playerCarriage);
+            }
+
             // Update grass offset
             if (grassTexture != null) {
                 float grassHeight = grassTexture.getHeight();
@@ -259,14 +379,20 @@ public class GamePlayTestScreen implements Screen {
                 grassOffsetY = grassOffsetY % grassHeight;
                 if (grassOffsetY < 0) grassOffsetY += grassHeight;
             }
+            // Update rail offset mirip grass
+            if (railTexture != null) {
+                float railHeight = railTexture.getHeight();
+                railOffsetY += grassSpeed * delta;
+                railOffsetY = railOffsetY % railHeight;
+                if (railOffsetY < 0) railOffsetY += railHeight;
+            }
 
             // TREE SPAWN & UPDATE
             updateAndSpawnTrees(delta);
 
-            Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+           
             engine.update(delta);
+            
 
             shapeRenderer.setProjectionMatrix(camera.combined);
 
@@ -285,36 +411,19 @@ public class GamePlayTestScreen implements Screen {
             renderAllDoors();
             renderPlayer();
             renderUI();
-            handleVictoryInput(delta);
             renderVictoryOverlay(delta);
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            if (pauseMenuOverlay.isVisible()) {
-                pauseMenuOverlay.hide();
-                Gdx.input.setInputProcessor(hudStage);
-
-                cursorManager.resetToCrosshair();
-            } else {
-                pauseMenuOverlay.show();
-                Gdx.input.setInputProcessor(pauseMenuOverlay.getStage());
-            }
+            handleVictoryInput(delta);
         }
 
         cursorManager.updateInput();
 
         cursorManager.update(delta);
 
-        // Gdx.gl.glClearColor(0, 0, 0, 1);
-        // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        hudStage.act(delta);
+        hudStage.draw();
+        cursorManager.render(hudStage.getBatch());
 
-        if (pauseMenuOverlay.isVisible()) {
-            pauseMenuOverlay.render(delta);
-        } else {
-            hudStage.act(delta);
-            hudStage.draw();
-            cursorManager.render(hudStage.getBatch());
-        }
+        
     }
 
     private void checkVictoryCondition() {
@@ -353,13 +462,39 @@ public class GamePlayTestScreen implements Screen {
         if (victoryTransitioning) {
             transitionTimer += delta;
             transitionAlpha = Math.min(1f, transitionTimer / transitionDuration);
-
+        }
             if (transitionTimer >= transitionDuration && transitionToNextScreen) {
                 if (Gdx.app.getApplicationListener() instanceof Game) {
                     Game game = (Game) Gdx.app.getApplicationListener();
                     game.setScreen(new CreditScreen(game, uiAssetManager));
                     transitionToNextScreen = false;
                 }
+            }
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+        float overlayAlpha = 0.8f;
+        
+        sharedBatch.setColor(0, 0, 0, overlayAlpha);
+        sharedBatch.draw(grassTexture, camera.position.x - camera.viewportWidth/2, camera.position.y - camera.viewportHeight/2, camera.viewportWidth, camera.viewportHeight);
+
+        // Tulisan Victory
+        font.getData().setScale(2f);
+        font.setColor(1f, 1f, 0.2f, Math.min(1f, overlayAlpha + 0.15f));
+        font.draw(sharedBatch, "VICTORY!", camera.position.x - 100, camera.position.y + 40);
+
+        font.getData().setScale(1f);
+        font.setColor(1f, 1f, 1f, Math.min(1f, overlayAlpha + 0.15f));
+        font.draw(sharedBatch, "Press ENTER to continue...", camera.position.x - 120, camera.position.y - 20);
+
+        sharedBatch.setColor(1, 1, 1, 1);
+        sharedBatch.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        if (victoryTransitioning && overlayAlpha <= 0.01f) {
+            if (Gdx.app.getApplicationListener() instanceof com.badlogic.gdx.Game) {
+                com.badlogic.gdx.Game game = (com.badlogic.gdx.Game) Gdx.app.getApplicationListener();
+                game.setScreen(new EndScreen(game));
             }
 
             Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -378,7 +513,7 @@ public class GamePlayTestScreen implements Screen {
         } else {
             GlyphLayout layout = new GlyphLayout();
 
-            float overlayAlpha = 0.8f;
+            
 
             Gdx.gl.glEnable(GL20.GL_BLEND);
 
@@ -430,11 +565,20 @@ public class GamePlayTestScreen implements Screen {
         float screenBottom = camera.position.y - camera.viewportHeight / 2f;
         float screenTop = camera.position.y + camera.viewportHeight / 2f;
 
+        // Update pohon
         for (int i = trees.size - 1; i >= 0; i--) {
             TreeEntity tree = trees.get(i);
             tree.y -= grassSpeed * delta * 1;
             if (tree.y + tree.height < screenBottom) {
                 trees.removeIndex(i);
+            }
+        }
+        // Update rock
+        for (int i = rocks.size - 1; i >= 0; i--) {
+            RockEntity rock = rocks.get(i);
+            rock.y -= grassSpeed * delta * 1;
+            if (rock.y + rock.height < screenBottom) {
+                rocks.removeIndex(i);
             }
         }
 
@@ -450,22 +594,88 @@ public class GamePlayTestScreen implements Screen {
                 for (int t = 0; t < numTrees; t++) {
                     float tx = x + (float)Math.random() * grassWidth * 0.7f;
                     float ty = screenTop + 30f + (float)Math.random() * 40f;
-                    float scale = 0.18f + (float)Math.random() * 0.08f;
+                    float scale = 0.12f;
                     float tw = grassWidth * scale;
                     float th = grassHeight * scale;
                     trees.add(new TreeEntity(tx, ty, tw, th));
+                }
+                // Spawn rock 
+                int numRocks = 1;
+                for (int r = 0; r < numRocks; r++) {
+                    float rx = x + (float)Math.random() * grassWidth * 0.7f;
+                    float ry = screenTop + 30f + (float)Math.random() * 40f;
+                    float scale = 0.10f;
+                    float rw = grassWidth * scale;
+                    float rh = grassHeight * scale * 0.7f;
+                    rocks.add(new RockEntity(rx, ry, rw, rh));
                 }
             }
         }
     }
 
     private void renderGrassTrees() {
-        if (treeTexture == null) return;
+        if (treeTexture == null && rockTexture == null) return;
         sharedBatch.begin();
         sharedBatch.setProjectionMatrix(camera.combined);
         for (TreeEntity tree : trees) {
-            sharedBatch.draw(treeTexture, tree.x, tree.y, tree.width, tree.height);
+            if (treeTexture != null)
+                sharedBatch.draw(treeTexture, tree.x, tree.y, tree.width, tree.height);
         }
+        for (RockEntity rock : rocks) {
+            if (rockTexture != null)
+                sharedBatch.draw(rockTexture, rock.x, rock.y, rock.width, rock.height);
+        }
+        sharedBatch.end();
+    }
+
+    private void renderRails() {
+        if (railTexture == null) return;
+
+        // Dapatkan semua carriage yang sedang dimuat
+        ImmutableArray<Entity> managers = engine.getEntitiesFor(
+            Family.all(CarriageManagerComponent.class).get()
+        );
+        if (managers.size() == 0) return;
+        Entity manager = managers.get(0);
+        CarriageManagerComponent managerComp = managerMapper.get(manager);
+
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+
+        // Ambil area layar kamera
+        float screenLeft = camera.position.x - camera.viewportWidth / 2f;
+        float screenBottom = camera.position.y - camera.viewportHeight / 2f;
+        float screenWidth = camera.viewportWidth;
+        float screenHeight = camera.viewportHeight;
+
+        for (int carriageNum : managerComp.loadedCarriages.keys().toArray().toArray()) {
+            Entity carriage = managerComp.getCarriage(carriageNum);
+            CarriageBoundaryComponent boundary = boundaryMapper.get(carriage);
+            if (boundary == null) continue;
+
+            float carriageX = boundary.carriageBounds.x;
+            float carriageWidth = boundary.carriageBounds.width;
+
+            float railWidth = carriageWidth;
+            float railHeight = railTexture.getHeight();
+
+            float offsetY = -(railOffsetY % railHeight);
+            if (offsetY > 0) offsetY -= railHeight;
+
+            int numTiles = (int)Math.ceil((screenHeight + railHeight * 2) / railHeight);
+
+            for (int i = 0; i < numTiles; i++) {
+                float y = screenBottom + offsetY + i * railHeight;
+                sharedBatch.draw(
+                    railTexture,
+                    carriageX,
+                    y,
+                    railWidth,
+                    railHeight
+                );
+            }
+        }
+
         sharedBatch.end();
     }
 
@@ -475,13 +685,19 @@ public class GamePlayTestScreen implements Screen {
             this.x = x; this.y = y; this.width = width; this.height = height;
         }
     }
+    private static class RockEntity {
+        float x, y, width, height;
+        RockEntity(float x, float y, float width, float height) {
+            this.x = x; this.y = y; this.width = width; this.height = height;
+        }
+    }
 
 
 
     private void handleInput() {
-//        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-//            Gdx.app.exit();
-//        }
+        // if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        //     Gdx.app.exit();
+        // }
     }
 
     private void renderAllCarriages() {
@@ -508,7 +724,7 @@ public class GamePlayTestScreen implements Screen {
             renderCarriage(carriage);
 
             if (carriageNum != playerCarriageNumber) {
-                renderCarriageRoof(carriage);
+                renderCarriageRoof(carriage); 
             }
         }
     }
@@ -534,16 +750,20 @@ public class GamePlayTestScreen implements Screen {
             float carriageWidth = boundary.carriageBounds.width;
             float carriageHeight = boundary.carriageBounds.height;
 
+            float screenBottom = camera.position.y - camera.viewportHeight / 2f;
+            float screenTop = camera.position.y + camera.viewportHeight / 2f;
+            int numTiles = (int)Math.ceil((screenTop - screenBottom) / grassHeight) + 2;
+
             for (int side = 0; side < 2; side++) {
                 float x = (side == 0)
                     ? carriageX - grassWidth // kiri
                     : carriageX + carriageWidth; // kanan
 
-                float startY = carriageY - grassOffsetY;
-                int numTiles = (int)Math.ceil((carriageHeight + grassHeight) / grassHeight);
+                float offsetY = -(grassOffsetY % grassHeight);
+                if (offsetY > 0) offsetY -= grassHeight;
 
                 for (int i = 0; i < numTiles; i++) {
-                    float y = startY + i * grassHeight;
+                    float y = screenBottom + offsetY + i * grassHeight;
                     sharedBatch.draw(
                         grassTexture,
                         x,
@@ -558,27 +778,27 @@ public class GamePlayTestScreen implements Screen {
         }
 
         // Draw boundaries
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        // shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        shapeRenderer.setColor(1f, 1f, 1f, 1f); // White outline
-        shapeRenderer.rect(boundary.carriageBounds.x, boundary.carriageBounds.y,
-                        boundary.carriageBounds.width, boundary.carriageBounds.height);
+        // shapeRenderer.setColor(1f, 1f, 1f, 1f); // White outline
+        // shapeRenderer.rect(boundary.carriageBounds.x, boundary.carriageBounds.y,
+        //                 boundary.carriageBounds.width, boundary.carriageBounds.height);
 
-        shapeRenderer.setColor(0.7f, 0.7f, 0.7f, 0.5f); // Light gray
-        shapeRenderer.rect(boundary.playableBounds.x, boundary.playableBounds.y,
-                        boundary.playableBounds.width, boundary.playableBounds.height);
+        // shapeRenderer.setColor(0.7f, 0.7f, 0.7f, 0.5f); // Light gray
+        // shapeRenderer.rect(boundary.playableBounds.x, boundary.playableBounds.y,
+        //                 boundary.playableBounds.width, boundary.playableBounds.height);
 
-        // Entry zone (green)
-        shapeRenderer.setColor(0, 1, 0, 1);
-        shapeRenderer.rect(boundary.entryZone.x, boundary.entryZone.y,
-                        boundary.entryZone.width, boundary.entryZone.height);
+        // // Entry zone (green)
+        // shapeRenderer.setColor(0, 1, 0, 1);
+        // shapeRenderer.rect(boundary.entryZone.x, boundary.entryZone.y,
+        //                 boundary.entryZone.width, boundary.entryZone.height);
 
-        // Exit zone (cyan)
-        shapeRenderer.setColor(0, 1, 1, 1);
-        shapeRenderer.rect(boundary.exitZone.x, boundary.exitZone.y,
-                        boundary.exitZone.width, boundary.exitZone.height);
+        // // Exit zone (cyan)
+        // shapeRenderer.setColor(0, 1, 1, 1);
+        // shapeRenderer.rect(boundary.exitZone.x, boundary.exitZone.y,
+        //                 boundary.exitZone.width, boundary.exitZone.height);
 
-        shapeRenderer.end();
+        // shapeRenderer.end();
     }
 
     private void renderCarriageRoof(Entity carriage) {
@@ -596,6 +816,26 @@ public class GamePlayTestScreen implements Screen {
         float height = boundary.carriageBounds.height;
 
         sharedBatch.draw(roofTexture, x, y, width, height);
+
+        sharedBatch.end();
+    }
+
+    // render lantai
+    private void renderCarriageFloor(Entity carriage) {
+        if (carriage == null || floorTexture == null) return;
+
+        CarriageBoundaryComponent boundary = boundaryMapper.get(carriage);
+        if (boundary == null) return;
+
+        sharedBatch.begin();
+        sharedBatch.setProjectionMatrix(camera.combined);
+
+        float x = boundary.carriageBounds.x;
+        float y = boundary.carriageBounds.y;
+        float width = boundary.carriageBounds.width;
+        float height = boundary.carriageBounds.height;
+
+        sharedBatch.draw(floorTexture, x, y, width, height);
 
         sharedBatch.end();
     }
@@ -713,7 +953,7 @@ public class GamePlayTestScreen implements Screen {
         shapeRenderer.rect(
             transform.position.x - 30f,
             transform.position.y - 40f,
-            60f, 80f
+            60f, 0f
         );
 
         // Draw door handle/indicator

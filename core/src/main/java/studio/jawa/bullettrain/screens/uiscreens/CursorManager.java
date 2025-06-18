@@ -9,12 +9,16 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import studio.jawa.bullettrain.data.characters.BaseCharacter;
+import studio.jawa.bullettrain.data.characters.GraceCharacter;
+import studio.jawa.bullettrain.data.characters.JingCharacter;
+
 public class CursorManager {
     private Cursor crosshairCursor;
     private Cursor emptyCursor;
 
     private boolean isReloading = false;
-    private float reloadDuration = 2f; // total waktu reload
+    private float reloadDuration = .5f; // total waktu reload
     private float reloadTimer = 0f;
 
     private TextureRegion[] reloadFrames;
@@ -30,7 +34,7 @@ public class CursorManager {
     }
     private ReloadListener reloadListener;
 
-    public CursorManager(AssetManager assetManager, int initialAmmo, int maxAmmo) {
+    public CursorManager(AssetManager assetManager, int initialAmmo, int maxAmmo, CharacterInfo selectedCharacter) {
         Pixmap crosshairPixmap = new Pixmap(Gdx.files.internal("cursor/crosshair2.png"));
         crosshairCursor = Gdx.graphics.newCursor(
             crosshairPixmap,
@@ -59,8 +63,20 @@ public class CursorManager {
             reloadFrames[i] = new TextureRegion(texture);
         }
 
-        this.ammo = initialAmmo;
-        this.maxAmmo = maxAmmo;
+        this.ammo = 1;
+        this.maxAmmo = 1;
+
+        // reload time tergantung selected character
+        switch (selectedCharacter.name) {
+            case "Grace":
+                BaseCharacter grace = new GraceCharacter();
+                reloadDuration = grace.getAttackSpeed();
+                break;
+            case "Jing Wei":
+                BaseCharacter jing = new JingCharacter();
+                reloadDuration = jing.getAttackSpeed();
+                break;
+        }
     }
 
     public void setReloadListener(ReloadListener listener) {
@@ -71,17 +87,16 @@ public class CursorManager {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && !isReloading) {
             if (ammo > 0) {
                 ammo--;
-                System.out.println("Sisa peluru: " + ammo);
             }
             if (ammo == 0) {
                 startReload();
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R) && !isReloading) {
-            startReload();
-            ammo = 0;
-        }
+        // if (Gdx.input.isKeyJustPressed(Input.Keys.R) && !isReloading) {
+        //     startReload();
+        //     ammo = 0;
+        // }
 
         if (!isReloading && ammo == 0) {
             ammo = maxAmmo;

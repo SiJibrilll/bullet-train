@@ -14,12 +14,21 @@ public class AnimationSystem extends IteratingSystem {
     private ComponentMapper<AnimationComponent> am = ComponentMapper.getFor(AnimationComponent.class);
     private ComponentMapper<SpriteComponent> sm = ComponentMapper.getFor(SpriteComponent.class);
 
+    private boolean isPaused = false;
+
+    public void setPaused(boolean paused) {
+        this.isPaused = paused;
+    }
+    
     public AnimationSystem() {
         super(Family.all(AnimationComponent.class, SpriteComponent.class).get());
     }
 
     @Override
     protected void processEntity(Entity entity, float deltaTime) {
+        if (isPaused) deltaTime = 0f;
+        if (isPaused) return;
+
         AnimationComponent anim = am.get(entity);
         SpriteComponent spriteComp = sm.get(entity);
 
@@ -38,6 +47,7 @@ public class AnimationSystem extends IteratingSystem {
         TextureRegion frame = animation.getKeyFrame(anim.stateTime, anim.looping);
         anim.currentFrame = frame;
         spriteComp.sprite.setRegion(frame);
+        spriteComp.sprite.setSize(frame.getRegionWidth(), frame.getRegionHeight());
     }
 }
 
