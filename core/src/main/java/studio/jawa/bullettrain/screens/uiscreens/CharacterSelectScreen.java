@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import studio.jawa.bullettrain.screens.gamescreens.GamePlayTestScreen;
@@ -147,7 +148,10 @@ public class CharacterSelectScreen implements Screen {
 //        uiStage.addActor(portrait);
 
         portrait = new Image(new TextureRegionDrawable(characters[0].portrait));
-        bottomContainer.add(portrait).width(500).height(500).left().padLeft(30).bottom().padBottom(30);
+        portrait.setScaling(Scaling.fit);
+        portrait.setAlign(Align.left);
+        bottomContainer.add(portrait).width(500).left().padLeft(30).bottom();
+//        bottomContainer.add(portrait).width(500).height(500).left().padLeft(30).bottom().padBottom(30);
 
         Table rightContainer = new Table();
 
@@ -227,7 +231,8 @@ public class CharacterSelectScreen implements Screen {
     }
 
     public void updateCharacterInfo(CharacterInfo character) {
-//        portrait.setDrawable(new TextureRegionDrawable(new TextureRegion(character.portrait)));
+        portrait.setDrawable(new TextureRegionDrawable(new TextureRegion(character.portrait)));
+
         nameLabel.setText(character.name);
         info1Label.setText("• " + character.info1);
         info2Label.setText("• " + character.info2);
